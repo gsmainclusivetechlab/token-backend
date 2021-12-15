@@ -1,0 +1,41 @@
+version: '1.0'
+
+services:
+  nodecli:
+    container_name: nodecli
+    image: nodecli
+    # network_mode: bridge
+    build:
+      context: ./cli
+      dockerfile: cli.dockerfile 
+    # depends_on:
+    #   - nodesmsgateway
+    #   - nodeussdgateway
+    links:
+      - nodesmsgateway
+      - nodeussdgateway
+
+  nodesmsgateway:
+    container_name: nodesmsgateway
+    image: nodesmsgateway
+    # network_mode: bridge
+    build:
+      context: ./sms-gateway
+      dockerfile: sms-gateway.dockerfile
+    networks:
+      - nodeapp
+
+  nodeussdgateway:
+    container_name: nodeussdgateway
+    image: nodeussdgateway
+    # network_mode: bridge
+    build:
+      context: ./ussd-gateway
+      dockerfile: ussd-gateway.dockerfile
+    ports:
+      - "4100:4100"
+    networks:
+      - nodeapp
+
+networks:
+  nodeapp:
