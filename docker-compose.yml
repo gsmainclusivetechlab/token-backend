@@ -1,20 +1,22 @@
 version: '1.0'
 
 services:
-  nodecli:
-    container_name: nodecli
-    image: nodecli
+  nodeproxy:
+    container_name: nodeproxy
+    image: nodeproxy
     build:
-      context: ./cli
-      dockerfile: cli.dockerfile 
+      context: ./proxy
+      dockerfile: proxy.dockerfile 
+    ports:
+      - "4000:4000"
     depends_on:
       - nodesmsgateway
       - nodeussdgateway
     networks:
       - gsma-bridge
     environment:
-      - SMS_GATEWAY_URL=http://nodesmsgateway:4000
-      - USSD_GATEWAY_URL=http://nodeussdgateway:4100
+      - SMS_GATEWAY_URL=http://nodesmsgateway:4100
+      - USSD_GATEWAY_URL=http://nodeussdgateway:4200
 
   nodesmsgateway:
     container_name: nodesmsgateway
@@ -22,6 +24,8 @@ services:
     build:
       context: ./sms-gateway
       dockerfile: sms-gateway.dockerfile
+    ports:
+      - "4100:4100"
     networks:
       - gsma-bridge
 
@@ -32,7 +36,7 @@ services:
       context: ./ussd-gateway
       dockerfile: ussd-gateway.dockerfile
     ports:
-      - "4100:4100"
+      - "4200:4200"
     networks:
       - gsma-bridge
 
