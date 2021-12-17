@@ -1,10 +1,12 @@
 import * as express from "express";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import "dotenv/config";
+import * as cors from "cors";
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 app.post("/sms-gateway", function (req, res) {
   const { body } = req;

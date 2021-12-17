@@ -1,18 +1,18 @@
-import * as express from 'express';
-import axios, { AxiosResponse, AxiosError } from 'axios';
-import 'dotenv/config'
+import * as express from "express";
+import axios, { AxiosResponse, AxiosError } from "axios";
+import "dotenv/config";
 
 const app = express();
 app.use(express.json())
 
-app.post('*', function (req, res) {
+app.post("*", function (req, res) {
 
     const { body } = req;
 
-    if(body.text === 'PING'){
-        res.send('PONG');
+    if(body.text === "PING"){
+        res.send("PONG");
     } else {
-        res.send('Thanks for using SMS Gateway');
+        res.send("Thanks for using SMS Gateway");
     }
     
     // const url = <string>process.env.WEB_HOOK_URL;
