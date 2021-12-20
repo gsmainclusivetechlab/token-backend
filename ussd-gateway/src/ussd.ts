@@ -9,7 +9,7 @@ menu.startState({
   },
   // next object links to next state based on user input
   next: {
-    "*# 0000 #": "test",
+    "*#0#": "test",
     "*[a-zA-Z0-9_.-]+": "alive"
   },
 });
