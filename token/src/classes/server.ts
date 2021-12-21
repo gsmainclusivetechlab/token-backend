@@ -7,6 +7,14 @@ import http from "http";
 import https from "https";
 import { UserFacingError } from "../classes/errors";
 import { LogLevels, logService } from "../services/log.service";
+import { createConnection } from 'mysql'
+
+export const db = createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'tokens'
+});
 
 const errorHandler = (err: any, req: any, res: any, next: any) => {
   logService.log(LogLevels.WARNING, `Catch all errors`);
@@ -55,6 +63,7 @@ class Server {
     this.port = port;
     this.app.set("port", port);
     this.config();
+    this.connectDB()
     this.getServerInstance();
   }
 
@@ -88,6 +97,10 @@ class Server {
       );
       res.send(200);
     });
+  }
+
+  private connectDB() {
+    db.connect()
   }
 
   // Routing Methods

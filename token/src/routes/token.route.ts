@@ -14,7 +14,7 @@ class TokensRoute {
   public encode(request: Request<{phoneNumber: string}>) {
     return tokenService.encode(request.params.phoneNumber)
   }
-  
+
   @Get("/decode")
   public decode(request: Request) {
     return tokenService.decode()
