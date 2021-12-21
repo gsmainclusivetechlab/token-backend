@@ -29,14 +29,23 @@ class TokenService {
     }
   }
 
-  async decode() {
-    return { decode: true };
+  async decode(token: string) {
+    try {
+      const tokenData = await this.findByToken(token);
+      if (tokenData) {
+        return tokenData
+      } else {
+        throw new UserFacingError('Invalid token.');
+      }
+    } catch (error) {
+      throw new UserFacingError(error as string);
+    }
   }
 
   private validatePhoneNumber(phoneNumber: string) {
     const parsedPhone = phone(phoneNumber);
     if (!parsedPhone.isValid) {
-      throw new UserFacingError('Invalid phone number');
+      throw new UserFacingError('Invalid phone number.');
     }
     return parsedPhone;
   }
