@@ -1,7 +1,11 @@
-FROM mysql:5.7.15
+FROM    node:16.13.1
 
-ENV MYSQL_ROOT_PASSWORD=R%9FovC$RRR3&Eb#RozM MYSQL_USER=gsma-sa MYSQL_PASSWORD=password MYSQL_DATABASE=tokens
+WORKDIR /app
+COPY    package.json package-lock.json ./
+RUN     npm install
 
-COPY db.sql ./docker-entrypoint-initdb.d/
+COPY    . ./
 
-EXPOSE 3306
+RUN     npm run build
+
+ENTRYPOINT [ "node", "dist/index.js" ]
