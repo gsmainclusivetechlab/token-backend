@@ -1,20 +1,19 @@
-// import * as dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 
 import IndexRoute from "./routes/index.route";
 import LivenessProbeRoute from "./routes/liveness-probe.route";
 import Server from "./classes/server";
 import TokensRoute from "./routes/token.route";
 
-// console.log('process.env.NODE_ENV:', process.env.NODE_ENV)
-// if (process.env.NODE_ENV === 'development') {
-//   dotenv.config({ path: './env/.env.development' });
-// } else if (process.env.NODE_ENV === 'staging') {
-//   dotenv.config({ path: './env/.env.staging' });
-// } else if (process.env.NODE_ENV === 'production') {
-//   dotenv.config({ path: './env/.env.production' });
-// } else {
-//   dotenv.config({ path: './env/.env.development' });
-// }
+if (process.env.NODE_ENV === 'development') {
+  dotenv.config({ path: '.env' });
+} else if (process.env.NODE_ENV === 'staging') {
+  dotenv.config({ path: '.env' });
+} else if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: '.env' });
+} else {
+  dotenv.config({ path: '.env' });
+}
 
 // App Initialization
 const app = new Server(process.env.PORT || 3700);

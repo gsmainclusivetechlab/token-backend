@@ -7,14 +7,9 @@ import http from "http";
 import https from "https";
 import { UserFacingError } from "../classes/errors";
 import { LogLevels, logService } from "../services/log.service";
-import { createConnection } from 'mysql'
+import { Connection, createConnection } from 'mysql'
 
-export const db = createConnection({
-  host: 'localhost',
-  user: 'gsma-sa',
-  password: 'password',
-  database: 'tokens'
-});
+export var db: Connection
 
 const errorHandler = (err: any, req: any, res: any, next: any) => {
   logService.log(LogLevels.WARNING, `Catch all errors`);
@@ -100,6 +95,12 @@ class Server {
   }
 
   private connectDB() {
+    db = createConnection({
+      host: process.env.HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE
+    });
     db.connect()
   }
 

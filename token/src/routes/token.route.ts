@@ -10,7 +10,7 @@ class TokensRoute {
 
   constructor(public app: Server) {}
 
-  @Get("/encode/:phoneNumber")
+  @Get("/generate/:phoneNumber")
   public encode(request: Request<{phoneNumber: string}>) {
     return tokenService.encode(request.params.phoneNumber)
   }
