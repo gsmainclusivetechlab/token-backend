@@ -6,24 +6,16 @@ class TokenService {
   async encode(phoneNumber: string) {
     const parsedPhone = this.validatePhoneNumber(phoneNumber);
     try {
-      const tokenData = await this.findByPhoneNumber(phoneNumber)
-      if(tokenData) {
-        return tokenData
+      const tokenData = await this.findByPhoneNumber(phoneNumber);
+      if (tokenData) {
+        return tokenData;
       }
     } catch (error) {
       throw new UserFacingError(error as string);
     }
-    const token = this.generateToken(parsedPhone);
+    const token = await this.generateToken(phoneNumber);
     try {
-      const tokenData = await this.findByToken(token);
-      if (tokenData) {
-        await this.encode(phoneNumber);
-      }
-      try {
-        return await this.createToken(phoneNumber, token)
-      } catch (error) {
-        throw new UserFacingError(error as string);
-      }
+      return await this.createToken(token, phoneNumber);
     } catch (error) {
       throw new UserFacingError(error as string);
     }
@@ -33,7 +25,7 @@ class TokenService {
     try {
       const tokenData = await this.findByToken(token);
       if (tokenData) {
-        return tokenData
+        return tokenData;
       } else {
         throw new UserFacingError('Invalid token.');
       }
@@ -50,10 +42,19 @@ class TokenService {
     return parsedPhone;
   }
 
-  private generateToken(parsedPhone: PhoneValidResult) {
+  private async generateToken(phoneNumber: string) {
     const uuid = v4();
     const parsedUuid = uuid.split('-').join('');
-    return parsedUuid.slice(parsedUuid.length - parsedPhone.phoneNumber.length);
+    const token = parsedUuid.slice(parsedUuid.length - phoneNumber.length);
+    const tokenData = await this.findByToken(token);
+    try {
+      if (tokenData) {
+        await this.generateToken(phoneNumber);
+      }
+      return token;
+    } catch (error) {
+      throw new UserFacingError(error as string);
+    }
   }
 
   private findByToken(token: string) {
@@ -69,29 +70,30 @@ class TokenService {
 
   private findByPhoneNumber(phoneNumber: string) {
     return new Promise((resolve, reject) => {
-      db.query(`SELECT * FROM registry WHERE phoneNumber='${phoneNumber}'`, (err, rows) => {
-        if (err) {
-          return reject('Error getting data');
+      db.query(
+        `SELECT * FROM registry WHERE phoneNumber='${phoneNumber}'`,
+        (err, rows) => {
+          if (err) {
+            return reject('Error getting data');
+          }
+          return resolve(rows[0] ? { token: rows[0].token } : undefined);
         }
-        return resolve(rows[0]);
-      });
+      );
     });
   }
 
   private createToken(token: string, phoneNumber: string) {
     const insertQuery = `
       INSERT INTO registry (phoneNumber, token)
-      VALUES ('${token}', '${phoneNumber}');
+      VALUES ('${phoneNumber}', '${token}');
     `;
     return new Promise((resolve, reject) => {
-      db.query(insertQuery,
-        (err, rows) => {
-          if (err) {
-            return reject('Error creating registry');
-          }
-          return resolve(rows[0]);
+      db.query(insertQuery, (err, rows) => {
+        if (err) {
+          return reject('Error creating registry');
         }
-      );
+        return resolve({ token });
+      });
     });
   }
 }

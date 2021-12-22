@@ -11,8 +11,8 @@ import { createConnection } from 'mysql'
 
 export const db = createConnection({
   host: 'localhost',
-  user: 'root',
-  password: 'root',
+  user: 'gsma-sa',
+  password: 'password',
   database: 'tokens'
 });
 
