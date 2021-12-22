@@ -64,13 +64,13 @@ class Server {
 
   private config() {
     this.app.use(bodyParser.raw());
-    // this.app.use(
-    //   bodyParser.json({
-    //     verify: (req, res, buf) => {
-    //       (req as any).rawBody = buf;
-    //     },
-    //   })
-    // );
+    this.app.use(
+      bodyParser.json({
+        verify: (req, res, buf) => {
+          (req as any).rawBody = buf;
+        },
+      })
+    );
     // this.app.use((req, res, next) => {
     //   req.headers.origin = req.headers.origin || req.headers.host;
     //   next();

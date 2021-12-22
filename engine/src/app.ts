@@ -17,7 +17,7 @@ import HooksRoute from "./routes/hooks.route";
 // }
 
 // App Initialization
-const app = new Server(process.env.PORT || 3600);
+const app = new Server(process.env.PORT || 4400);
 
 // Register routes on express
 new LivenessProbeRoute(app);
