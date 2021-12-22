@@ -39,6 +39,27 @@ services:
       - "4200:4200"
     networks:
       - gsma-bridge
+  tokenService:
+    container_name: tokenService
+    image: tokenService
+    build:
+      context: ./token
+      dockerfile: token-service.dockerfile
+    ports:
+      - "3700:3700"
+    networks:
+      - gsma-bridge
+
+  tokenDbService:
+    container_name: tokenDbService
+    image: tokenDbService
+    build:
+      context: ./token-db
+      dockerfile: token-db.dockerfile
+    ports:
+      - "3306:3306"
+    networks:
+      - gsma-bridge
 
 networks:
   gsma-bridge:
