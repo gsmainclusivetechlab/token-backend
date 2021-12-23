@@ -1,10 +1,14 @@
-import { phone, PhoneValidResult } from 'phone';
 import { UserFacingError } from '../classes/errors';
-import { v4 } from 'uuid';
 import { db } from '../classes/server';
+import { Token } from '../utils/token';
+import {phone as phoneLib} from 'phone'
 class TokenService {
-  async encode(phoneNumber: string) {
-    const parsedPhone = this.validatePhoneNumber(phoneNumber);
+  async encode(phone: string) {
+    const parsedPhone = phoneLib(phone);
+    if(!parsedPhone.isValid) {
+      throw new UserFacingError('Invalid phone number.');
+    }
+    const {phoneNumber, countryCode} = parsedPhone
     try {
       const tokenData = await this.findByPhoneNumber(phoneNumber);
       if (tokenData) {
@@ -13,18 +17,26 @@ class TokenService {
     } catch (error) {
       throw new UserFacingError(error as string);
     }
-    const token = await this.generateToken(phoneNumber);
-    try {
-      return await this.createToken(token, phoneNumber);
-    } catch (error) {
-      throw new UserFacingError(error as string);
-    }
+    const noIndicativePhone = phoneNumber.split(countryCode)[1];
+    const onlyIndicative = countryCode.split('+')[1];
+    const phoneNumberWithoutLastDigit = noIndicativePhone.substring(
+      0,
+      noIndicativePhone.length - 1
+    );
+    const token = await this.generateToken(
+      phoneNumberWithoutLastDigit,
+      onlyIndicative
+    );
+    return this.createToken(token, phoneNumber, countryCode)
   }
 
   async decode(token: string) {
     try {
       const tokenData = await this.findByToken(token);
       if (tokenData) {
+        if(!Token.verifyControlDigit(token, (tokenData as any).indicative)) {
+          throw new UserFacingError('Invalid token.');
+        }
         return tokenData;
       } else {
         throw new UserFacingError('Invalid token.');
@@ -34,22 +46,17 @@ class TokenService {
     }
   }
 
-  private validatePhoneNumber(phoneNumber: string) {
-    const parsedPhone = phone(phoneNumber);
-    if (!parsedPhone.isValid) {
-      throw new UserFacingError('Invalid phone number.');
-    }
-    return parsedPhone;
-  }
 
-  private async generateToken(phoneNumber: string) {
-    const uuid = v4();
-    const parsedUuid = uuid.split('-').join('');
-    const token = parsedUuid.slice(parsedUuid.length - phoneNumber.length);
-    const tokenData = await this.findByToken(token);
+  private async generateToken(phoneNumber: string, indicative: string) {
+    const token = Token.generate(phoneNumber, indicative)
+    const isPhoneValid = phoneLib(`+${token}`)
+    if (isPhoneValid.isValid) {
+      this.generateToken(phoneNumber, indicative);
+    }
     try {
+      const tokenData = await this.findByToken(token);
       if (tokenData) {
-        await this.generateToken(phoneNumber);
+        await this.generateToken(phoneNumber, indicative);
       }
       return token;
     } catch (error) {
@@ -82,10 +89,10 @@ class TokenService {
     });
   }
 
-  private createToken(token: string, phoneNumber: string) {
+  private createToken(token: string, phoneNumber: string, indicative: string) {
     const insertQuery = `
-      INSERT INTO registry (phoneNumber, token)
-      VALUES ('${phoneNumber}', '${token}');
+      INSERT INTO registry (phoneNumber, indicative, token)
+      VALUES ('${phoneNumber}', '${indicative}', '${token}');
     `;
     return new Promise((resolve, reject) => {
       db.query(insertQuery, (err, rows) => {

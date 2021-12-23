@@ -16,6 +16,14 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Current Database: `tokens`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `tokens` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
+USE `tokens`;
+
+--
 -- Table structure for table `registry`
 --
 
@@ -25,12 +33,13 @@ DROP TABLE IF EXISTS `registry`;
 CREATE TABLE `registry` (
   `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
   `phoneNumber` varchar(30) NOT NULL,
-  `token` varchar(30) NOT NULL,
+  `indicative` varchar(30) NOT NULL,
+  `token` varchar(50) DEFAULT NULL,
   `reg_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `phoneNumber` (`phoneNumber`),
   UNIQUE KEY `token` (`token`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,7 +48,7 @@ CREATE TABLE `registry` (
 
 LOCK TABLES `registry` WRITE;
 /*!40000 ALTER TABLE `registry` DISABLE KEYS */;
-INSERT INTO `registry` VALUES (1,'+351966558950','1a2ba14c15920','2021-12-21 17:41:43');
+INSERT INTO `registry` VALUES (1,'+351966558950','+351','351115017804','2021-12-23 15:40:32'),(2,'+351966558951','+351','351110424086','2021-12-23 15:42:46');
 /*!40000 ALTER TABLE `registry` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -52,4 +61,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-21 17:42:22
+-- Dump completed on 2021-12-23 15:56:15
