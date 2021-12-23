@@ -89,6 +89,8 @@ services:
       - "4400:4400"
     networks:
       - gsma-bridge
+    environment:
+      - TOKEN_API_URL=http://tokenservice:3700
     depends_on:
       tokenservice:
         condition: service_healthy

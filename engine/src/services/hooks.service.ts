@@ -7,28 +7,52 @@ class HooksService {
   async processSMSGateway(request: Request) {
     const { body } = request;
 
-    if (!body || !body.text) {
-      throw new UserFacingError("INVALID_REQUEST - Missing property text");
-    }
+    this.validateBodyProperties(body);
 
-    if (!(typeof body.text === "string" || body.text instanceof String)) {
-      throw new UserFacingError(
-        "INVALID_REQUEST - Property text needs to be a string"
-      );
-    }
-
-    var message: string = body.text.trim();
-    if (USSDService.checkIfIsUSSDMessage(message)) {
-      return USSDService.processUSSDMessage(message);
-    } else {
-      return SMSService.processSMSMessage(body);
-    }
+    return await SMSService.processSMSMessage(body);
   }
 
   async processUSSDGateway(request: Request) {
     const { body } = request;
 
-    if (!body || !body.text) {
+    this.validateBodyProperties(body);
+
+    if (!USSDService.checkIfIsUSSDMessage(body)) {
+      throw new UserFacingError("INVALID_REQUEST - Invalid text format");
+    }
+
+    return await USSDService.processUSSDMessage(body);
+  }
+
+  async processMMO(request: Request) {
+    return "Thanks for using Engine API";
+  }
+
+  private validateBodyProperties(body: any) {
+    if (!body.phoneNumber) {
+      throw new UserFacingError(
+        "INVALID_REQUEST - Missing property phoneNumber"
+      );
+    }
+
+    if (
+      !(
+        typeof body.phoneNumber === "string" ||
+        body.phoneNumber instanceof String
+      )
+    ) {
+      throw new UserFacingError(
+        "INVALID_REQUEST - Property phoneNumber needs to be a string"
+      );
+    }
+
+    if (body.phoneNumber.trim() === "") {
+      throw new UserFacingError(
+        "INVALID_REQUEST - Property phoneNumber can't be empty"
+      );
+    }
+
+    if (!body.text) {
       throw new UserFacingError("INVALID_REQUEST - Missing property text");
     }
 
@@ -38,16 +62,11 @@ class HooksService {
       );
     }
 
-    var message: string = body.text.trim();
-    if (USSDService.checkIfIsUSSDMessage(message)) {
-      return USSDService.processUSSDMessage(message);
-    } else {
-      return SMSService.processSMSMessage(message);
+    if (body.text.trim() === "") {
+      throw new UserFacingError(
+        "INVALID_REQUEST - Property text can't be empty"
+      );
     }
-  }
-
-  async processMMO(request: Request) {
-    return "Thanks for using Engine API";
   }
 }
 
