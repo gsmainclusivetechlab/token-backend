@@ -1,45 +1,81 @@
-version: '3.3'
+  version: '3.3'
 
-services:
-  nodeproxy:
-    container_name: nodeproxy
-    image: nodeproxy
-    build:
-      context: ./proxy
-      dockerfile: proxy.dockerfile 
-    ports:
-      - "4000:4000"
-    depends_on:
-      - nodesmsgateway
-      - nodeussdgateway
-    networks:
-      - gsma-bridge
-    environment:
-      - SMS_GATEWAY_URL=http://nodesmsgateway:4100
-      - USSD_GATEWAY_URL=http://nodeussdgateway:4200
+  services:
+    nodeproxy:
+      container_name: nodeproxy
+      image: nodeproxy
+      build:
+        context: ./proxy
+        dockerfile: proxy.dockerfile 
+      ports:
+        - "4000:4000"
+      depends_on:
+        - nodesmsgateway
+        - nodeussdgateway
+      networks:
+        - gsma-bridge
+      environment:
+        - SMS_GATEWAY_URL=http://nodesmsgateway:4100
+        - USSD_GATEWAY_URL=http://nodeussdgateway:4200
 
-  nodesmsgateway:
-    container_name: nodesmsgateway
-    image: nodesmsgateway
-    build:
-      context: ./sms-gateway
-      dockerfile: sms-gateway.dockerfile
-    ports:
-      - "4100:4100"
-    networks:
-      - gsma-bridge
+    nodesmsgateway:
+      container_name: nodesmsgateway
+      image: nodesmsgateway
+      build:
+        context: ./sms-gateway
+        dockerfile: sms-gateway.dockerfile
+      ports:
+        - "4100:4100"
+      networks:
+        - gsma-bridge
 
-  nodeussdgateway:
-    container_name: nodeussdgateway
-    image: nodeussdgateway
-    build:
-      context: ./ussd-gateway
-      dockerfile: ussd-gateway.dockerfile
-    ports:
-      - "4200:4200"
-    networks:
-      - gsma-bridge
+    nodeussdgateway:
+      container_name: nodeussdgateway
+      image: nodeussdgateway
+      build:
+        context: ./ussd-gateway
+        dockerfile: ussd-gateway.dockerfile
+      ports:
+        - "4200:4200"
+      networks:
+        - gsma-bridge
 
-networks:
-  gsma-bridge:
-    driver: bridge
+    tokendbservice:
+      container_name: tokendbservice
+      image: tokendbservice
+      environment:
+        - MYSQL_ROOT_PASSWORD=R%9FovC$RRR3&Eb#RozM
+        - MYSQL_USER=gsma-sa
+        - MYSQL_PASSWORD=password
+        - MYSQL_DATABASE=tokens
+      build:
+        context: ./token-db
+        dockerfile: token-db.dockerfile
+      ports:
+        - "3306:3306"
+      networks:
+        - gsma-bridge
+      healthcheck:
+        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+        timeout: 20s
+        retries: 10
+    tokenservice:
+      container_name: tokenservice
+      image: tokenservice
+      environment:
+        - HOST=tokendbservice
+      build:
+        context: ./token
+        dockerfile: token-service.dockerfile
+      ports:
+        - "3700:3700"
+      networks:
+        - gsma-bridge
+      depends_on:
+        tokendbservice:
+          condition: service_healthy
+
+
+  networks:
+    gsma-bridge:
+      driver: bridge
