@@ -1,12 +1,7 @@
 name: publish
 env:
   CI: true
-on:
-  push:
-    branches:
-      - master
-    tags:
-      - "!*"
+on: [push]
 jobs:
   release:
     name: Setup
