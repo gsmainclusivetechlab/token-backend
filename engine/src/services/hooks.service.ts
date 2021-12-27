@@ -17,9 +17,9 @@ class HooksService {
 
     this.validateBodyProperties(body);
 
-    if (!USSDService.checkIfIsUSSDMessage(body)) {
-      throw new UserFacingError("INVALID_REQUEST - Invalid text format");
-    }
+    // if (!USSDService.checkIfIsUSSDMessage(body)) {
+    //   throw new UserFacingError("INVALID_REQUEST - Invalid text format");
+    // }
 
     return await USSDService.processUSSDMessage(body);
   }

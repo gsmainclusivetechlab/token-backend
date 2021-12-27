@@ -28,6 +28,9 @@ services:
       - "4100:4100"
     networks:
       - gsma-bridge
+    environment:
+      - WEB_HOOK_URL=http://engineservice:4400
+      - PROXY_API_URL=http://nodeproxy:4000
 
   nodeussdgateway:
     container_name: nodeussdgateway
@@ -39,6 +42,9 @@ services:
       - "4200:4200"
     networks:
       - gsma-bridge
+    environment:
+      - WEB_HOOK_URL=http://engineservice:4400
+      - PROXY_API_URL=http://nodeproxy:4000  
 
   tokenservice:
     container_name: tokenservice
@@ -91,6 +97,8 @@ services:
       - gsma-bridge
     environment:
       - TOKEN_API_URL=http://tokenservice:3700
+      - SMS_GATEWAY_API_URL=http://nodesmsgateway:4100
+      - USSD_GATEWAY_API_URL=http://nodeussdgateway:4200
     depends_on:
       tokenservice:
         condition: service_healthy

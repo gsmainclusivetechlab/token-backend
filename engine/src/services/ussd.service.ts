@@ -11,11 +11,12 @@ class USSDService {
     var message: string = body.text.trim();
     return message.startsWith("*") && message.endsWith("#");
   }
-  
+
   async processUSSDMessage(body: any) {
     var message: string = body.text.trim();
     //Removing the first * and the end #
-    var cleanMessage = message.slice(1, -1);
+    //var cleanMessage = message.slice(1, -1);
+    var cleanMessage = message;
 
     if (cleanMessage.length === 0) {
       throw new UserFacingError("MISSING_OPERATION");
@@ -26,10 +27,19 @@ class USSDService {
     switch (ussdSplitted[0]) {
       case USSDOperations.GetToken:
         try {
+          //TODO Call MMO API
           const generateTokenResponse = await axios.get(
             process.env.TOKEN_API_URL + "/tokens/generate/" + body.phoneNumber
           );
-          return generateTokenResponse.data;
+
+          if (generateTokenResponse.data && generateTokenResponse.data.token) {
+            const message = "Your token is " + generateTokenResponse.data.token;
+            await axios.post(process.env.USSD_GATEWAY_API_URL + "/receive", {
+              message: message,
+            });
+          }
+
+          return "Thanks for using Engine API";
         } catch (err: any | AxiosError) {
           if (axios.isAxiosError(err) && err.response) {
             logService.log(LogLevels.ERROR, err.response?.data?.error);
@@ -38,9 +48,7 @@ class USSDService {
             );
           } else {
             logService.log(LogLevels.ERROR, err.message);
-            throw new UserFacingError(
-              "OPERATION_ERROR - " + err.message
-            );
+            throw new UserFacingError("OPERATION_ERROR - " + err.message);
           }
         }
       case USSDOperations.DeleteToken:
