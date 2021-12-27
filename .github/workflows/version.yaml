@@ -1,6 +1,7 @@
 name: publish token
 env:
   CI: true
+  GENERATOR_BASE_TAG: gsmainclusivetechlab/token:generator-v
 on: [push]
 jobs:
   release:
@@ -21,6 +22,8 @@ jobs:
           password: ${{secrets.DOCKER_TOKEN}}
       - name: Build generator image
         working-directory: ./token
-        run: docker build . -f *.dockerfile --tag token:generator-v${{ steps.package-version.outputs.current-version}}
+        run: |
+          generator_tag=${{env.GENERATOR_BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+          docker build . -f *.dockerfile --tag $generator_tag
       - name: Push generator image
-        run: docker push token:generator-v${{ steps.package-version.outputs.current-version}}
+        run: docker push $generator_tag
