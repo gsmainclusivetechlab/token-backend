@@ -2,10 +2,10 @@
   "name": "sms-gateway",
   "version": "1.0.0",
   "description": "SMS Gateway",
-  "main": "./dist/app.js",
+  "main": "./dist/src/app.js",
   "scripts": {
-    "start": "npm run build && node ./dist/app.js",
-    "serve": "NODE_ENV=development nodemon ./dist/app.js",
+    "start": "npm run build && node ./dist/src/app.js",
+    "serve": "NODE_ENV=development nodemon ./dist/src/app.js",
     "serve-debug": "NODE_ENV=development nodemon --config nodemon-debug.json",
     "build": "tsc ",
     "test": "jest --detectOpenHandles"

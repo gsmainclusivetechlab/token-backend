@@ -25,9 +25,10 @@ menu.state("test", {
 menu.state("getToken", {
   run: async () => {
     try {
-      const url = <string>process.env.WEB_HOOK_URL;
-
-      var response = await axios.post(url + "/hooks/ussd-gateway", menu.args);
+      var response = await axios.post(
+        process.env.ENGINE_API_URL + "/hooks/ussd-gateway",
+        menu.args
+      );
 
       menu.end(response.data);
     } catch (err: any | AxiosError) {
@@ -42,4 +43,4 @@ menu.state("getToken", {
   },
 });
 
-export { menu as UssdMenu }
+export { menu as UssdMenu };

@@ -12,7 +12,7 @@ class SMSGatewayService {
       MessageService.setSMSMessage("");
 
       const response = await axios.post(
-        process.env.SMS_GATEWAY_URL + "/send",
+        process.env.SMS_GATEWAY_API_URL + "/send",
         body
       );
 
