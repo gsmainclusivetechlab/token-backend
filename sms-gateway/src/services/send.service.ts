@@ -13,7 +13,7 @@ class SendService {
       }
 
       const response = await axios.post(
-        process.env.WEB_HOOK_URL + "/hooks/sms-gateway",
+        process.env.ENGINE_API_URL + "/hooks/sms-gateway",
         body
       );
 

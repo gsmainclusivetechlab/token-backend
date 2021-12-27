@@ -8,4 +8,4 @@ COPY    . ./
 
 RUN     npm run build
 
-ENTRYPOINT [ "node", "./dist/app.js" ]
+ENTRYPOINT [ "node", "./dist/src/app.js" ]

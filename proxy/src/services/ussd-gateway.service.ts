@@ -12,7 +12,7 @@ class USSDGatewayService {
       MessageService.setUSSDMessage("");
 
       const response = await axios.post(
-        process.env.USSD_GATEWAY_URL + "/send",
+        process.env.USSD_GATEWAY_API_URL + "/send",
         body
       );
 
