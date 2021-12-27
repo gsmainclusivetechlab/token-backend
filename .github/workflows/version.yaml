@@ -14,3 +14,5 @@ jobs:
         #   path: ./token
       - name: print-version
         run: echo ${{ steps.package-version.outputs.current-version}}
+      - name: print-dir
+        run: pwd
