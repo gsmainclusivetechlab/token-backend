@@ -15,6 +15,7 @@ jobs:
           node-version: 14.x
           registry-url: 'https://npm.pkg.github.com'
       - name: install
+        working-directory: ./token
         run: npm install
       # Publish to npm if this version is not published
       - name: publish
