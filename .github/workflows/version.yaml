@@ -27,6 +27,7 @@ jobs:
         working-directory: ./token
         run: |
           export GENERATOR_TAG=${{env.GENERATOR_BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+          echo "::set-env name=GENERATOR_TAG::$GENERATOR_TAG"
           # docker build . -f *.dockerfile --tag $GENERATOR_TAG
       - name: Push generator image
         run: echo $GENERATOR_TAG
