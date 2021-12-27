@@ -1,6 +1,5 @@
 import { Request, Router } from "express";
-// import { HooksService } from '../../services/hooks';
-
+import { HooksService } from '../services/hooks.service';
 import Server from "../classes/server";
 import { RouteHandler, Post } from "../decorators/router-handler";
 
@@ -11,11 +10,19 @@ class HooksRoute {
 
   constructor(public app: Server) {}
 
-  @Post("/stripe")
-  public stripeWebhooks(request: Request) {
-    return new Promise((resolve) => {
-      resolve({ text: "Oi" });
-    }); //HooksService.stripeWebhooks(request);
+  @Post("/sms-gateway")
+  public smsGatewayWebhooks(request: Request) {
+    return HooksService.processSMSGateway(request);
+  }
+
+  @Post("/ussd-gateway")
+  public ussdGatewayWebhooks(request: Request) {
+    return HooksService.processUSSDGateway(request);
+  }
+
+  @Post("/mmo")
+  public mmoWebhooks(request: Request) {
+    return HooksService.processMMO(request);
   }
 }
 

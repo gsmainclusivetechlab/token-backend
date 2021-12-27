@@ -1,4 +1,4 @@
-FROM mysql:5.7.15
+FROM mysql/mysql-server:8.0.27-1.2.6-server
 
 COPY db.sql ./docker-entrypoint-initdb.d/
 
