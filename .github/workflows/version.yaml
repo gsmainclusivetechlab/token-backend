@@ -23,7 +23,7 @@ jobs:
       - name: Build generator image
         working-directory: ./token
         run: |
-          generator_tag=${{env.GENERATOR_BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+          export GENERATOR_TAG=${{env.GENERATOR_BASE_TAG}}${{ steps.package-version.outputs.current-version}}
           docker build . -f *.dockerfile --tag $generator_tag
       - name: Push generator image
         run: docker push $generator_tag
