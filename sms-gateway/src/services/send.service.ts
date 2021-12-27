@@ -8,6 +8,10 @@ class SendService {
     try {
       const { body } = request;
 
+      if(body.text === "PING"){
+        return "PONG";
+      }
+
       const response = await axios.post(
         process.env.WEB_HOOK_URL + "/hooks/sms-gateway",
         body
