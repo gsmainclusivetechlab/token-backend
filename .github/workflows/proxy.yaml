@@ -1,7 +1,7 @@
 name: Publish proxy
 env:
   CI: true
-  PROXY_BASE_TAG: gsmainclusivetechlab/token:proxy-v
+  BASE_TAG: gsmainclusivetechlab/token:proxy-v
 on:
   push:
     branches:
@@ -24,7 +24,7 @@ jobs:
           username: ${{secrets.DOCKER_USERNAME}}
           password: ${{secrets.DOCKER_TOKEN}}
       - name: Build proxy image
-        working-directory: ./token
-        run: docker build . -f *.dockerfile --tag ${{env.PROXY_BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+        working-directory: ./proxy
+        run: docker build . -f *.dockerfile --tag ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
       - name: Push proxy image
-        run: docker push ${{env.PROXY_BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+        run: docker push ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}

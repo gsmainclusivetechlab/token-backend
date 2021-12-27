@@ -1,7 +1,7 @@
 name: Publish ussd gateway
 env:
   CI: true
-  USSD_GATEWAY_BASE_TAG: gsmainclusivetechlab/token:ussd-gateway-v
+  BASE_TAG: gsmainclusivetechlab/token:ussd-gateway-v
 on:
   push:
     branches:
@@ -17,7 +17,7 @@ jobs:
         id: package-version
         uses: martinbeentjes/npm-get-version-action@master
         with:
-          path: ./token
+          path: ./ussd-gateway
       - name: Docker Login
         uses: docker/login-action@v1.12.0
         with:
@@ -25,6 +25,6 @@ jobs:
           password: ${{secrets.DOCKER_TOKEN}}
       - name: Build ussd-gateway image
         working-directory: ./ussd-gateway
-        run: docker build . -f *.dockerfile --tag ${{env.USSD_GATEWAY_BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+        run: docker build . -f *.dockerfile --tag ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
       - name: Push ussd-gateway image
-        run: docker push ${{env.USSD_GATEWAY_BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+        run: docker push ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
