@@ -72,11 +72,8 @@
 
     tokendbservice:
       container_name: tokendbservice
-      image: tokendbservice
+      image: gsmainclusivetechlab/token:generator-db-v1.0.0
       command: --default-authentication-plugin=mysql_native_password
-      build:
-        context: ./token-db
-        dockerfile: token-db.dockerfile
       ports:
         - "3306:3306"
       environment:
