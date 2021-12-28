@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import UssdMenu = require("ussd-builder");
 import { LogLevels, logService } from "./log.service";
 
@@ -11,16 +11,16 @@ menu.startState({
   },
   // next object links to next state based on user input
   next: {
-    "*#0#": "test",
     "1": "getToken",
   },
+  defaultNext: "invalidOption"
 });
 
-menu.state("test", {
+menu.state("invalidOption", {
   run: () => {
-    menu.end("ACK");
-  },
-});
+    menu.end("Invalid Option");
+  }
+})
 
 menu.state("getToken", {
   run: async () => {
