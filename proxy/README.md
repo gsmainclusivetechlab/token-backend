@@ -1,11 +1,13 @@
 # Run
  - Run npm start
- - Make a post to something to /sms-gateway on PORT=4000
+ - Go to 'sms-gateway' folder and run npm start
+ - Make a post to '/sms-gateway/send' on PORT=4000
  - Body type:
   ```
   {
-    "senderPhoneNumber": "+351966558950",
+    "phoneNumber": "+351966558950",
     "receivingPhoneNumber": "+351966558951",
-    "text": "Hey"
+    "text": "PING"
   }
   ```
+ - The response will be 'PONG'
