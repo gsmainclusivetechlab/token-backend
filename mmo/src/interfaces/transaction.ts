@@ -41,3 +41,11 @@ export interface TransactionsBody {
   ];
   currency: string; // RWF
 }
+
+export interface TransactionsRes {
+  serverCorrelationId: string;
+  status: string;
+  notificationMethod: string;
+  objectReference: string;
+  pollLimit: number;
+}

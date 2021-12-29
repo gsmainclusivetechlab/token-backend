@@ -1,7 +1,11 @@
-import * as axios from 'axios'
+import axios from 'axios';
 import { NotFoundError, UserFacingError } from '../classes/errors';
 import { AccountNameError } from '../interfaces/account-name';
-import { TransactionType } from '../interfaces/transaction';
+import {
+  TransactionsRes,
+  TransactionsBody,
+  TransactionType,
+} from '../interfaces/transaction';
 class MmoService {
   async getAccountName(phoneNumber: string): Promise<{} | AccountNameError> {
     if (phoneNumber === '+233207212676') {
@@ -11,18 +15,36 @@ class MmoService {
     }
   }
 
-  async startTransaction(type: TransactionType) {
+  async startTransaction(
+    type: TransactionType,
+    callbackUrl: string,
+    body: TransactionsBody
+  ): Promise<TransactionsRes> {
     switch (type) {
       case 'withdrawal':
-        axios.default
+        try {
+          await axios.put(callbackUrl, body);
+        } catch (error) {
+          throw new UserFacingError(error as string);
+        }
         break;
       case 'deposit':
+        try {
+          await axios.put(callbackUrl, body);
+        } catch (error) {
+          throw new UserFacingError(error as string);
+        }
         break;
-
       default:
         throw new UserFacingError('Invalid operation');
-        break;
     }
+    return {
+      serverCorrelationId: '10d9d96c-b477-4d98-9d54-5fa7bd6ca532',
+      status: 'pending',
+      notificationMethod: 'polling',
+      objectReference: '20256',
+      pollLimit: 100,
+    };
   }
 }
 const mmoService = new MmoService();
