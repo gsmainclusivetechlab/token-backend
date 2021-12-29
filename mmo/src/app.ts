@@ -3,7 +3,8 @@ import * as dotenv from 'dotenv';
 import IndexRoute from "./routes/index.route";
 import LivenessProbeRoute from "./routes/liveness-probe.route";
 import Server from "./classes/server";
-import TokensRoute from "./routes/mmo.route";
+import AccountsRoute from './routes/accounts.route';
+import TransactionsRoute from './routes/transactions.route';
 
 if (process.env.NODE_ENV === 'development') {
   dotenv.config({ path: '.env' });
@@ -20,7 +21,8 @@ const app = new Server(process.env.PORT || 4100);
 
 // Register routes on express
 new LivenessProbeRoute(app);
-new TokensRoute(app);
+new AccountsRoute(app);
+new TransactionsRoute(app);
 
 const index = new IndexRoute(app.getRoutes());
 app.addRoute("/", index.router);
