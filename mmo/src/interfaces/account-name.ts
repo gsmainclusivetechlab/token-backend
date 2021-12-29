@@ -1,4 +1,4 @@
-export interface AccountNameParams {
+export interface AccountNameQueryParams {
   identifierType: string;
   identifier: string;
   'X-Date'?: string;
