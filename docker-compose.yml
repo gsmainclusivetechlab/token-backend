@@ -3,10 +3,8 @@
   services:
     nodeproxy:
       container_name: nodeproxy
-      image: nodeproxy
-      build:
-        context: ./proxy
-        dockerfile: proxy.dockerfile 
+      image: gsmainclusivetechlab/token:proxy-v1.0.1
+
       ports:
         - "4000:4000"
       networks:
@@ -24,10 +22,8 @@
 
     nodesmsgateway:
       container_name: nodesmsgateway
-      image: nodesmsgateway
-      build:
-        context: ./sms-gateway
-        dockerfile: sms-gateway.dockerfile
+      image: gsmainclusivetechlab/token:sms-gateway-v1.0.1
+
       ports:
         - "4100:4100"
       networks:
@@ -43,10 +39,8 @@
 
     nodeussdgateway:
       container_name: nodeussdgateway
-      image: nodeussdgateway
-      build:
-        context: ./ussd-gateway
-        dockerfile: ussd-gateway.dockerfile
+      image: gsmainclusivetechlab/token:ussd-gateway-v1.0.1
+
       ports:
         - "4200:4200"
       networks:
@@ -62,10 +56,8 @@
 
     tokenservice:
       container_name: tokenservice
-      image: tokenservice
-      build:
-        context: ./token
-        dockerfile: token-service.dockerfile
+      image: gsmainclusivetechlab/token:generator-v1.0.1
+
       ports:
         - "3700:3700"
       networks:
@@ -83,11 +75,9 @@
 
     tokendbservice:
       container_name: tokendbservice
-      image: tokendbservice
+      image: gsmainclusivetechlab/token:generator-db-v1.0.1
       command: --default-authentication-plugin=mysql_native_password
-      build:
-        context: ./token-db
-        dockerfile: token-db.dockerfile
+
       ports:
         - "3306:3306"
       environment:
@@ -104,10 +94,8 @@
 
     engineservice:
       container_name: nodeengineservice
-      image: nodeengineservice
-      build:
-        context: ./engine
-        dockerfile: engine.dockerfile 
+      image: gsmainclusivetechlab/token:engine-v1.0.1
+
       ports:
         - "4400:4400"
       networks:
@@ -121,6 +109,13 @@
           condition: service_healthy
       healthcheck:
         test: curl -f http://localhost:4400/health
+    client:
+      container_name: client
+      image: gsmainclusivetechlab/token:client-v1.0.1
+      ports:
+        - "8080:8080"
+      networks:
+        - gsma-bridge
 
   networks:
     gsma-bridge:
