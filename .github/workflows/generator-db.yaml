@@ -1,11 +1,11 @@
-name: Engine
+name: Publish token database
 env:
   CI: true
-  BASE_TAG: gsmainclusivetechlab/token:engine-v
+  BASE_TAG: gsmainclusivetechlab/token:generator-db-v
 on: [push]
 jobs:
   release:
-    name: Build Engine
+    name: Setup
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"
@@ -14,16 +14,16 @@ jobs:
         id: package-version
         uses: martinbeentjes/npm-get-version-action@master
         with:
-          path: ./engine
-      - name: Build engine image
-        working-directory: ./engine
-        run: docker build . -f *.dockerfile --tag ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+          path: ./token-db
       - name: Docker Login
         if: github.ref == 'refs/heads/release'
         uses: docker/login-action@v1.12.0
         with:
           username: ${{secrets.DOCKER_USERNAME}}
           password: ${{secrets.DOCKER_TOKEN}}
-      - name: Push docker image
+      - name: Build generator image
+        working-directory: ./token-db
+        run: docker build . -f *.dockerfile --tag ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+      - name: Push generator image
         if: github.ref == 'refs/heads/release'
         run: docker push ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
