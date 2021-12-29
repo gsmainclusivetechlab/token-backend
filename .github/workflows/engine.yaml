@@ -24,7 +24,7 @@ jobs:
       #   working-directory: ./engine
       #   run: docker build . -f *.dockerfile --tag ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
       - name: test
-        if: github.ref == 'refs/heads/refactor/cicd'
+        if: github.ref != 'refs/heads/refactor/cicd'
         run: echo HELLO WORLD
   # build-and-push:
   #   name: Publish to dockerhub
