@@ -38,4 +38,4 @@ jobs:
           username: ${{secrets.DOCKER_USERNAME}}
           password: ${{secrets.DOCKER_TOKEN}}
       - name: Push docker image
-        run: docker push ${{env.BASE_TAG}}${{needs.build.outputs.output1}}
+        run: echo ${{env.BASE_TAG}}${{needs.build.outputs.output1}}
