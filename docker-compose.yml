@@ -122,7 +122,6 @@
       healthcheck:
         test: curl -f http://localhost:4400/health
 
-
   networks:
     gsma-bridge:
       driver: bridge

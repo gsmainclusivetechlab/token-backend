@@ -1,5 +1,4 @@
-import axios, {AxiosError} from "axios";
-import { response } from "express";
+import axios, { AxiosError } from "axios";
 import { UserFacingError } from "../classes/errors";
 import {
   findKeyByValueSMSOperations,
@@ -15,55 +14,79 @@ class SMSService {
       throw new UserFacingError("MISSING_OPERATION");
     }
 
-    switch (smsSplitted[0]) {
-      case SMSOperations.GetToken:
-        try {
+    let tokenApiResponse = null;
+
+    try {
+      switch (smsSplitted[0]) {
+        case SMSOperations.GetToken:
           //TODO Call MMO API
-          const generateTokenResponse = await axios.get(
-            process.env.TOKEN_API_URL + "/tokens/generate/" + body.phoneNumber
+          tokenApiResponse = await axios.get(
+            process.env.TOKEN_API_URL + "/tokens/" + body.phoneNumber
           );
 
-          if(generateTokenResponse.data && generateTokenResponse.data.token){
-            const message = "Your token is " + generateTokenResponse.data.token;
-            await axios.post(
-              process.env.SMS_GATEWAY_API_URL + "/receive", { message: message }
-            );
+          if (tokenApiResponse.data && tokenApiResponse.data.token) {
+            const message = "Your token is " + tokenApiResponse.data.token;
+            await axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
+              message: message,
+            });
           }
 
           return "Thanks for using Engine API";
-        } catch (err: any | AxiosError) {
-          if (axios.isAxiosError(err) && err.response) {
-            logService.log(LogLevels.ERROR, err.response?.data?.error);
-            throw new UserFacingError(
-              "OPERATION_ERROR - " + err.response?.data?.error
-            );
+        case SMSOperations.DeleteToken:
+          //TODO Call MMO API
+          tokenApiResponse = await axios.get(
+            process.env.TOKEN_API_URL + "/tokens/invalidate/" + body.phoneNumber
+          );
+
+          if (tokenApiResponse.data && tokenApiResponse.data) {
+            const message = "Your token was deleted";
+            await axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
+              message: message,
+            });
+          }
+
+          return "Thanks for using Engine API";
+        case SMSOperations.RenewToken:
+          //TODO Call MMO API
+          tokenApiResponse = await axios.get(
+            process.env.TOKEN_API_URL + "/tokens/renew/" + body.phoneNumber
+          );
+
+          if (tokenApiResponse.data && tokenApiResponse.data.token) {
+            const message =
+              "Your new token is " + tokenApiResponse.data.token;
+            await axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
+              message: message,
+            });
+          }
+
+          return "Thanks for using Engine API";
+        case SMSOperations.CashIn:
+        case SMSOperations.CashOut:
+          if (smsSplitted.length != 2) {
+            throw new UserFacingError("INVALID_OPERATION");
           } else {
-            logService.log(LogLevels.ERROR, err.message);
-            throw new UserFacingError(
-              "OPERATION_ERROR - " + err.message
+            return (
+              "Thanks for using SMS System - Operation: " +
+              findKeyByValueSMSOperations(smsSplitted[0]) +
+              " + Amount: " +
+              smsSplitted[1]
             );
           }
-        }
-      case SMSOperations.DeleteToken:
-      case SMSOperations.RenewToken:
-        return (
-          "Thanks for using SMS System - Operation: " +
-          findKeyByValueSMSOperations(smsSplitted[0])
-        );
-      case SMSOperations.CashIn:
-      case SMSOperations.CashOut:
-        if (smsSplitted.length != 2) {
+        default:
+          //throw new Error("INVALID_OPERATION");
           throw new UserFacingError("INVALID_OPERATION");
-        } else {
-          return (
-            "Thanks for using SMS System - Operation: " +
-            findKeyByValueSMSOperations(smsSplitted[0]) +
-            " + Amount: " +
-            smsSplitted[1]
-          );
-        }
-      default:
-        throw new UserFacingError("INVALID_OPERATION");
+      }
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err) && err.response) {
+        logService.log(LogLevels.ERROR, err.response?.data?.error);
+        throw new UserFacingError(
+          "OPERATION_ERROR - " + err.response?.data?.error
+        );
+      } else {
+        logService.log(LogLevels.ERROR, err.message);
+        throw new UserFacingError("OPERATION_ERROR - " + err.message);
+      }
     }
   }
 }

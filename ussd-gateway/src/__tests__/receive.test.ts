@@ -15,10 +15,10 @@ beforeAll(() =>{
 });
 
 describe("POST /", () => {
-    it("returns status code 200 and text 'END ACK' if we send a object with property text with value '*#0#' is passed", async () => {
-      const res = await apptest.post("/send").send({ text: "*#0#" });
+    it("returns status code 200 and text 'ACK' if we send a object with property service with value '*#0#' is passed", async () => {
+      const res = await apptest.post("/send").send({ serviceCode: "*#0#" });
       expect(res.statusCode).toEqual(200);
-      expect(res.text).toEqual("END ACK");
+      expect(res.text).toEqual("ACK");
     });
   });
 
