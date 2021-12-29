@@ -26,7 +26,8 @@ jobs:
   release:
     name: Publish to dockerhub
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/releases'
+    if: github.ref == 'refs/heads/refactor/cicd'
+    # if: github.ref == 'refs/heads/releases'
     steps:
       # - name: "Checkout repository"
       #   uses: actions/checkout@v2
@@ -44,4 +45,5 @@ jobs:
       #   working-directory: ./engine
       #   run: docker build . -f *.dockerfile --tag ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
       - name: Push engine image
-        run: docker push ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
+        run: echo ${{ steps.package-version.outputs.current-version}}
+        # run: docker push ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
