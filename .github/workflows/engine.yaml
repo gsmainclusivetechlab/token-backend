@@ -7,6 +7,8 @@ jobs:
   build:
     name: Build Engine
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.package-version.outputs.current-version}}
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@v2
@@ -46,5 +48,5 @@ jobs:
       #   working-directory: ./engine
       #   run: docker build . -f *.dockerfile --tag ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
       - name: Push engine image
-        run: echo ${{ steps.package-version.outputs.current-version}}
+        run: echo ${{needs.job1.outputs.output1}}
         # run: docker push ${{env.BASE_TAG}}${{ steps.package-version.outputs.current-version}}
