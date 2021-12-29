@@ -1,62 +1,86 @@
-import { UserFacingError } from '../classes/errors';
-import { db } from '../classes/server';
-import { Token } from '../utils/token';
-import {phone as phoneLib} from 'phone'
+import { UserFacingError } from "../classes/errors";
+import { db } from "../classes/server";
+import { Token } from "../utils/token";
+import { phone as phoneLib } from "phone";
+import { queriesService } from "./queries.service";
 class TokenService {
-  async encode(phone: string) {
-    const parsedPhone = phoneLib(phone);
-    if(!parsedPhone.isValid) {
-      throw new UserFacingError('Invalid phone number.');
-    }
-    const {phoneNumber, countryCode} = parsedPhone
+  async getToken(phone: string) {
+    const { phoneNumber, countryCode } = this.validatePhone(phone);
     try {
-      const tokenData = await this.findByPhoneNumber(phoneNumber);
+      const tokenData = await queriesService.findByPhoneNumber(phoneNumber);
       if (tokenData) {
         return tokenData;
       }
-    } catch (error) {
-      throw new UserFacingError(error as string);
+    } catch (err: any) {
+      throw new UserFacingError(err.message);
     }
-    const noIndicativePhone = phoneNumber.split(countryCode)[1];
-    const onlyIndicative = countryCode.split('+')[1];
-    const phoneNumberWithoutLastDigit = noIndicativePhone.substring(
-      0,
-      noIndicativePhone.length - 1
-    );
-    const token = await this.generateToken(
-      phoneNumberWithoutLastDigit,
-      onlyIndicative
-    );
-    return this.createToken(token, phoneNumber, countryCode)
+    return this.handleTokenGeneration(phoneNumber, countryCode);
   }
 
   async decode(token: string) {
     try {
-      const tokenData = await this.findByToken(token);
+      const tokenData = await queriesService.findByToken(token);
       if (tokenData) {
-        if(!Token.verifyControlDigit(token, (tokenData as any).indicative)) {
-          throw new UserFacingError('Invalid token.');
+        if (!Token.verifyControlDigit(token, (tokenData as any).indicative)) {
+          throw new UserFacingError("Invalid token.");
         }
         return tokenData;
       } else {
-        throw new UserFacingError('Invalid token.');
+        throw new UserFacingError("Invalid token.");
       }
-    } catch (error) {
-      throw new UserFacingError(error as string);
+    } catch (err: any) {
+      throw new UserFacingError(err.message);
     }
   }
 
+  async invalidate(phone: string) {
+    const { phoneNumber } = this.validatePhone(phone);
+    try {
+      const tokenData = await queriesService.findByPhoneNumber(phoneNumber);
+      if (!tokenData) {
+        throw new UserFacingError(`Phone number doesn't exist`);
+      }
 
-  private async generateToken(phoneNumber: string, indicative: string) {
-    const token = Token.generate(phoneNumber, indicative)
-    const isPhoneValid = phoneLib(`+${token}`)
+      return queriesService.invalidateToken(phoneNumber);
+    } catch (err: any) {
+      throw new UserFacingError(err.message);
+    }
+  }
+
+  async renew(phone: string) {
+    const { phoneNumber } = this.validatePhone(phone);
+    try {
+      const tokenData = await queriesService.findByPhoneNumber(phoneNumber);
+      if (!tokenData) {
+        throw new UserFacingError(`Phone number doesn't exist`);
+      }
+
+      await queriesService.invalidateToken(phoneNumber);
+
+      return this.getToken(phoneNumber);
+    } catch (err: any) {
+      throw new UserFacingError(err.message);
+    }
+  }
+
+  private validatePhone(phone: string) {
+    const parsedPhone = phoneLib(phone);
+    if (!parsedPhone.isValid) {
+      throw new UserFacingError("Invalid phone number.");
+    }
+    return parsedPhone;
+  }
+
+  private async calculateToken(phoneNumber: string, indicative: string) {
+    const token = Token.generate(phoneNumber, indicative);
+    const isPhoneValid = phoneLib(`+${token}`);
     if (isPhoneValid.isValid) {
-      this.generateToken(phoneNumber, indicative);
+      this.calculateToken(phoneNumber, indicative);
     }
     try {
-      const tokenData = await this.findByToken(token);
+      const tokenData = await queriesService.findByToken(token);
       if (tokenData) {
-        await this.generateToken(phoneNumber, indicative);
+        await this.calculateToken(phoneNumber, indicative);
       }
       return token;
     } catch (error) {
@@ -64,44 +88,21 @@ class TokenService {
     }
   }
 
-  private findByToken(token: string) {
-    return new Promise((resolve, reject) => {
-      db.query(`SELECT * FROM registry WHERE token='${token}'`, (err, rows) => {
-        if (err) {
-          return reject('Error getting data');
-        }
-        return resolve(rows[0]);
-      });
-    });
-  }
-
-  private findByPhoneNumber(phoneNumber: string) {
-    return new Promise((resolve, reject) => {
-      db.query(
-        `SELECT * FROM registry WHERE phoneNumber='${phoneNumber}'`,
-        (err, rows) => {
-          if (err) {
-            return reject('Error getting data');
-          }
-          return resolve(rows[0] ? { token: rows[0].token } : undefined);
-        }
-      );
-    });
-  }
-
-  private createToken(token: string, phoneNumber: string, indicative: string) {
-    const insertQuery = `
-      INSERT INTO registry (phoneNumber, indicative, token)
-      VALUES ('${phoneNumber}', '${indicative}', '${token}');
-    `;
-    return new Promise((resolve, reject) => {
-      db.query(insertQuery, (err, rows) => {
-        if (err) {
-          return reject('Error creating registry');
-        }
-        return resolve({ token });
-      });
-    });
+  private async handleTokenGeneration(
+    phoneNumber: string,
+    countryCode: string
+  ) {
+    const noIndicativePhone = phoneNumber.split(countryCode)[1];
+    const onlyIndicative = countryCode.split("+")[1];
+    const phoneNumberWithoutLastDigit = noIndicativePhone.substring(
+      0,
+      noIndicativePhone.length - 1
+    );
+    const token = await this.calculateToken(
+      phoneNumberWithoutLastDigit,
+      onlyIndicative
+    );
+    return queriesService.createToken(token, phoneNumber, countryCode);
   }
 }
 const tokenService = new TokenService();

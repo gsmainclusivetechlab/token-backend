@@ -1,128 +1,127 @@
-  version: '3.3'
+version: '3.3'
 
-  services:
-    nodeproxy:
-      container_name: nodeproxy
-      image: nodeproxy
-      build:
-        context: ./proxy
-        dockerfile: proxy.dockerfile 
-      ports:
-        - "4000:4000"
-      networks:
-        - gsma-bridge
-      environment:
-        - SMS_GATEWAY_API_URL=http://nodesmsgateway:4100
-        - USSD_GATEWAY_API_URL=http://nodeussdgateway:4200
-      depends_on:
-        nodesmsgateway:
-          condition: service_healthy
-        nodeussdgateway:
-          condition: service_healthy 
-      healthcheck:
-        test: curl -f http://localhost:4000/health  
+services:
+  nodeproxy:
+    container_name: nodeproxy
+    image: nodeproxy
+    build:
+      context: ./proxy
+      dockerfile: proxy.dockerfile 
+    ports:
+      - "4000:4000"
+    networks:
+      - gsma-bridge
+    environment:
+      - SMS_GATEWAY_API_URL=http://nodesmsgateway:4100
+      - USSD_GATEWAY_API_URL=http://nodeussdgateway:4200
+    depends_on:
+      nodesmsgateway:
+        condition: service_healthy
+      nodeussdgateway:
+        condition: service_healthy 
+    healthcheck:
+      test: curl -f http://localhost:4000/health  
 
-    nodesmsgateway:
-      container_name: nodesmsgateway
-      image: nodesmsgateway
-      build:
-        context: ./sms-gateway
-        dockerfile: sms-gateway.dockerfile
-      ports:
-        - "4100:4100"
-      networks:
-        - gsma-bridge
-      environment:
-        - ENGINE_API_URL=http://engineservice:4400
-        - PROXY_API_URL=http://nodeproxy:4000
-      depends_on:
-        engineservice:
-          condition: service_healthy
-      healthcheck:
-        test: curl -f http://localhost:4100/health  
+  nodesmsgateway:
+    container_name: nodesmsgateway
+    image: nodesmsgateway
+    build:
+      context: ./sms-gateway
+      dockerfile: sms-gateway.dockerfile
+    ports:
+      - "4100:4100"
+    networks:
+      - gsma-bridge
+    environment:
+      - ENGINE_API_URL=http://engineservice:4400
+      - PROXY_API_URL=http://nodeproxy:4000
+    depends_on:
+      engineservice:
+        condition: service_healthy
+    healthcheck:
+      test: curl -f http://localhost:4100/health  
 
-    nodeussdgateway:
-      container_name: nodeussdgateway
-      image: nodeussdgateway
-      build:
-        context: ./ussd-gateway
-        dockerfile: ussd-gateway.dockerfile
-      ports:
-        - "4200:4200"
-      networks:
-        - gsma-bridge
-      environment:
-        - ENGINE_API_URL=http://engineservice:4400
-        - PROXY_API_URL=http://nodeproxy:4000
-      depends_on:
-        engineservice:
-          condition: service_healthy
-      healthcheck:
-        test: curl -f http://localhost:4200/health  
+  nodeussdgateway:
+    container_name: nodeussdgateway
+    image: nodeussdgateway
+    build:
+      context: ./ussd-gateway
+      dockerfile: ussd-gateway.dockerfile
+    ports:
+      - "4200:4200"
+    networks:
+      - gsma-bridge
+    environment:
+      - ENGINE_API_URL=http://engineservice:4400
+      - PROXY_API_URL=http://nodeproxy:4000
+    depends_on:
+      engineservice:
+        condition: service_healthy
+    healthcheck:
+      test: curl -f http://localhost:4200/health  
 
-    tokenservice:
-      container_name: tokenservice
-      image: tokenservice
-      build:
-        context: ./token
-        dockerfile: token-service.dockerfile
-      ports:
-        - "3700:3700"
-      networks:
-        - gsma-bridge
-      environment:
-        - HOST=tokendbservice
-        - DB_USER=gsma-sa
-        - DB_PASSWORD=password
-        - DB_DATABASE=tokens
-      depends_on:
-        tokendbservice:
-          condition: service_healthy
-      healthcheck:
-        test: curl -f http://localhost:3700/health
+  tokenservice:
+    container_name: tokenservice
+    image: tokenservice
+    build:
+      context: ./token
+      dockerfile: token-service.dockerfile
+    ports:
+      - "3700:3700"
+    networks:
+      - gsma-bridge
+    environment:
+      - HOST=tokendbservice
+      - DB_USER=gsma-sa
+      - DB_PASSWORD=password
+      - DB_DATABASE=tokens
+    depends_on:
+      tokendbservice:
+        condition: service_healthy
+    healthcheck:
+      test: curl -f http://localhost:3700/health
 
-    tokendbservice:
-      container_name: tokendbservice
-      image: tokendbservice
-      command: --default-authentication-plugin=mysql_native_password
-      build:
-        context: ./token-db
-        dockerfile: token-db.dockerfile
-      ports:
-        - "3306:3306"
-      environment:
-        - MYSQL_ROOT_PASSWORD=R%9FovC$RRR3&Eb#RozM
-        - MYSQL_USER=gsma-sa
-        - MYSQL_PASSWORD=password
-        - MYSQL_DATABASE=tokens
-      networks:
-        - gsma-bridge
-      healthcheck:
-        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-        timeout: 20s
-        retries: 10
+  tokendbservice:
+    container_name: tokendbservice
+    image: tokendbservice
+    command: --default-authentication-plugin=mysql_native_password
+    build:
+      context: ./token-db
+      dockerfile: token-db.dockerfile
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=R%9FovC$RRR3&Eb#RozM
+      - MYSQL_USER=gsma-sa
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=tokens
+    networks:
+      - gsma-bridge
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
-    engineservice:
-      container_name: nodeengineservice
-      image: nodeengineservice
-      build:
-        context: ./engine
-        dockerfile: engine.dockerfile 
-      ports:
-        - "4400:4400"
-      networks:
-        - gsma-bridge
-      environment:
-        - TOKEN_API_URL=http://tokenservice:3700
-        - SMS_GATEWAY_API_URL=http://nodesmsgateway:4100
-        - USSD_GATEWAY_API_URL=http://nodeussdgateway:4200
-      depends_on:
-        tokenservice:
-          condition: service_healthy
-      healthcheck:
-        test: curl -f http://localhost:4400/health
+  engineservice:
+    container_name: nodeengineservice
+    image: nodeengineservice
+    build:
+      context: ./engine
+      dockerfile: engine.dockerfile 
+    ports:
+      - "4400:4400"
+    networks:
+      - gsma-bridge
+    environment:
+      - TOKEN_API_URL=http://tokenservice:3700
+      - SMS_GATEWAY_API_URL=http://nodesmsgateway:4100
+      - USSD_GATEWAY_API_URL=http://nodeussdgateway:4200
+    depends_on:
+      tokenservice:
+        condition: service_healthy
+    healthcheck:
+      test: curl -f http://localhost:4400/health
 
-
-  networks:
-    gsma-bridge:
-      driver: bridge
+networks:
+  gsma-bridge:
+    driver: bridge
