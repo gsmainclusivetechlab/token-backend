@@ -18,9 +18,7 @@ services:
       nodesmsgateway:
         condition: service_healthy
       nodeussdgateway:
-        condition: service_healthy 
-    healthcheck:
-      test: curl -f http://localhost:4000/health  
+        condition: service_healthy
 
   nodesmsgateway:
     container_name: nodesmsgateway
@@ -39,7 +37,10 @@ services:
       engineservice:
         condition: service_healthy
     healthcheck:
-      test: curl -f http://localhost:4100/health  
+      test: curl -f http://localhost:4100/health
+      interval: 1s
+      timeout: 3s
+      retries: 10    
 
   nodeussdgateway:
     container_name: nodeussdgateway
@@ -58,7 +59,10 @@ services:
       engineservice:
         condition: service_healthy
     healthcheck:
-      test: curl -f http://localhost:4200/health  
+      test: curl -f http://localhost:4200/health
+      interval: 1s
+      timeout: 3s
+      retries: 10  
 
   tokenservice:
     container_name: tokenservice
@@ -80,6 +84,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl -f http://localhost:3700/health
+      interval: 1s
+      timeout: 3s
+      retries: 10
 
   tokendbservice:
     container_name: tokendbservice
@@ -99,7 +106,7 @@ services:
       - gsma-bridge
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 20s
+      timeout: 3s
       retries: 10
 
   engineservice:
@@ -121,6 +128,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl -f http://localhost:4400/health
+      interval: 1s
+      timeout: 3s
+      retries: 10
 
 networks:
   gsma-bridge:

@@ -1,6 +1,6 @@
 {
   "name": "sms-gateway",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "SMS Gateway",
   "main": "./dist/src/app.js",
   "scripts": {
