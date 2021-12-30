@@ -1,10 +1,11 @@
 import { Request, Router } from 'express';
+import { UserFacingError } from '../classes/errors';
 
 import Server from '../classes/server';
 import { RouteHandler, Get } from '../decorators/router-handler';
 import {
   TransactionsBody,
-  TransactionsQueryParams,
+  TransactionsHeaders,
   TransactionType,
 } from '../interfaces/transaction';
 import { mmoService } from '../services/mmo.service';
@@ -20,13 +21,16 @@ class TransactionsRoute {
     request: Request<
       { type: TransactionType },
       {},
-      TransactionsBody,
-      TransactionsQueryParams
+      TransactionsBody
     >
   ) {
+    const callbackUrl = request.headers['x-callback-url'] as string
+    if(!callbackUrl) {
+      throw new UserFacingError('callbackUrl is mandatory')
+    }
     return mmoService.startTransaction(
       request.params.type,
-      request.query['X-Callback-URL'],
+      callbackUrl,
       request.body
     );
   }

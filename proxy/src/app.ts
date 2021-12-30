@@ -6,6 +6,7 @@ import Server from "./classes/server";
 import SMSGatewayRoute from './routes/sms-gateway.route';
 import MessageRoute from './routes/message.route';
 import USSDGatewayRoute from './routes/ussd-gateway.route';
+import OperationsRoute from './routes/operations.route';
 
 console.log('process.env.NODE_ENV:', process.env.NODE_ENV)
 if (process.env.NODE_ENV === 'development') {
@@ -27,6 +28,7 @@ const app = new Server(process.env.PORT || 4000);
 new LivenessProbeRoute(app);
 new SMSGatewayRoute(app);
 new USSDGatewayRoute(app);
+new OperationsRoute(app);
 new MessageRoute(app);
 
 const index = new IndexRoute(app.getRoutes());

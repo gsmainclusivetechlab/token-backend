@@ -23,6 +23,10 @@ const errorHandler = (err: any, req: any, res: any, next: any) => {
     res.status(401).send({ error: err.message });
     return;
   }
+  if (err.name === "NotFoundError") {
+    res.status(404).send({ error: err.message });
+    return;
+  }
   if (res.headersSent) {
     return next(err);
   }

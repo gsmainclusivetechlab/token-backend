@@ -1,3 +1,14 @@
+export interface AccountNameReturn {
+  name: {
+    title: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    fullName: string;
+  };
+  lei: string;
+}
+
 export type TransactionType =
   | 'billpay'
   | 'deposit'
@@ -23,29 +34,4 @@ export interface TransactionsHeaders {
   'X-Channel'?: string;
   'X-Account-Holding-Institution-Identifier-Type'?: string;
   'X-Account-Holding-Institution-Identifier'?: string;
-}
-
-export interface TransactionsBody {
-  amount: string; // 200.00
-  debitParty: [
-    {
-      key: string; // accountid
-      value: string; // 2999
-    }
-  ];
-  creditParty: [
-    {
-      key: string; // accountid
-      value: string; // 2999
-    }
-  ];
-  currency: string; // RWF
-}
-
-export interface TransactionsRes {
-  serverCorrelationId: string;
-  status: string;
-  notificationMethod: string;
-  objectReference: string;
-  pollLimit: number;
 }

@@ -8,8 +8,17 @@ import {
 } from '../interfaces/transaction';
 class MmoService {
   async getAccountName(phoneNumber: string): Promise<{} | AccountNameError> {
+    return {
+      name: {
+        title: 'Dr.',
+        firstName: "Ruizao",
+        middleName: 'P.',
+        lastName: "Escobar",
+        fullName: "Rui",
+      },
+      lei: 'AAAA0012345678901299'
+    }
     if (phoneNumber === '+233207212676') {
-      return {};
     } else {
       throw new NotFoundError('Account does not exist');
     }

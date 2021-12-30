@@ -1,7 +1,7 @@
 import { Request, Router } from "express";
 import { HooksService } from '../services/hooks.service';
 import Server from "../classes/server";
-import { RouteHandler, Post } from "../decorators/router-handler";
+import { RouteHandler, Post, Put } from "../decorators/router-handler";
 
 @RouteHandler("/hooks")
 class HooksRoute {
@@ -20,7 +20,7 @@ class HooksRoute {
     return HooksService.processUSSDGateway(request);
   }
 
-  @Post("/mmo")
+  @Put("/mmo")
   public mmoWebhooks(request: Request) {
     return HooksService.processMMO(request);
   }
