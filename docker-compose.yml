@@ -121,6 +121,21 @@
           condition: service_healthy
       healthcheck:
         test: curl -f http://localhost:4400/health
+    mmoservice:
+      container_name: mmoservice
+      image: mmoservice
+      build:
+        context: ./mmo
+        dockerfile: mmo.dockerfile 
+      ports:
+        - "4300:4300"
+      networks:
+        - gsma-bridge
+      depends_on:
+        engineservice:
+          condition: service_healthy
+      healthcheck:
+        test: curl -f http://localhost:4300/health
 
   networks:
     gsma-bridge:

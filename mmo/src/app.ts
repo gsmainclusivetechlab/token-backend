@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // App Initialization
-const app = new Server(process.env.PORT || 4100);
+const app = new Server(process.env.PORT || 4300);
 
 // Register routes on express
 new LivenessProbeRoute(app);
