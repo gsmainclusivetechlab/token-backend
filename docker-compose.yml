@@ -109,9 +109,10 @@
           condition: service_healthy
       healthcheck:
         test: curl -f http://localhost:4400/health
+
     client:
       container_name: client
-      image: gsmainclusivetechlab/token:client-v1.0.1
+      image: gsmainclusivetechlab/token:client-v1.0.2
       ports:
         - "8080:8080"
       networks:
