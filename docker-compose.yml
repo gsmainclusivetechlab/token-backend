@@ -3,7 +3,7 @@
   services:
     nodeproxy:
       container_name: nodeproxy
-      image: gsmainclusivetechlab/token:proxy-v1.0.1
+      image: gsmainclusivetechlab/token:proxy-v1.0.2
 
       ports:
         - "4000:4000"
@@ -17,12 +17,10 @@
           condition: service_healthy
         nodeussdgateway:
           condition: service_healthy 
-      healthcheck:
-        test: curl -f http://localhost:4000/health  
 
     nodesmsgateway:
       container_name: nodesmsgateway
-      image: gsmainclusivetechlab/token:sms-gateway-v1.0.1
+      image: gsmainclusivetechlab/token:sms-gateway-v1.0.2
 
       ports:
         - "4100:4100"
@@ -35,11 +33,14 @@
         engineservice:
           condition: service_healthy
       healthcheck:
-        test: curl -f http://localhost:4100/health  
+        test: curl -f http://localhost:4100/health
+        interval: 1s
+        timeout: 3s
+        retries: 10     
 
     nodeussdgateway:
       container_name: nodeussdgateway
-      image: gsmainclusivetechlab/token:ussd-gateway-v1.0.1
+      image: gsmainclusivetechlab/token:ussd-gateway-v1.0.2
 
       ports:
         - "4200:4200"
@@ -52,11 +53,14 @@
         engineservice:
           condition: service_healthy
       healthcheck:
-        test: curl -f http://localhost:4200/health  
+        test: curl -f http://localhost:4200/health
+        interval: 1s
+        timeout: 3s
+        retries: 10  
 
     tokenservice:
       container_name: tokenservice
-      image: gsmainclusivetechlab/token:generator-v1.0.1
+      image: gsmainclusivetechlab/token:generator-v1.0.2
 
       ports:
         - "3700:3700"
@@ -72,6 +76,9 @@
           condition: service_healthy
       healthcheck:
         test: curl -f http://localhost:3700/health
+        interval: 1s
+        timeout: 3s
+        retries: 10
 
     tokendbservice:
       container_name: tokendbservice
@@ -94,7 +101,7 @@
 
     engineservice:
       container_name: nodeengineservice
-      image: gsmainclusivetechlab/token:engine-v1.0.1
+      image: gsmainclusivetechlab/token:engine-v1.0.2
 
       ports:
         - "4400:4400"
@@ -109,6 +116,9 @@
           condition: service_healthy
       healthcheck:
         test: curl -f http://localhost:4400/health
+        interval: 1s
+        timeout: 3s
+        retries: 10     
 
     client:
       container_name: client

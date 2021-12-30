@@ -1,6 +1,6 @@
 {
   "name": "ussd-gateway",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "USSD Gateway",
   "main": "./dist/src/app.js",
   "scripts": {

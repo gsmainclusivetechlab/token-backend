@@ -1,4 +1,6 @@
-FROM    node:16.13.1
+FROM node:lts-alpine3.12
+
+RUN apk add curl
 
 WORKDIR /app
 COPY    package.json package-lock.json ./
