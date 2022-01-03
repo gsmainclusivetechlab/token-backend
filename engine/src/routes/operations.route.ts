@@ -16,9 +16,9 @@ class OperationsRoute {
     return OperationsService.getAccountInfo(request.query.token, request.query.amount);
   }
 
-  @Get("/:operation")
-  public startOperation(request: Request<{operation: Operation}, {}, {}, {token: string, amount: string}>) {
-    const {token, amount} = request.query
+  @Post("/:operation")
+  public startOperation(request: Request<{operation: Operation}, {}, {token: string, amount: string}, {}>) {
+    const {token, amount} = request.body
     return OperationsService.startOperation(request.params.operation, token, amount);
   }
 }

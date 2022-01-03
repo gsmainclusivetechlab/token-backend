@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Request } from "express";
 import { UserFacingError } from "../classes/errors";
 import { SMSService } from "./sms.service";
@@ -25,6 +26,7 @@ class HooksService {
   }
 
   async processMMO(request: Request) {
+    axios.post(`${process.env.PROXY_API_URL}/`)
     return "Thanks for using Engine API";
   }
 

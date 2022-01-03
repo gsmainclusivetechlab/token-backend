@@ -17,15 +17,20 @@ class OperationsRoute {
   }
 
   @Get("/account-info")
-  public getAccountInfo(request: Request<{}, {}, {}, {token: string, amount: string}>) {
-    const {token, amount} = request.query
-    return OperationsService.getAccountInfo(token, amount);
+  public getAccountInfo(request: Request<{}, {}, {}, {token: string, amount: string, type: Operation}>) {
+    const {token, amount, type} = request.query
+    return OperationsService.getAccountInfo(token, amount, type);
   }
 
-  @Post("/:id/:operation")
-  public startOperation(request: Request<{id: string, operation: Operation}, {}, {token: string, amount: string}>) {
+  @Post("/:id")
+  public startOperation(request: Request<{id: string}, {}>) {
     const {token, amount} = request.body
-    return OperationsService.startOperation(request.params.id, request.params.operation, token, amount);
+    return OperationsService.startOperation(request.params.id);
+  }
+
+  @Post()
+  public createNotification(request: Request<{}, {}, {notification: string}>) {
+    return OperationsService.createNotification(request.body.notification)
   }
 }
 
