@@ -29,8 +29,8 @@ class OperationsService {
   }
 
   async startOperation(operationId: string) {
-    const { token, type } = this.getOperation(operationId);
-    axios.post(`${process.env.ENGINE_API_URL}/operations/${type}`, { token });
+    const { token, type, amount } = this.getOperation(operationId);
+    axios.post(`${process.env.ENGINE_API_URL}/operations/${type}`, { token, amount });
     this.sendOperation.operations.splice(
       this.sendOperation.operations.findIndex((el) => el.id === operationId),
       1
