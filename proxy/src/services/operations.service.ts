@@ -81,6 +81,11 @@ class OperationsService {
     });
   }
 
+  async deleteNotification(id: string) {
+    this.sendOperation.notifications.splice(this.sendOperation.notifications.findIndex(el => el.id === id),1)
+    return {message: 'Notification deleted'}
+  }
+
   private getOperation(id: string) {
     return this.sendOperation.operations.find((el) => el.id === id);
   }

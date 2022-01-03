@@ -1,6 +1,6 @@
 import { Request, Router } from "express";
 import Server from "../classes/server";
-import { RouteHandler, Post, Get } from "../decorators/router-handler";
+import { RouteHandler, Post, Get, Delete } from "../decorators/router-handler";
 import {
   Action,
   AgentCashInOutBody,
@@ -54,6 +54,11 @@ class OperationsRoute {
       request.params.action,
       request.params.id
     );
+  }
+
+  @Delete('/notification/:id')
+  public deleteNotification(request: Request<{ id: string }, {}>) {
+    return OperationsService.deleteNotification(request.params.id)
   }
 }
 
