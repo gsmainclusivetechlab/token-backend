@@ -50,7 +50,7 @@ class OperationsService {
   }
 
   private setOperation(operation: Operation, token: string, data: any) {
-    this.sendOperation.operations.push({id: uuidv4(), type: operation, token...data})
+    this.sendOperation.operations.push({id: uuidv4(), type: operation, token, ...data})
   }
 }
 
