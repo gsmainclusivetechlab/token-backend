@@ -30,7 +30,7 @@ class HooksService {
   async processMMO(body: any) {
     const operation: Operation = GetOperationFromType(body.type)
     const notification = `${operation} successfully`
-    axios.post(`${process.env.PROXY_API_URL}/notify`, {notification})
+    axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {notification})
     return "Thanks for using Engine API";
   }
 
