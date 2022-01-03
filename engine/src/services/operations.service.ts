@@ -7,19 +7,23 @@ import { GetTypeFromOperation } from '../lib/operations';
 import SafeAwait from '../lib/safe-await';
 
 class OperationsService {
-  async getAccountInfo(amount: string, token?: string, phoneNumber?: string) {
-    const [tokenError, tokenData] = await SafeAwait(
-      axios.get<TokenDecodeInfo>(
-        `${process.env.TOKEN_API_URL}/tokens/decode/${token}`
-      )
-    );
-    if (tokenError) {
-      throw new UserFacingError(tokenError.response.data.error);
+  async getAccountInfo(amount: string, token?: string, phone?: string) {
+    let phoneNumber = phone
+    if(token) {
+      const [tokenError, tokenData] = await SafeAwait(
+        axios.get<TokenDecodeInfo>(
+          `${process.env.TOKEN_API_URL}/tokens/decode/${token}`
+        )
+      );
+      if (tokenError) {
+        throw new UserFacingError(tokenError.response.data.error);
+      }
+      phoneNumber = tokenData.data.phoneNumber
     }
     const [mmoError, mmoData] = await SafeAwait(
       axios.get<AccountNameReturn>(
         `${process.env.MMO_API_URL}/accounts/msisdn/${
-          token ? tokenData.data.phoneNumber : phoneNumber
+          phoneNumber
         }/accountname`
       )
     );
