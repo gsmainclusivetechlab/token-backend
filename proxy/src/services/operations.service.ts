@@ -84,8 +84,13 @@ class OperationsService {
     MessageService.setSMSMessage(message);
   }
 
-  async createOperation(body: { token: string; amount: string; type: Operation }) {
-    
+  async createOperation({token, amount, type}: { token: string; amount: string; type: Operation }) {
+    this.sendOperation.operations.push({
+      id: uuidv4(),
+      token,
+      amount,
+      type
+    });
   }
 
   async deleteNotification(id: string) {
