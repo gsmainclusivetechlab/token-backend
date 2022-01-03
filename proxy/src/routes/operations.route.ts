@@ -54,7 +54,6 @@ class OperationsRoute {
     return OperationsService.createOperation(request.body);
   }
 
-
   @Post("/:action/:id")
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
     const { token, amount } = request.body;

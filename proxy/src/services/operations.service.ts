@@ -57,7 +57,7 @@ class OperationsService {
         );
         return response.data;
       } else {
-        //Dummy
+        MessageService.setSMSMessage('Operation denied')
         return { status: "close" };
       }
     } catch (err: any | AxiosError) {
