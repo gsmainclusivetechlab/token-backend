@@ -1,69 +1,69 @@
   version: '3.3'
 
   services:
-    # nodeproxy:
-    #   container_name: nodeproxy
-    #   image: nodeproxy
-    #   build:
-    #     context: ./proxy
-    #     dockerfile: proxy.dockerfile 
-    #   ports:
-    #     - "4000:4000"
-    #   networks:
-    #     - gsma-bridge
-    #   environment:
-    #     - SMS_GATEWAY_API_URL=http://nodesmsgateway:4100
-    #     - USSD_GATEWAY_API_URL=http://nodeussdgateway:4200
-    #     - ENGINE_API_URL=http://engineservice:4400
-    #   depends_on:
-    #     nodesmsgateway:
-    #       condition: service_healthy
-    #     nodeussdgateway:
-    #       condition: service_healthy
+    nodeproxy:
+      container_name: nodeproxy
+      image: nodeproxy
+      build:
+        context: ./proxy
+        dockerfile: proxy.dockerfile 
+      ports:
+        - "4000:4000"
+      networks:
+        - gsma-bridge
+      environment:
+        - SMS_GATEWAY_API_URL=http://nodesmsgateway:4100
+        - USSD_GATEWAY_API_URL=http://nodeussdgateway:4200
+        - ENGINE_API_URL=http://engineservice:4400
+      depends_on:
+        nodesmsgateway:
+          condition: service_healthy
+        nodeussdgateway:
+          condition: service_healthy
 
-    # nodesmsgateway:
-    #   container_name: nodesmsgateway
-    #   image: nodesmsgateway
-    #   build:
-    #     context: ./sms-gateway
-    #     dockerfile: sms-gateway.dockerfile
-    #   ports:
-    #     - "4100:4100"
-    #   networks:
-    #     - gsma-bridge
-    #   environment:
-    #     - ENGINE_API_URL=http://engineservice:4400
-    #     - PROXY_API_URL=http://nodeproxy:4000
-    #   depends_on:
-    #     engineservice:
-    #       condition: service_healthy
-    #   healthcheck:
-    #     test: curl -f http://localhost:4100/health
-    #     interval: 1s
-    #     timeout: 3s
-    #     retries: 10
+    nodesmsgateway:
+      container_name: nodesmsgateway
+      image: nodesmsgateway
+      build:
+        context: ./sms-gateway
+        dockerfile: sms-gateway.dockerfile
+      ports:
+        - "4100:4100"
+      networks:
+        - gsma-bridge
+      environment:
+        - ENGINE_API_URL=http://engineservice:4400
+        - PROXY_API_URL=http://nodeproxy:4000
+      depends_on:
+        engineservice:
+          condition: service_healthy
+      healthcheck:
+        test: curl -f http://localhost:4100/health
+        interval: 1s
+        timeout: 3s
+        retries: 10
 
-    # nodeussdgateway:
-    #   container_name: nodeussdgateway
-    #   image: nodeussdgateway
-    #   build:
-    #     context: ./ussd-gateway
-    #     dockerfile: ussd-gateway.dockerfile
-    #   ports:
-    #     - "4200:4200"
-    #   networks:
-    #     - gsma-bridge
-    #   environment:
-    #     - ENGINE_API_URL=http://engineservice:4400
-    #     - PROXY_API_URL=http://nodeproxy:4000
-    #   depends_on:
-    #     engineservice:
-    #       condition: service_healthy
-    #   healthcheck:
-    #     test: curl -f http://localhost:4200/health
-    #     interval: 1s
-    #     timeout: 3s
-    #     retries: 10
+    nodeussdgateway:
+      container_name: nodeussdgateway
+      image: nodeussdgateway
+      build:
+        context: ./ussd-gateway
+        dockerfile: ussd-gateway.dockerfile
+      ports:
+        - "4200:4200"
+      networks:
+        - gsma-bridge
+      environment:
+        - ENGINE_API_URL=http://engineservice:4400
+        - PROXY_API_URL=http://nodeproxy:4000
+      depends_on:
+        engineservice:
+          condition: service_healthy
+      healthcheck:
+        test: curl -f http://localhost:4200/health
+        interval: 1s
+        timeout: 3s
+        retries: 10
 
     tokenservice:
       container_name: tokenservice
@@ -134,6 +134,7 @@
         interval: 1s
         timeout: 3s
         retries: 10
+
     mmoservice:
       container_name: mmoservice
       image: mmoservice
