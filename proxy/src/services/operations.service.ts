@@ -27,7 +27,7 @@ class OperationsService {
       )
     );
     if (accountInfoError) {
-      throw new UserFacingError(accountInfoError);
+      throw new UserFacingError(accountInfoError.response.data.error);
     }
     this.setOperation(type, token, accountInfoData.data);
     return accountInfoData.data;

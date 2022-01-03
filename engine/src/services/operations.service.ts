@@ -14,7 +14,7 @@ class OperationsService {
       )
     );
     if (tokenError) {
-      throw new UserFacingError(tokenError.error);
+      throw new UserFacingError(tokenError.response.data.error);
     }
     const [mmoError, mmoData] = await SafeAwait(
       axios.get<AccountNameReturn>(
