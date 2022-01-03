@@ -83,12 +83,10 @@ class OperationsService {
     });
   }
 
-  async createOperation({token, amount, type}: { token: string; amount: string; type: Operation }) {
+  async createOperation(body: any) {
     this.sendOperation.operations.push({
       id: uuidv4(),
-      token,
-      amount,
-      type
+      ...body
     });
   }
 
