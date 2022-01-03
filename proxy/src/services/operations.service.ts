@@ -5,6 +5,7 @@ import { AccountNameReturn } from "../interfaces/mmo";
 import SafeAwait from "../lib/safe-await";
 import { v4 as uuidv4 } from "uuid";
 import { LogLevels, logService } from "./log.service";
+import { MessageService } from "./message.service";
 
 interface SendOperation {
   operations: any[];
@@ -75,10 +76,15 @@ class OperationsService {
   }
 
   async createNotification(message: string) {
+    MessageService.setSMSMessage(message);
     this.sendOperation.notifications.push({
       id: uuidv4(),
       message,
     });
+  }
+
+  async createOperation(body: { token: string; amount: string; type: Operation }) {
+    
   }
 
   async deleteNotification(id: string) {
