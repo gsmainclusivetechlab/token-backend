@@ -110,28 +110,30 @@
         timeout: 3s
         retries: 10
 
-    # engineservice:
-    #   container_name: nodeengineservice
-    #   image: nodeengineservice
-    #   build:
-    #     context: ./engine
-    #     dockerfile: engine.dockerfile
-    #   ports:
-    #     - "4400:4400"
-    #   networks:
-    #     - gsma-bridge
-    #   environment:
-    #     - TOKEN_API_URL=http://tokenservice:3700
-    #     - SMS_GATEWAY_API_URL=http://nodesmsgateway:4100
-    #     - USSD_GATEWAY_API_URL=http://nodeussdgateway:4200
-    #   depends_on:
-    #     tokenservice:
-    #       condition: service_healthy
-    #   healthcheck:
-    #     test: curl -f http://localhost:4400/health
-    #     interval: 1s
-    #     timeout: 3s
-    #     retries: 10
+    engineservice:
+      container_name: nodeengineservice
+      image: nodeengineservice
+      build:
+        context: ./engine
+        dockerfile: engine.dockerfile
+      ports:
+        - "4400:4400"
+      networks:
+        - gsma-bridge
+      environment:
+        - TOKEN_API_URL=http://tokenservice:3700
+        - SMS_GATEWAY_API_URL=http://nodesmsgateway:4100
+        - USSD_GATEWAY_API_URL=http://nodeussdgateway:4200
+        - MMO_API_URL=http://mmoservice:4300
+        - PROXY_API_URL=http://nodeproxy:4000
+      depends_on:
+        tokenservice:
+          condition: service_healthy
+      healthcheck:
+        test: curl -f http://localhost:4400/health
+        interval: 1s
+        timeout: 3s
+        retries: 10
     mmoservice:
       container_name: mmoservice
       image: mmoservice

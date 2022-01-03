@@ -7,6 +7,7 @@ import GetTypeFromOperation from '../lib/operations';
 import SafeAwait from '../lib/safe-await';
 
 class OperationsService {
+
   async getAccountInfo(token: string, amount: string) {
     const [tokenError, tokenData] = await SafeAwait(
       axios.get<TokenDecodeInfo>(
@@ -24,7 +25,7 @@ class OperationsService {
     if (mmoError) {
       throw new NotFoundError(mmoError.response.data.error);
     }
-    return {...mmoData.data, amount};
+    return { ...mmoData.data, amount };
   }
 
   async startOperation(operation: Operation, token: string, amount: string) {
@@ -37,7 +38,7 @@ class OperationsService {
       )}`,
       { headers }
     );
-    return {status: 'pending'}
+    return { status: 'pending' };
   }
 }
 

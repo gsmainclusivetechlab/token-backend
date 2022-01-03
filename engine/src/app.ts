@@ -6,18 +6,7 @@ import Server from "./classes/server";
 import HooksRoute from "./routes/hooks.route";
 import OperationsRoute from './routes/operations.route';
 
-console.log('process.env.NODE_ENV:', process.env.NODE_ENV)
-if (process.env.NODE_ENV === 'development') {
-//   dotenv.config({ path: './env/.env.development' });
-  dotenv.config({ path: '.env' });
-} 
-// else if (process.env.NODE_ENV === 'staging') {
-//   dotenv.config({ path: './env/.env.staging' });
-// } else if (process.env.NODE_ENV === 'production') {
-//   dotenv.config({ path: './env/.env.production' });
-// } else {
-//   dotenv.config({ path: './env/.env.development' });
-// }
+dotenv.config({ path: '.env' });
 
 // App Initialization
 const app = new Server(process.env.PORT || 4400);
