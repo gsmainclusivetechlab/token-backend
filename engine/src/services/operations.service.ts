@@ -3,11 +3,11 @@ import { Operation, AgentCashInOutBody } from '../interfaces/cash-in-out';
 import { NotFoundError, UserFacingError } from '../classes/errors';
 import { AccountNameReturn } from '../interfaces/mmo';
 import { TokenDecodeInfo } from '../interfaces/token';
-import {GetTypeFromOperation} from '../lib/operations';
+import { GetTypeFromOperation } from '../lib/operations';
 import SafeAwait from '../lib/safe-await';
 
 class OperationsService {
-  async getAccountInfo(token: string, amount: string) {
+  async getAccountInfo(amount: string, token?: string, phoneNumber?: string) {
     const [tokenError, tokenData] = await SafeAwait(
       axios.get<TokenDecodeInfo>(
         `${process.env.TOKEN_API_URL}/tokens/decode/${token}`
@@ -18,7 +18,9 @@ class OperationsService {
     }
     const [mmoError, mmoData] = await SafeAwait(
       axios.get<AccountNameReturn>(
-        `${process.env.MMO_API_URL}/accounts/msisdn/${tokenData.data.phoneNumber}/accountname`
+        `${process.env.MMO_API_URL}/accounts/msisdn/${
+          token ? tokenData.data.phoneNumber : phoneNumber
+        }/accountname`
       )
     );
     if (mmoError) {

@@ -5,6 +5,7 @@ import {
   USSDOperations,
 } from "../enum/ussd-operations.enum";
 import { LogLevels, logService } from "./log.service";
+import { OperationsService } from "./operations.service";
 
 class USSDService {
   checkIfIsUSSDMessage(body: any): boolean {
@@ -71,17 +72,33 @@ class USSDService {
 
           return "Thanks for using Engine API";
         case USSDOperations.CashIn:
+          tokenApiResponse = await axios.get(
+            process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
+          );
+          await OperationsService.getAccountInfo(
+            ussdSplitted[1],
+            undefined,
+            body.phoneNumber
+          );
+          await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
+            token: tokenApiResponse.data,
+            amount: ussdSplitted[1],
+            type: 'cash-in',
+          });
         case USSDOperations.CashOut:
-          if (ussdSplitted.length != 2) {
-            throw new Error("INVALID_OPERATION");
-          } else {
-            return (
-              "Thanks for using USSD System - Operation: " +
-              findKeyByValueUSSDOperations(ussdSplitted[0]) +
-              " + Amount: " +
-              ussdSplitted[1]
-            );
-          }
+          tokenApiResponse = await axios.get(
+            process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
+          );
+          await OperationsService.getAccountInfo(
+            ussdSplitted[1],
+            undefined,
+            body.phoneNumber
+          );
+          await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
+            token: tokenApiResponse.data,
+            amount: ussdSplitted[1],
+            type: 'cash-out',
+          });
         default:
           throw new UserFacingError("INVALID_OPERATION");
       }

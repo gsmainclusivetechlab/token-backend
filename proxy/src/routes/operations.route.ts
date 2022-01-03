@@ -47,6 +47,13 @@ class OperationsRoute {
     return OperationsService.createNotification(request.body.notification);
   }
 
+  @Post("/register")
+  public createOperation(
+    request: Request<{}, {}, { token: string; amount: string; type: Operation }>
+  ) {
+    return OperationsService.createOperation(request.body);
+  }
+
   @Post("/:action/:id")
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
     const { token, amount } = request.body;

@@ -57,7 +57,7 @@ class OperationsService {
         );
         return response.data;
       } else {
-        //Dummy
+        MessageService.setSMSMessage('Operation denied')
         return { status: "close" };
       }
     } catch (err: any | AxiosError) {
@@ -76,11 +76,16 @@ class OperationsService {
   }
 
   async createNotification(message: string) {
+    MessageService.setSMSMessage(message);
     this.sendOperation.notifications.push({
       id: uuidv4(),
       message,
     });
     MessageService.setSMSMessage(message);
+  }
+
+  async createOperation(body: { token: string; amount: string; type: Operation }) {
+    
   }
 
   async deleteNotification(id: string) {
