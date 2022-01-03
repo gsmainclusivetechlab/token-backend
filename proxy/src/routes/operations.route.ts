@@ -22,16 +22,17 @@ class OperationsRoute {
     return OperationsService.getAccountInfo(token, amount, type);
   }
 
+  @Post('/notify')
+  public createNotification(request: Request<{}, {}, {notification: string}>) {
+    return OperationsService.createNotification(request.body.notification)
+  }
+
   @Post("/:id")
   public startOperation(request: Request<{id: string}, {}>) {
     const {token, amount} = request.body
     return OperationsService.startOperation(request.params.id);
   }
 
-  @Post()
-  public createNotification(request: Request<{}, {}, {notification: string}>) {
-    return OperationsService.createNotification(request.body.notification)
-  }
 }
 
 export default OperationsRoute;

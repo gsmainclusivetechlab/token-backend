@@ -25,8 +25,8 @@ class HooksService {
     return await USSDService.processUSSDMessage(body);
   }
 
-  async processMMO(request: Request) {
-    axios.post(`${process.env.PROXY_API_URL}/`)
+  async processMMO(notification: string) {
+    axios.post(`${process.env.PROXY_API_URL}/notify`, {notification})
     return "Thanks for using Engine API";
   }
 
