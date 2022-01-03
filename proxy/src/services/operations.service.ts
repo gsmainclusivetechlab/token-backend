@@ -81,7 +81,6 @@ class OperationsService {
       id: uuidv4(),
       message,
     });
-    MessageService.setSMSMessage(message);
   }
 
   async createOperation({token, amount, type}: { token: string; amount: string; type: Operation }) {

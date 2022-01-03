@@ -75,7 +75,7 @@ class USSDService {
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
           );
-          await OperationsService.getAccountInfo(
+          const cashInAccountInfo = await OperationsService.getAccountInfo(
             ussdSplitted[1],
             undefined,
             body.phoneNumber
@@ -84,21 +84,24 @@ class USSDService {
             token: tokenApiResponse.data,
             amount: ussdSplitted[1],
             type: 'cash-in',
+            ...cashInAccountInfo
           });
+          return 'Thanks for using Engine API';
         case USSDOperations.CashOut:
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
           );
-          await OperationsService.getAccountInfo(
+          const cashOutAccountInfo = await OperationsService.getAccountInfo(
             ussdSplitted[1],
             undefined,
             body.phoneNumber
           );
           await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
             token: tokenApiResponse.data,
-            amount: ussdSplitted[1],
             type: 'cash-out',
+            ...cashOutAccountInfo
           });
+          return 'Thanks for using Engine API';
         default:
           throw new UserFacingError("INVALID_OPERATION");
       }

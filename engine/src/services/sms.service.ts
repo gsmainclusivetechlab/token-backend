@@ -65,30 +65,32 @@ class SMSService {
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
           );
-          await OperationsService.getAccountInfo(
+          const cashInAccountInfo = await OperationsService.getAccountInfo(
             smsSplitted[1],
             undefined,
             body.phoneNumber
           );
           await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
             token: tokenApiResponse.data,
-            amount: smsSplitted[1],
             type: 'cash-in',
+            ...cashInAccountInfo
           });
+          return 'Thanks for using Engine API';
         case SMSOperations.CashOut:
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
           );
-          await OperationsService.getAccountInfo(
+          const cashOutAccountInfo = await OperationsService.getAccountInfo(
             smsSplitted[1],
             undefined,
             body.phoneNumber
           );
           await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
             token: tokenApiResponse.data,
-            amount: smsSplitted[1],
             type: 'cash-out',
+            ...cashOutAccountInfo
           });
+          return 'Thanks for using Engine API';
         default:
           throw new UserFacingError('INVALID OPERATION');
       }
