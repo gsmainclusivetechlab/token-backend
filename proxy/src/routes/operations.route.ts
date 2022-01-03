@@ -29,7 +29,6 @@ class OperationsRoute {
 
   @Post("/:id")
   public startOperation(request: Request<{id: string}, {}>) {
-    const {token, amount} = request.body
     return OperationsService.startOperation(request.params.id);
   }
 

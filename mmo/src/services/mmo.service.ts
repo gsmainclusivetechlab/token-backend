@@ -32,7 +32,7 @@ class MmoService {
     switch (type) {
       case 'withdrawal':
         try {
-          await axios.put(callbackUrl, body);
+          await axios.put(callbackUrl, {amount: body.amount, type, phoneNumber: body.creditParty[0].value});
         } catch (error) {
           throw new UserFacingError(error as string);
         }

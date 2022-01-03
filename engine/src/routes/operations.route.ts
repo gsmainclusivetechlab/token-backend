@@ -1,5 +1,5 @@
 import { Request, Router } from "express";
-import { Operation, AgentCashInOutBody } from "../../interfaces/cash-in-out";
+import { Operation, AgentCashInOutBody } from "../interfaces/cash-in-out";
 import Server from "../classes/server";
 import { RouteHandler, Post, Get } from "../decorators/router-handler";
 import { OperationsService } from "../services/operations.service";

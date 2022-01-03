@@ -1,6 +1,8 @@
 import axios from "axios";
 import { Request } from "express";
 import { UserFacingError } from "../classes/errors";
+import { Operation } from "../interfaces/cash-in-out";
+import { GetOperationFromType } from "../lib/operations";
 import { SMSService } from "./sms.service";
 import { USSDService } from "./ussd.service";
 
@@ -25,7 +27,9 @@ class HooksService {
     return await USSDService.processUSSDMessage(body);
   }
 
-  async processMMO(notification: string) {
+  async processMMO(body: any) {
+    const operation: Operation = GetOperationFromType(body.type)
+    const notification = `${operation} successfully`
     axios.post(`${process.env.PROXY_API_URL}/notify`, {notification})
     return "Thanks for using Engine API";
   }

@@ -1,10 +1,14 @@
-import { Operation } from "../../interfaces/cash-in-out";
+import { MmoOperation, Operation } from "../interfaces/cash-in-out";
 
 enum OperationMap {
   'cash-in' = 'deposit',
-  'cash-out' = 'deposit',
+  'cash-out' = 'withdraw',
 }
 
-export default function GetTypeFromOperation(operation: Operation) {
+export function GetTypeFromOperation(operation: Operation) {
   return OperationMap[operation]
+}
+
+export function GetOperationFromType(type: MmoOperation): Operation {
+  return Object.entries(OperationMap).find(([key, val]) => val === type)?.[0] as Operation;
 }

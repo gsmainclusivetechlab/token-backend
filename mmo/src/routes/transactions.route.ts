@@ -2,7 +2,7 @@ import { Request, Router } from 'express';
 import { UserFacingError } from '../classes/errors';
 
 import Server from '../classes/server';
-import { RouteHandler, Get } from '../decorators/router-handler';
+import { RouteHandler, Post } from '../decorators/router-handler';
 import {
   TransactionsBody,
   TransactionsHeaders,
@@ -16,7 +16,7 @@ class TransactionsRoute {
 
   constructor(public app: Server) {}
 
-  @Get('/type/:type')
+  @Post('/type/:type')
   public getAccountName(
     request: Request<
       { type: TransactionType },
