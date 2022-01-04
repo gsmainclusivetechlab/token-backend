@@ -71,7 +71,7 @@ class SMSService {
             body.phoneNumber
           );
           await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
-            token: tokenApiResponse.data,
+            token: tokenApiResponse.data.token,
             type: 'cash-in',
             ...cashInAccountInfo
           });
@@ -86,7 +86,7 @@ class SMSService {
             body.phoneNumber
           );
           await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
-            token: tokenApiResponse.data,
+            token: tokenApiResponse.data.token,
             type: 'cash-out',
             ...cashOutAccountInfo
           });
