@@ -23,7 +23,7 @@ class AccountsRoute {
    *       - in: path
    *         name: phoneNumber
    *         required: true
-   *         description: Customer's operation.
+   *         description: Customer's phone number.
    *         schema:
    *           type: string
    *           example: "+233207212676"

@@ -124,7 +124,7 @@ class Server {
 
     const options = {
       swaggerDefinition,
-      apis: [`${__dirname}/../routes/*.ts`],
+      apis: [`${__dirname}/../routes/*.ts`, `${__dirname}/../routes/*.js`],
     };
 
     const swaggerSpec = swaggerJSDoc(options);
