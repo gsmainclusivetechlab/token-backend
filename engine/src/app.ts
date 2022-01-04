@@ -5,25 +5,8 @@ import LivenessProbeRoute from "./routes/liveness-probe.route";
 import Server from "./classes/server";
 import HooksRoute from "./routes/hooks.route";
 import OperationsRoute from './routes/operations.route';
-import swaggerJSDoc from 'swagger-jsdoc'
 
 dotenv.config({ path: '.env' });
-
-const swaggerDefinition = {
-  openapi: '3.0.0',
-  info: {
-    title: 'Express API for JSONPlaceholder',
-    version: '1.0.0',
-  },
-};
-
-const options = {
-  swaggerDefinition,
-  // Paths to files containing OpenAPI definitions
-  apis: ['./routes/*.js'],
-};
-
-const swaggerSpec = swaggerJSDoc(options);
 
 // App Initialization
 const app = new Server(process.env.PORT || 4400);
@@ -35,6 +18,7 @@ new OperationsRoute(app);
 
 const index = new IndexRoute(app.getRoutes());
 app.addRoute("/", index.router);
+app.addDocsRoute();
 
 app.addErrorHandler();
 app.add404Handler();
