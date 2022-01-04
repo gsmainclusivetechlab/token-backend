@@ -30,9 +30,8 @@ class USSDService {
     try {
       switch (ussdSplitted[0]) {
         case USSDOperations.GetToken:
-          //TODO Call MMO API
           tokenApiResponse = await axios.get(
-            process.env.TOKEN_API_URL + "/tokens/" + body.phoneNumber
+            process.env.TOKEN_API_URL + '/tokens/renew/' + body.phoneNumber
           );
 
           if (tokenApiResponse.data && tokenApiResponse.data.token) {
@@ -44,27 +43,12 @@ class USSDService {
 
           return "Thanks for using Engine API";
         case USSDOperations.DeleteToken:
-          //TODO Call MMO API
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + "/tokens/invalidate/" + body.phoneNumber
           );
 
           if (tokenApiResponse.data && tokenApiResponse.data) {
             const message = "Your token was deleted";
-            await axios.post(process.env.USSD_GATEWAY_API_URL + "/receive", {
-              message: message,
-            });
-          }
-
-          return "Thanks for using Engine API";
-        case USSDOperations.RenewToken:
-          //TODO Call MMO API
-          tokenApiResponse = await axios.get(
-            process.env.TOKEN_API_URL + "/tokens/renew/" + body.phoneNumber
-          );
-
-          if (tokenApiResponse.data && tokenApiResponse.data.token) {
-            const message = "Your new token is " + tokenApiResponse.data.token;
             await axios.post(process.env.USSD_GATEWAY_API_URL + "/receive", {
               message: message,
             });

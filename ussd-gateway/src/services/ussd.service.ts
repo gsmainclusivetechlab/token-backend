@@ -15,9 +15,8 @@ menu.startState({
   next: {
     '1': 'getToken',
     '2': 'deleteToken',
-    '3': 'renewToken',
-    '4': 'cashIn',
-    '5': 'cashOut',
+    '3': 'cashIn',
+    '4': 'cashOut',
   },
   defaultNext: 'invalidOption',
 });
@@ -35,12 +34,6 @@ menu.state('getToken', {
 });
 
 menu.state('deleteToken', {
-  run: async () => {
-    await ussdGatewayRequest();
-  },
-});
-
-menu.state('renewToken', {
   run: async () => {
     await ussdGatewayRequest();
   },

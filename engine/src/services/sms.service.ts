@@ -20,9 +20,8 @@ class SMSService {
     try {
       switch (smsSplitted[0]) {
         case SMSOperations.GetToken:
-          //TODO Call MMO API
           tokenApiResponse = await axios.get(
-            process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
+            process.env.TOKEN_API_URL + '/tokens/renew/' + body.phoneNumber
           );
 
           if (tokenApiResponse.data && tokenApiResponse.data.token) {
@@ -34,27 +33,12 @@ class SMSService {
 
           return 'Thanks for using Engine API';
         case SMSOperations.DeleteToken:
-          //TODO Call MMO API
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + '/tokens/invalidate/' + body.phoneNumber
           );
 
           if (tokenApiResponse.data && tokenApiResponse.data) {
             const message = 'Your token was deleted';
-            await axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
-              message: message,
-            });
-          }
-
-          return 'Thanks for using Engine API';
-        case SMSOperations.RenewToken:
-          //TODO Call MMO API
-          tokenApiResponse = await axios.get(
-            process.env.TOKEN_API_URL + '/tokens/renew/' + body.phoneNumber
-          );
-
-          if (tokenApiResponse.data && tokenApiResponse.data.token) {
-            const message = 'Your new token is ' + tokenApiResponse.data.token;
             await axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
               message: message,
             });
