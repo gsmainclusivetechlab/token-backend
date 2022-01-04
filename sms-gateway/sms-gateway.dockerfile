@@ -3,8 +3,9 @@ FROM node:lts-alpine3.12
 RUN apk add curl
 
 WORKDIR /app
-COPY    package.json package-lock.json ./
-RUN     npm install
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm
+RUN pnpm i --unsafe-perm=true
 
 COPY    . ./
 
