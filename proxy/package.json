@@ -4,7 +4,7 @@
   "description": "Proxy",
   "main": "./dist/app.js",
   "scripts": {
-    "start": "npm run build && node ./dist/app.js",
+    "start": "pnpm run build && node ./dist/app.js",
     "serve": "NODE_ENV=development nodemon ./dist/app.js",
     "serve-debug": "NODE_ENV=development nodemon --config nodemon-debug.json",
     "build": "tsc ",

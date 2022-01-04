@@ -4,7 +4,7 @@
   "description": "USSD Gateway",
   "main": "./dist/src/app.js",
   "scripts": {
-    "start": "npm run build && node ./dist/src/app.js",
+    "start": "pnpm run build && node ./dist/src/app.js",
     "serve": "NODE_ENV=development nodemon ./dist/src/app.js",
     "serve-debug": "NODE_ENV=development nodemon --config nodemon-debug.json",
     "build": "tsc ",
