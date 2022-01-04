@@ -13,7 +13,7 @@ class OperationsRoute {
 
   @Get("/account-info")
   public getSMSOperations(request: Request<{}, {}, {}, {token: string, amount: string}>) {
-    return OperationsService.getAccountInfo(request.query.token, request.query.amount);
+    return OperationsService.getAccountInfo(request.query.amount, request.query.token);
   }
 
   @Post("/:operation")

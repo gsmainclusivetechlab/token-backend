@@ -37,7 +37,7 @@ class OperationsRoute {
     >
   ) {
     const { token, amount, type } = request.query;
-    return OperationsService.getAccountInfo(token, amount, type);
+    return OperationsService.getAccountInfo(amount, token, type);
   }
 
   @Post("/notify")

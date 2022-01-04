@@ -16,7 +16,7 @@ class OperationsService {
     operations: [],
     notifications: [],
   };
-  async getAccountInfo(token: string, amount: string, type: Operation) {
+  async getAccountInfo(amount: string, token: string, type: Operation) {
     if (!(type === "cash-in" || type === "cash-out")) {
       throw new UserFacingError("Invalid type");
     }
