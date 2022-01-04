@@ -50,16 +50,11 @@ class OperationsService {
         1
       );
 
-      if (action == "accept") {
-        const response = await axios.post(
-          `${process.env.ENGINE_API_URL}/operations/${type}`,
-          { token, amount }
-        );
-        return response.data;
-      } else {
-        MessageService.setSMSMessage('Operation denied')
-        return { status: "close" };
-      }
+      const response = await axios.post(
+        `${process.env.ENGINE_API_URL}/operations/${type}/${action}`,
+        { token, amount }
+      );
+      return response.data;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err) && err.response) {
         logService.log(LogLevels.ERROR, err.response?.data?.error);
@@ -86,13 +81,16 @@ class OperationsService {
   async createOperation(body: any) {
     this.sendOperation.operations.push({
       id: uuidv4(),
-      ...body
+      ...body,
     });
   }
 
   async deleteNotification(id: string) {
-    this.sendOperation.notifications.splice(this.sendOperation.notifications.findIndex(el => el.id === id),1)
-    return {message: 'Notification deleted'}
+    this.sendOperation.notifications.splice(
+      this.sendOperation.notifications.findIndex((el) => el.id === id),
+      1
+    );
+    return { message: `The notification with id ${id} was deleted` };
   }
 
   private getOperation(id: string) {

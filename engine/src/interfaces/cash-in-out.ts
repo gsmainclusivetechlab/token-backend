@@ -1,7 +1,5 @@
-export type Operation = 'cash-in' | 'cash-out'
+export type Operation = "cash-in" | "cash-out";
 
-export type MmoOperation = 'deposit' | 'withdraw'
-export interface AgentCashInOutBody {
-  amount: number;
-  token: string;
-}
+export type Action = "accept" | "reject";
+
+export type MmoOperation = "deposit" | "withdraw";

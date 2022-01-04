@@ -20,17 +20,15 @@ class HooksService {
 
     this.validateBodyProperties(body);
 
-    // if (!USSDService.checkIfIsUSSDMessage(body)) {
-    //   throw new UserFacingError("INVALID_REQUEST - Invalid text format");
-    // }
-
     return await USSDService.processUSSDMessage(body);
   }
 
-  async processMMO(request: Request) {
+  processMMO(request: Request) {
     const operation: Operation = GetOperationFromType(request.body.type);
-    const notification = `${operation} successfully`;
-    axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {notification})
+    const notification = `The operation of ${operation} was successfully`;
+    axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
+      notification,
+    });
     return "Thanks for using Engine API";
   }
 

@@ -1,11 +1,7 @@
 import { Request, Router } from "express";
 import Server from "../classes/server";
 import { RouteHandler, Post, Get, Delete } from "../decorators/router-handler";
-import {
-  Action,
-  AgentCashInOutBody,
-  Operation,
-} from "../interfaces/cash-in-out";
+import { Action, Operation } from "../interfaces/cash-in-out";
 import { OperationsService } from "../services/operations.service";
 
 @RouteHandler("/operations")
@@ -63,9 +59,9 @@ class OperationsRoute {
     );
   }
 
-  @Delete('/notification/:id')
+  @Delete("/notification/:id")
   public deleteNotification(request: Request<{ id: string }, {}>) {
-    return OperationsService.deleteNotification(request.params.id)
+    return OperationsService.deleteNotification(request.params.id);
   }
 }
 
