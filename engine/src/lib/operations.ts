@@ -2,7 +2,7 @@ import { MmoOperation, Operation } from "../interfaces/cash-in-out";
 
 enum OperationMap {
   'cash-in' = 'deposit',
-  'cash-out' = 'withdraw',
+  'cash-out' = 'withdrawal',
 }
 
 export function GetTypeFromOperation(operation: Operation) {
