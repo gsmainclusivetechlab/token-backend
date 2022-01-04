@@ -16,6 +16,8 @@ class OperationsRoute {
    * @openapi
    * /operations/account-info:
    *   get:
+   *     tags:
+   *        - "Operations"
    *     summary: Get user's account info
    *     description: Makes a request to the MMO API in order to get the user's account info
    *     parameters:
@@ -44,6 +46,30 @@ class OperationsRoute {
     );
   }
 
+  /**
+   * @openapi
+   * /operations/{operation}/{action}:
+   *   get:
+   *     tags:
+   *        - "Operations"
+   *     summary: Get user's account info
+   *     description: Makes a request to the MMO API in order to get the user's account info
+   *     parameters:
+   *       - in: path
+   *         name: operation
+   *         required: true
+   *         description: Customer's operation.
+   *         schema:
+   *           type: string
+   *           example: "cash-in"
+   *       - in: path
+   *         name: action
+   *         required: true
+   *         description: Agent's action.
+   *         schema:
+   *           type: string
+   *           example: "accept"
+   */
   @Post("/:operation/:action")
   public startOperation(
     request: Request<

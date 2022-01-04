@@ -14,6 +14,8 @@ class HooksRoute {
    * @openapi
    * /hooks/sms-gateway:
    *   post:
+   *     tags:
+   *        - "Hooks"
    *     summary: SMS gateway Webhook
    *     description: Webhook for the SMS gateway. Process the content of the SMS and takes action accordingly.
    *     requestBody:
@@ -41,6 +43,8 @@ class HooksRoute {
    * @openapi
    * /hooks/ussd-gateway:
    *   post:
+   *     tags:
+   *        - "Hooks"
    *     summary: USSD gateway Webhook
    *     description: Webhook for the USSD gateway. Process the content of the USSD and takes action accordingly.
    *     requestBody:
@@ -68,6 +72,8 @@ class HooksRoute {
    * @openapi
    * /hooks/mmo:
    *   put:
+   *     tags:
+   *        - "Hooks"
    *     summary: MMO API Webhook
    *     description: Webhook for the MMO API. After the MMO API completes a request it will trigger this endpoint.
    *     requestBody:
