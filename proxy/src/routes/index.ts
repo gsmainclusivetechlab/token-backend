@@ -1,37 +1,29 @@
-import * as express from "express";
-import axios, { AxiosResponse, AxiosError } from "axios";
-import "dotenv/config";
+import { Request, Response, Router } from "express";
+import { logService, LogLevels } from "../services/log.service";
+class IndexRoute {
+  public router: Router;
 
-const router = express.Router();
+  constructor(public applicationRoutes: string[]) {
+    this.router = Router();
+    this.init();
+  }
 
-router.post("/sms-gateway", function (req, res) {
-  const { body } = req;
-
-  const url = <string>process.env.SMS_GATEWAY_URL;
-
-  axios
-    .post(url, body)
-    .then((response: AxiosResponse) => {
-      res.send(response.data);
-    })
-    .catch((error: AxiosError) => {
-      res.status(500).send(error.message);
+  public init() {
+    this.router.route("").get((request: Request, response: Response) => {
+      const meta: any = [];
+      const fullUrl = request.protocol + "://" + request.get("host");
+      this.applicationRoutes.forEach((resource: string) => {
+        logService.log(LogLevels.DEBUG, `Setting route... ${resource}`);
+        if (resource !== "/") {
+          meta.push({
+            rel: resource.replace(/\//g, ""),
+            href: fullUrl + resource,
+          });
+        }
+      });
+      response.json({ links: meta });
     });
-});
+  }
+}
 
-router.post("/ussd-gateway", function (req, res) {
-  const { body } = req;
-
-  const url = <string>process.env.USSD_GATEWAY_URL;
-
-  axios
-    .post(url, body)
-    .then((response: AxiosResponse) => {
-      res.send(response.data);
-    })
-    .catch((error: AxiosError) => {
-      res.status(500).send(error.message);
-    });
-});
-
-export default router;
+export default IndexRoute;

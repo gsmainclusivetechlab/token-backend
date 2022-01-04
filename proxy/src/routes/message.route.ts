@@ -14,11 +14,6 @@ class MessageRoute {
   public getSMSMessage(request: Request) {
     return MessageService.processGetSMSMessage(request);
   }
-
-  @Get("/ussd")
-  public getUSSDMessage(request: Request) {
-    return MessageService.processGetUSSDMessage(request);
-  }
 }
 
 export default MessageRoute;

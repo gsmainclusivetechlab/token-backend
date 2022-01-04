@@ -9,7 +9,7 @@ class USSDGatewayService {
     try {
       const { body } = request;
 
-      MessageService.setUSSDMessage("");
+      MessageService.setSMSMessage("");
 
       const response = await axios.post(
         process.env.USSD_GATEWAY_API_URL + "/send",
@@ -31,7 +31,7 @@ class USSDGatewayService {
   async processReceive(request: Request) {
     try {
         const { body } = request;
-        MessageService.setUSSDMessage(body.message);
+        MessageService.setSMSMessage(body.message);
         return;
       } catch (err: any | AxiosError) {
         if (axios.isAxiosError(err) && err.response) {
