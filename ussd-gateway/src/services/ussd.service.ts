@@ -1,6 +1,6 @@
-import axios, { AxiosError } from 'axios';
-import UssdMenu = require('ussd-builder');
-import { LogLevels, logService } from './log.service';
+import axios, { AxiosError } from "axios";
+import UssdMenu = require("ussd-builder");
+import { LogLevels, logService } from "./log.service";
 
 const menu = new UssdMenu();
 
@@ -8,7 +8,7 @@ menu.startState({
   run: () => {
     // use menu.con() to send response without terminating session
     menu.con(
-      'Welcome. Choose option: \n1. Get Token \n2. Delete Token \n3. Renew Token \n4. Cash In \n5. Cash Out'
+      "Welcome. Choose option: \n1. Get Token \n2. Delete Token \n3. Cash In \n4. Cash Out"
     );
   },
   // next object links to next state based on user input
@@ -18,34 +18,54 @@ menu.startState({
     '3': 'cashIn',
     '4': 'cashOut',
   },
-  defaultNext: 'invalidOption',
+  defaultNext: "invalidOption",
 });
 
-menu.state('invalidOption', {
+menu.state("invalidOption", {
   run: () => {
-    menu.end('Invalid Option');
+    menu.end("Invalid Option");
   },
 });
 
-menu.state('getToken', {
+menu.state("getToken", {
   run: async () => {
     await ussdGatewayRequest();
   },
 });
 
-menu.state('deleteToken', {
+menu.state("deleteToken", {
   run: async () => {
     await ussdGatewayRequest();
   },
 });
 
-menu.state('cashIn', {
+menu.state("cashIn", {
+  run: () => {
+    menu.con("Enter amount:");
+  },
+  next: {
+    // using regex to match user input to next state
+    "*\\d+": "cashIn.amount",
+  },
+});
+
+menu.state("cashIn.amount", {
   run: async () => {
     await ussdGatewayRequest();
   },
 });
 
-menu.state('cashOut', {
+menu.state("cashOut", {
+  run: () => {
+    menu.con("Enter amount:");
+  },
+  next: {
+    // using regex to match user input to next state
+    "*\\d+": "cashOut.amount",
+  },
+});
+
+menu.state("cashOut.amount", {
   run: async () => {
     await ussdGatewayRequest();
   },
@@ -54,7 +74,7 @@ menu.state('cashOut', {
 async function ussdGatewayRequest() {
   try {
     var response = await axios.post(
-      process.env.ENGINE_API_URL + '/hooks/ussd-gateway',
+      process.env.ENGINE_API_URL + "/hooks/ussd-gateway",
       menu.args
     );
 

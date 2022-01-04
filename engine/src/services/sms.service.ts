@@ -1,9 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { UserFacingError } from '../classes/errors';
-import {
-  findKeyByValueSMSOperations,
-  SMSOperations,
-} from '../enum/sms-operations.enum';
+import { SMSOperations } from '../enum/sms-operations.enum';
 import { LogLevels, logService } from './log.service';
 import { OperationsService } from './operations.service';
 
@@ -45,6 +42,7 @@ class SMSService {
           }
 
           return 'Thanks for using Engine API';
+
         case SMSOperations.CashIn:
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
@@ -57,7 +55,7 @@ class SMSService {
           await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
             token: tokenApiResponse.data.token,
             type: 'cash-in',
-            ...cashInAccountInfo
+            ...cashInAccountInfo,
           });
           return 'Thanks for using Engine API';
         case SMSOperations.CashOut:
@@ -72,7 +70,7 @@ class SMSService {
           await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
             token: tokenApiResponse.data.token,
             type: 'cash-out',
-            ...cashOutAccountInfo
+            ...cashOutAccountInfo,
           });
           return 'Thanks for using Engine API';
         default:
