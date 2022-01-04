@@ -11,7 +11,7 @@ class HooksRoute {
   constructor(public app: Server) {}
 
   /**
-   * @swagger
+   * @openapi
    * /hooks/sms-gateway:
    *   post:
    *     summary: SMS gateway Webhook
@@ -38,7 +38,7 @@ class HooksRoute {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /hooks/ussd-gateway:
    *   post:
    *     summary: USSD gateway Webhook
@@ -65,7 +65,7 @@ class HooksRoute {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /hooks/mmo:
    *   put:
    *     summary: MMO API Webhook
