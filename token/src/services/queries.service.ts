@@ -52,7 +52,7 @@ class QueriesService {
         if (err) {
           return reject('Error invalidating token');
         }
-        return resolve('Token invalidated');
+        return resolve({message: 'Token invalidated'});
       });
     });
   }

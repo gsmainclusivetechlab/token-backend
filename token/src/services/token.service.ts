@@ -51,11 +51,9 @@ class TokenService {
     const { phoneNumber } = this.validatePhone(phone);
     try {
       const tokenData = await queriesService.findByPhoneNumber(phoneNumber);
-      if (!tokenData) {
-        throw new UserFacingError(`Phone number doesn't exist`);
+      if (tokenData) {
+        await queriesService.invalidateToken(phoneNumber);
       }
-
-      await queriesService.invalidateToken(phoneNumber);
 
       return this.getToken(phoneNumber);
     } catch (err: any) {
