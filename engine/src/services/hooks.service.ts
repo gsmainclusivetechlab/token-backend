@@ -1,5 +1,8 @@
+import axios from "axios";
 import { Request } from "express";
 import { UserFacingError } from "../classes/errors";
+import { Operation } from "../interfaces/cash-in-out";
+import { GetOperationFromType } from "../lib/operations";
 import { SMSService } from "./sms.service";
 import { USSDService } from "./ussd.service";
 
@@ -17,14 +20,15 @@ class HooksService {
 
     this.validateBodyProperties(body);
 
-    // if (!USSDService.checkIfIsUSSDMessage(body)) {
-    //   throw new UserFacingError("INVALID_REQUEST - Invalid text format");
-    // }
-
     return await USSDService.processUSSDMessage(body);
   }
 
-  async processMMO(request: Request) {
+  processMMO(request: Request) {
+    const operation: Operation = GetOperationFromType(request.body.type);
+    const notification = `The operation of ${operation} was successfully`;
+    axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
+      notification,
+    });
     return "Thanks for using Engine API";
   }
 

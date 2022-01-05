@@ -39,7 +39,7 @@ CREATE TABLE `registry` (
 
 LOCK TABLES `registry` WRITE;
 /*!40000 ALTER TABLE `registry` DISABLE KEYS */;
-INSERT INTO `registry` VALUES (1,'+351966558950','+351','351145642801',1);
+INSERT INTO `registry` VALUES (1,'+233207212676','+233','233120046954',1);
 /*!40000 ALTER TABLE `registry` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;

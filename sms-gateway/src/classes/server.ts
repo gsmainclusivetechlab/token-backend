@@ -7,6 +7,8 @@ import http from "http";
 import https from "https";
 import { UserFacingError } from "../classes/errors";
 import { LogLevels, logService } from "../services/log.service";
+import swaggerUi from 'swagger-ui-express';
+import swaggerJSDoc from 'swagger-jsdoc';
 
 const errorHandler = (err: any, req: any, res: any, next: any) => {
   logService.log(LogLevels.WARNING, `Catch all errors`);
@@ -96,6 +98,31 @@ class Server {
       this.routes.push(routeUrl);
       this.app.use(routeUrl, routerHandler);
     }
+  }
+
+  public addDocsRoute() {
+    const swaggerDefinition = {
+      openapi: '3.0.0',
+      info: {
+        title: 'SMS-Gateway API',
+        version: '1.1.0',
+      },
+      servers: [
+        {
+          url: 'http://localhost:4100',
+          description: 'Development server',
+        },
+      ],
+    };
+
+    const options = {
+      swaggerDefinition,
+      apis: [`${__dirname}/../routes/*.ts`],
+    };
+
+    const swaggerSpec = swaggerJSDoc(options);
+    this.routes.push('/docs');
+    this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   }
 
   // Exposed public routes (service discovery)

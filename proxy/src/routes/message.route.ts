@@ -10,14 +10,26 @@ class MessageRoute {
 
   constructor(public app: Server) {}
 
+  /**
+   * @openapi
+   * /message/sms:
+   *   get:
+   *     tags:
+   *        - "Message"
+   *     summary: Get SMS Message
+   *     description: Gets the message about last user operation
+   *     responses:
+   *        '200':
+   *           description: OK
+   *           content:
+   *             application/json:
+   *               example:
+   *                 message: ""
+   *
+   */
   @Get("/sms")
   public getSMSMessage(request: Request) {
     return MessageService.processGetSMSMessage(request);
-  }
-
-  @Get("/ussd")
-  public getUSSDMessage(request: Request) {
-    return MessageService.processGetUSSDMessage(request);
   }
 }
 
