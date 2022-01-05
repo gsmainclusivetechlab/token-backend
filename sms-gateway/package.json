@@ -4,7 +4,7 @@
   "description": "SMS Gateway",
   "main": "./dist/src/app.js",
   "scripts": {
-    "start": "npm run build && node ./dist/src/app.js",
+    "start": "pnpm run build && node ./dist/src/app.js",
     "serve": "NODE_ENV=development nodemon ./dist/src/app.js",
     "serve-debug": "NODE_ENV=development nodemon --config nodemon-debug.json",
     "build": "tsc ",
@@ -19,7 +19,8 @@
     "express": "^4.17.1",
     "moment": "^2.29.1",
     "ts-node": "^10.4.0",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "body-parser": "^1.19.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",

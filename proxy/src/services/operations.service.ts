@@ -6,11 +6,8 @@ import SafeAwait from "../lib/safe-await";
 import { v4 as uuidv4 } from "uuid";
 import { LogLevels, logService } from "./log.service";
 import { MessageService } from "./message.service";
+import { CreateOperationBody, SendOperation } from "../interfaces/operations";
 
-interface SendOperation {
-  operations: any[];
-  notifications: any[];
-}
 class OperationsService {
   sendOperation: SendOperation = {
     operations: [],
@@ -39,8 +36,11 @@ class OperationsService {
       if (!(action === "accept" || action === "reject")) {
         throw new UserFacingError("Invalid action");
       }
-
-      const { token, type, amount } = this.getOperation(operationId);
+      const operation = this.getOperation(operationId)
+      if(!operation) {
+        throw new UserFacingError('Something went wrong');
+      }
+      const { token, type, amount } = operation
       if (!token) {
         throw new UserFacingError("Operation doesn't exist");
       }
@@ -78,7 +78,7 @@ class OperationsService {
     });
   }
 
-  async createOperation(body: any) {
+  async createOperation(body: CreateOperationBody) {
     this.sendOperation.operations.push({
       id: uuidv4(),
       ...body,
