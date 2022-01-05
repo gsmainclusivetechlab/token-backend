@@ -8,6 +8,8 @@ import https from "https";
 import { UserFacingError } from "../classes/errors";
 import { LogLevels, logService } from "../services/log.service";
 import { Connection, createConnection } from 'mysql'
+import swaggerUi from 'swagger-ui-express';
+import swaggerJSDoc from 'swagger-jsdoc';
 
 export var db: Connection
 
@@ -103,6 +105,31 @@ class Server {
       this.routes.push(routeUrl);
       this.app.use(routeUrl, routerHandler);
     }
+  }
+
+  public addDocsRoute() {
+    const swaggerDefinition = {
+      openapi: '3.0.0',
+      info: {
+        title: 'Express API for JSONPlaceholder',
+        version: '1.0.0',
+      },
+      servers: [
+        {
+          url: 'http://localhost:4300',
+          description: 'Development server',
+        },
+      ],
+    };
+
+    const options = {
+      swaggerDefinition,
+      apis: [`${__dirname}/../routes/*.ts`, `${__dirname}/../routes/*.js`],
+    };
+
+    const swaggerSpec = swaggerJSDoc(options);
+    this.routes.push('/docs');
+    this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   }
 
   // Exposed public routes (service discovery)
