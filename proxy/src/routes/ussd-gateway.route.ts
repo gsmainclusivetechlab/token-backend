@@ -60,7 +60,7 @@ class USSDGatewayRoute {
    *     tags:
    *        - "USSD-Gateway"
    *     summary: Receive messages
-   *     description: Receive the SMS Gateway message and store it in memory
+   *     description: Receive a message from USSD Gateway API and store it in memory
    *     requestBody:
    *      required: true
    *      content:

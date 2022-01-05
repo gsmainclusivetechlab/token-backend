@@ -53,7 +53,7 @@ class SMSGatewayRoute {
    *     tags:
    *        - "SMS-Gateway"
    *     summary: Receive messages
-   *     description: Receive the SMS Gateway message and store it in memory
+   *     description: Receive a message from SMS Gateway API and store it in memory
    *     requestBody:
    *      required: true
    *      content:
