@@ -35,35 +35,32 @@ class AccountsRoute {
    *             schema:
    *               type: object
    *               properties:
-   *                 data:
+   *                 name:
    *                   type: object
    *                   properties:
-   *                     name:
-   *                       type: object
-   *                       properties:
-   *                          title:
-   *                            type: string
-   *                            description: Customer's title.
-   *                            example: Dr
-   *                          firstName:
-   *                            type: string
-   *                            description: Customer's firstName.
-   *                            example: Leanne
-   *                          middleName:
-   *                            type: string
-   *                            description: Customer's middleName.
-   *                            example: Peter
-   *                          lastName:
-   *                            type: string
-   *                            description: Customer's lastName.
-   *                            example: Graham
-   *                          fullName:
-   *                            type: string
-   *                            description: Customer's fullName.
-   *                            example: Leanne Peter Graham
-   *                     lei:
-   *                       type: string
-   *                       description: Customer's account number
+   *                      title:
+   *                        type: string
+   *                        description: Customer's title.
+   *                        example: Dr
+   *                      firstName:
+   *                        type: string
+   *                        description: Customer's firstName.
+   *                        example: Leanne
+   *                      middleName:
+   *                        type: string
+   *                        description: Customer's middleName.
+   *                        example: Peter
+   *                      lastName:
+   *                        type: string
+   *                        description: Customer's lastName.
+   *                        example: Graham
+   *                      fullName:
+   *                        type: string
+   *                        description: Customer's fullName.
+   *                        example: Leanne Peter Graham
+   *                 lei:
+   *                   type: string
+   *                   description: Customer's account number
   */
   @Get("/msisdn/:phoneNumber/accountname")
   public getAccountName(request: Request<{phoneNumber: string}, {}, {}, AccountNameQueryParams>) {

@@ -5,13 +5,13 @@ export interface CreateOperationBody {
   amount: string;
   type: Operation;
   name: {
-    title: 'Dr.';
-    firstName: "Ruizao";
-    middleName: 'P.';
-    lastName: "Escobar";
-    fullName: "Rui";
+    title: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    fullName: string;
   };
-  lei: 'AAAA0012345678901299'
+  lei: string;
 }
 
 interface CreateOperation extends CreateOperationBody{

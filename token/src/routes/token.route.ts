@@ -34,13 +34,10 @@ class TokensRoute {
    *             schema:
    *               type: object
    *               properties:
-   *                 data:
-   *                   type: object
-   *                   properties:
-   *                     token:
-   *                       type: string
-   *                       description: Customer's token
-   *                       example: 233120046954
+   *                 token:
+   *                   type: string
+   *                   description: Customer's token
+   *                   example: 233120046954
   */
   @Get("/:phoneNumber")
   public encode(request: Request<{phoneNumber: string}>) {
@@ -53,8 +50,8 @@ class TokensRoute {
    *   get:
    *     tags:
    *        - "Tokens"
-   *     summary: Generate token
-   *     description: Generates a new token or return the already existing one, if valid
+   *     summary: Decode token
+   *     description: Converts token into customer's info
    *     parameters:
    *       - in: path
    *         name: token
@@ -71,25 +68,22 @@ class TokensRoute {
    *             schema:
    *               type: object
    *               properties:
-   *                 data:
-   *                   type: object
-   *                   properties:
-   *                     phoneNumber:
-   *                       type: string
-   *                       description: Customer's phoneNumber
-   *                       example: "+233207212676"
-   *                     indicative:
-   *                       type: string
-   *                       description: Customer's indicative
-   *                       example: "+233"
-   *                     token:
-   *                       type: string
-   *                       description: Customer's token
-   *                       example: 233120046954
-   *                     active:
-   *                       type: boolean
-   *                       description: Is customer's token active
-   *                       example: true
+   *                 phoneNumber:
+   *                   type: string
+   *                   description: Customer's phoneNumber
+   *                   example: "+233207212676"
+   *                 indicative:
+   *                   type: string
+   *                   description: Customer's indicative
+   *                   example: "+233"
+   *                 token:
+   *                   type: string
+   *                   description: Customer's token
+   *                   example: 233120046954
+   *                 active:
+   *                   type: boolean
+   *                   description: Is customer's token active
+   *                   example: true
   */
   @Get("/decode/:token")
   public decode(request: Request<{token: string}>) {
@@ -102,8 +96,7 @@ class TokensRoute {
    *   get:
    *     tags:
    *        - "Tokens"
-   *     summary: Generate token
-   *     description: Generates a new token or return the already existing one, if valid
+   *     summary: Invalidate token
    *     parameters:
    *       - in: path
    *         name: phoneNumber
@@ -120,25 +113,22 @@ class TokensRoute {
    *             schema:
    *               type: object
    *               properties:
-   *                 data:
-   *                   type: object
-   *                   properties:
-   *                     phoneNumber:
-   *                       type: string
-   *                       description: Customer's phoneNumber
-   *                       example: "+233207212676"
-   *                     indicative:
-   *                       type: string
-   *                       description: Customer's indicative
-   *                       example: "+233"
-   *                     token:
-   *                       type: string
-   *                       description: Customer's token
-   *                       example: 233120046954
-   *                     active:
-   *                       type: boolean
-   *                       description: Is customer's token active
-   *                       example: true
+   *                  phoneNumber:
+   *                    type: string
+   *                    description: Customer's phoneNumber
+   *                    example: "+233207212676"
+   *                  indicative:
+   *                    type: string
+   *                    description: Customer's indicative
+   *                    example: "+233"
+   *                  token:
+   *                    type: string
+   *                    description: Customer's token
+   *                    example: 233120046954
+   *                  active:
+   *                    type: boolean
+   *                    description: Is customer's token active
+   *                    example: true
   */
   @Get("/invalidate/:phoneNumber")
   public invalidate(request: Request<{phoneNumber: string}>) {
@@ -147,12 +137,12 @@ class TokensRoute {
 
   /**
    * @openapi
-   * /tokens/{phoneNumber}:
+   * /tokens/renew/{phoneNumber}:
    *   get:
    *     tags:
    *        - "Tokens"
-   *     summary: Generate token
-   *     description: Generates a new token or return the already existing one, if valid
+   *     summary: Renew token
+   *     description: Invalidates the current token and creates a new one
    *     parameters:
    *       - in: path
    *         name: phoneNumber
@@ -169,13 +159,10 @@ class TokensRoute {
    *             schema:
    *               type: object
    *               properties:
-   *                 data:
-   *                   type: object
-   *                   properties:
-   *                     token:
-   *                       type: string
-   *                       description: Customer's token
-   *                       example: 233120046954
+   *                 token:
+   *                   type: string
+   *                   description: Customer's token
+   *                   example: 233120046954
   */
   @Get("/renew/:phoneNumber")
   public renew(request: Request<{phoneNumber: string}>) {
