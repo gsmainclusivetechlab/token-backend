@@ -39,29 +39,26 @@ class TransactionsRoute {
    *             schema:
    *               type: object
    *               properties:
-   *                 data:
-   *                   type: object
-   *                   properties:
-   *                     serverCorrelationId:
-   *                       type: string
-   *                       description: Transactions id
-   *                       example: 10d9d96c-b477-4d98-9d54-5fa7bd6ca532
-   *                     status:
-   *                       type: string
-   *                       description: Transactions status
-   *                       example: pending
-   *                     notificationMethod:
-   *                       type: string
-   *                       description: Transactions notification method
-   *                       example: polling
-   *                     objectReference:
-   *                       type: string
-   *                       description: Transactions object reference
-   *                       example: 20256
-   *                     pollLimit:
-   *                       type: number
-   *                       description: Transactions poll limit
-   *                       example: 100
+   *                 serverCorrelationId:
+   *                   type: string
+   *                   description: Transactions id
+   *                   example: 10d9d96c-b477-4d98-9d54-5fa7bd6ca532
+   *                 status:
+   *                   type: string
+   *                   description: Transactions status
+   *                   example: pending
+   *                 notificationMethod:
+   *                   type: string
+   *                   description: Transactions notification method
+   *                   example: polling
+   *                 objectReference:
+   *                   type: string
+   *                   description: Transactions object reference
+   *                   example: 20256
+   *                 pollLimit:
+   *                   type: number
+   *                   description: Transactions poll limit
+   *                   example: 100
   */
   @Post('/type/:type')
   public getAccountName(
