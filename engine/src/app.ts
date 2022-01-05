@@ -18,6 +18,7 @@ new OperationsRoute(app);
 
 const index = new IndexRoute(app.getRoutes());
 app.addRoute("/", index.router);
+app.addDocsRoute();
 
 app.addErrorHandler();
 app.add404Handler();
