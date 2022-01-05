@@ -2,6 +2,7 @@ import { Request, Router } from "express";
 import Server from "../classes/server";
 import { RouteHandler, Post, Get, Delete } from "../decorators/router-handler";
 import { Action, Operation } from "../interfaces/cash-in-out";
+import { CreateOperationBody } from "../interfaces/operations";
 import { OperationsService } from "../services/operations.service";
 
 @RouteHandler("/operations")
@@ -45,7 +46,7 @@ class OperationsRoute {
 
   @Post("/register")
   public createOperation(
-    request: Request<{}, {}, { token: string; amount: string; type: Operation }>
+    request: Request<{}, {}, CreateOperationBody>
   ) {
     return OperationsService.createOperation(request.body);
   }
