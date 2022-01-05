@@ -19,8 +19,8 @@ class OperationsRoute {
    *     get:
    *      tags:
    *          - "Operations"
-   *      summary: Get all operations and notifications in memory
-   *      description: TODO
+   *      summary: Return all operations and notifications
+   *      description: Return all operations and notifications in memory
    *      responses:
    *        '200':
    *          description: OK
@@ -84,32 +84,21 @@ class OperationsRoute {
    *        type:
    *          type: string
    *        name:
-   *          type: object
-   *          properties:
-   *            title:
-   *              type: string
-   *            firstName:
-   *              type: string
-   *            middleName:
-   *              type: string
-   *            lastName:
-   *              type: string
-   *            fullName:
-   *              type: string
+   *          $ref: "#/components/schemas/CustomerNameInformation"
    *        lei:
    *          type: string
    *
    */
   @Get("/")
-  public receiveOperation(
+  public getOperationsAndNotifications(
     request: Request<
-      { operation: Operation },
       {},
       {},
-      { token: string; amount: string }
+      {},
+      {}
     >
   ) {
-    return OperationsService.receiveOperation();
+    return OperationsService.getOperationsAndNotifications();
   }
 
   /**
@@ -143,6 +132,49 @@ class OperationsRoute {
    *         schema:
    *           type: string
    *           example: "cash-in"
+   *     responses:
+   *       '200':
+   *         description: OK
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 name:
+   *                   type: object
+   *                   schema:
+   *                     $ref: "#/components/schemas/CustomerNameInformation"
+   *                   example:
+   *                     {
+   *                       title: "Dr.",
+   *                       firstName: "Jorge",
+   *                       middleName: "Fernando",
+   *                       lastName: "Jesus",
+   *                       fullName: "Jorge Jesus",
+   *                     }
+   *                 lei:
+   *                    type: string
+   *                    example: "AAAA0012345678901299"
+   *                 amount:
+   *                    type: string
+   *                    example: "100"
+   * 
+   * components:
+   *  schemas:
+   *    CustomerNameInformation:
+   *      type: object
+   *      properties:
+   *        title:
+   *          type: string
+   *        firstName:
+   *          type: string
+   *        middleName:
+   *          type: string
+   *        lastName:
+   *          type: string
+   *        fullName:
+   *          type: string
+   * 
    */
   @Get("/account-info")
   public getAccountInfo(
@@ -163,8 +195,8 @@ class OperationsRoute {
    *   post:
    *     tags:
    *        - "Operations"
-   *     summary: TODO
-   *     description: TODO
+   *     summary: Create a notification
+   *     description: Create a notification for the agent and the customer in memory
    *     requestBody:
    *      required: true
    *      content:
@@ -194,19 +226,30 @@ class OperationsRoute {
    *   post:
    *     tags:
    *        - "Operations"
-   *     summary: TODO
-   *     description: TODO
+   *     summary: Create an operation
+   *     description: Create an operation in memory 
    *     requestBody:
    *      required: true
    *      content:
    *        application/json:
    *          schema:
    *            type: object
-   *            properties:
-   *              notification:
-   *                type: string
-   *                description: Message to send to agent.
-   *                example: "Make your test"
+   *            schema:
+   *              $ref: "#/components/schemas/Operation"
+   *            example:
+   *              {
+   *                token: "233207212676",
+   *                amount: "100",
+   *                type: "cash-in",
+   *                name: {
+   *                  title: "Dr.",
+   *                  firstName: "Jorge",
+   *                  middleName: "Fernando",
+   *                  lastName: "Jesus",
+   *                  fullName: "Jorge Jesus",
+   *                },
+   *                lei: "AAAA0012345678901299"
+   *               }
    *     responses:
    *        '200':
    *           description: OK
@@ -225,8 +268,8 @@ class OperationsRoute {
    *   post:
    *     tags:
    *      - "Operations"
-   *     summary: TODO
-   *     description: TODO
+   *     summary: Manage operations
+   *     description: Makes a request to the Engine API to process the action selected in the operation
    *     parameters:
    *      - in: path
    *        name: action
@@ -242,6 +285,17 @@ class OperationsRoute {
    *        schema:
    *          type: string
    *          example: "408a6a77-2dc4-463e-8cca-02055c83a293"
+   *     responses:
+   *        '200':
+   *           description: OK
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  status:
+   *                    type: string
+   *                    example: "pending"
    */
   @Post("/:action/:id")
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
@@ -258,8 +312,8 @@ class OperationsRoute {
    *   delete:
    *     tags:
    *      - "Operations"
-   *     summary: TODO
-   *     description: TODO
+   *     summary: Remove notification
+   *     description: Remove the specific notification from memory 
    *     parameters:
    *      - in: path
    *        name: id
@@ -268,6 +322,17 @@ class OperationsRoute {
    *        schema:
    *          type: string
    *          example: "408a6a77-2dc4-463e-8cca-02055c83a293"
+   *     responses:
+   *      '200':
+   *        description: OK
+   *        content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               message:
+   *                 type: string
+   *                 example: "The notification with id 408a6a77-2dc4-463e-8cca-02055c83a293 was deleted"
    */
   @Delete("/notification/:id")
   public deleteNotification(request: Request<{ id: string }, {}>) {

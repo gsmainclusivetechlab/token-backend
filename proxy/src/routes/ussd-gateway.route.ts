@@ -16,8 +16,8 @@ class USSDGatewayRoute {
    *   post:
    *     tags:
    *        - "USSD-Gateway"
-   *     summary: TODO
-   *     description: TODO
+   *     summary: Send an action
+   *     description: Makes a request to the USSD Gateway API to process the action present in body
    *     requestBody:
    *      required: true
    *      content:
@@ -59,8 +59,8 @@ class USSDGatewayRoute {
    *   post:
    *     tags:
    *        - "USSD-Gateway"
-   *     summary: TODO
-   *     description: TODO
+   *     summary: Receive messages
+   *     description: Receive the SMS Gateway message and store it in memory
    *     requestBody:
    *      required: true
    *      content:

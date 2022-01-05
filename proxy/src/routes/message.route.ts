@@ -16,8 +16,8 @@ class MessageRoute {
    *   get:
    *     tags:
    *        - "Message"
-   *     summary: Get SMS notification
-   *     description: Gets last nofitication about last user operation
+   *     summary: Get SMS Message
+   *     description: Gets the message about last user operation
    *     responses:
    *        '200':
    *           description: OK
