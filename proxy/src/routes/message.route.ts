@@ -10,6 +10,23 @@ class MessageRoute {
 
   constructor(public app: Server) {}
 
+  /**
+   * @openapi
+   * /message/sms:
+   *   get:
+   *     tags:
+   *        - "Message"
+   *     summary: Get SMS notification
+   *     description: Gets last nofitication about last user operation
+   *     responses:
+   *        '200':
+   *           description: OK
+   *           content:
+   *             application/json:
+   *               example:
+   *                 message: ""
+   *
+   */
   @Get("/sms")
   public getSMSMessage(request: Request) {
     return MessageService.processGetSMSMessage(request);
