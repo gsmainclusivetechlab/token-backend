@@ -66,7 +66,7 @@ class OperationsService {
     }
   }
 
-  getOperationsAndNotifications() {
+  async getOperationsAndNotifications() {
     return this.sendOperation;
   }
 
