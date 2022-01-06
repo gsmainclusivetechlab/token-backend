@@ -2,6 +2,7 @@ import axios, { AxiosError } from "axios";
 import { Request } from "express";
 import { UserFacingError } from "../classes/errors";
 import { LogLevels, logService } from "./log.service";
+import { TwilioService } from "./twilio.service";
 
 class ReceiveService {
   async processReceive(request: Request) {
@@ -13,7 +14,7 @@ class ReceiveService {
           axios.post(process.env.PROXY_API_URL + "/sms-gateway/receive", body);
           return;
         case "live":
-          //Call Twilio
+          // TwilioService.sendMessage()
           return;
         default:
           throw new UserFacingError("Invalid system");

@@ -23,7 +23,7 @@ class HooksService {
     return await USSDService.processUSSDMessage(body);
   }
 
-  processMMO(request: Request) {
+  async processMMO(request: Request) {
     const { type, system } = request.body;
 
     const operation: Operation = GetOperationFromType(type);

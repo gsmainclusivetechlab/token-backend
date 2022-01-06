@@ -6,6 +6,7 @@ import Server from "./classes/server";
 import SendRoute from "./routes/send.route";
 import ReceiveRoute from "./routes/receive.route";
 import { TwilioService } from "./services/twilio.service";
+import HooksRoute from "./routes/hooks.route";
 
 dotenv.config({ path: ".env" });
 
@@ -16,6 +17,7 @@ const app = new Server(process.env.PORT || 4100);
 new LivenessProbeRoute(app);
 new SendRoute(app);
 new ReceiveRoute(app);
+new HooksRoute(app);
 
 const index = new IndexRoute(app.getRoutes());
 app.addRoute("/", index.router);

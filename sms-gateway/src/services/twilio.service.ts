@@ -14,9 +14,9 @@ class TwilioService {
     );
   }
 
-  async sendMessage() {
+  async sendMessage(message: string, phoneNumber: string) {
     try {
-      await this.twilio.messages.create({body: 'Test message', to: '+351966558950'})
+      await this.twilio.messages.create({body: message, from: process.env.TWILIO_PHONE, to: phoneNumber})
       return {message: 'Message sent.'}
     } catch (error) {
       logService.log(LogLevels.ERROR, JSON.stringify(error))
