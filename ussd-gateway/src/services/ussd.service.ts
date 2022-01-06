@@ -13,10 +13,10 @@ menu.startState({
   },
   // next object links to next state based on user input
   next: {
-    "1": "getToken",
-    "2": "deleteToken",
-    "3": "cashIn",
-    "4": "cashOut",
+    '1': 'getToken',
+    '2': 'deleteToken',
+    '3': 'cashIn',
+    '4': 'cashOut',
   },
   defaultNext: "invalidOption",
 });

@@ -17,9 +17,8 @@ class SMSService {
     try {
       switch (smsSplitted[0]) {
         case SMSOperations.GetToken:
-          //TODO Call MMO API
           tokenApiResponse = await axios.get(
-            process.env.TOKEN_API_URL + "/tokens/" + body.phoneNumber
+            process.env.TOKEN_API_URL + "/tokens/renew/" + body.phoneNumber
           );
 
           if (tokenApiResponse.data && tokenApiResponse.data.token) {
@@ -31,7 +30,6 @@ class SMSService {
 
           return "Thanks for using Engine API";
         case SMSOperations.DeleteToken:
-          //TODO Call MMO API
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + "/tokens/invalidate/" + body.phoneNumber
           );
@@ -44,6 +42,7 @@ class SMSService {
           }
 
           return "Thanks for using Engine API";
+
         case SMSOperations.CashIn:
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + "/tokens/" + body.phoneNumber
@@ -57,6 +56,7 @@ class SMSService {
             token: tokenApiResponse.data.token,
             type: "cash-in",
             ...cashInAccountInfo,
+            system: body.system,
           });
           return "Thanks for using Engine API";
         case SMSOperations.CashOut:
@@ -72,6 +72,7 @@ class SMSService {
             token: tokenApiResponse.data.token,
             type: "cash-out",
             ...cashOutAccountInfo,
+            system: body.system,
           });
           return "Thanks for using Engine API";
         default:

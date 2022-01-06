@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { UserFacingError } from "../classes/errors";
-import { Action, Operation } from "../interfaces/cash-in-out";
+import { Action, Operation, System } from "../interfaces/cash-in-out";
 import { AccountNameReturn } from "../interfaces/mmo";
 import SafeAwait from "../lib/safe-await";
 import { v4 as uuidv4 } from "uuid";
@@ -13,9 +13,18 @@ class OperationsService {
     operations: [],
     notifications: [],
   };
-  async getAccountInfo(amount: string, token: string, type: Operation) {
+  async getAccountInfo(
+    amount: string,
+    token: string,
+    type: Operation,
+    system: System
+  ) {
     if (!(type === "cash-in" || type === "cash-out")) {
       throw new UserFacingError("Invalid type");
+    }
+
+    if (!(system === "mock" || system === "live")) {
+      throw new UserFacingError("Invalid system");
     }
 
     const [accountInfoError, accountInfoData] = await SafeAwait(
@@ -27,7 +36,7 @@ class OperationsService {
     if (accountInfoError) {
       throw new UserFacingError(accountInfoError.response.data.error);
     }
-    this.setOperation(type, token, accountInfoData.data);
+    this.setOperation(type, token, accountInfoData.data, system);
     return accountInfoData.data;
   }
 
@@ -36,11 +45,11 @@ class OperationsService {
       if (!(action === "accept" || action === "reject")) {
         throw new UserFacingError("Invalid action");
       }
-      const operation = this.getOperation(operationId)
-      if(!operation) {
-        throw new UserFacingError('Something went wrong');
+      const operation = this.getOperation(operationId);
+      if (!operation) {
+        throw new UserFacingError("Something went wrong");
       }
-      const { token, type, amount } = operation
+      const { token, type, amount, system } = operation;
       if (!token) {
         throw new UserFacingError("Operation doesn't exist");
       }
@@ -52,7 +61,7 @@ class OperationsService {
 
       const response = await axios.post(
         `${process.env.ENGINE_API_URL}/operations/${type}/${action}`,
-        { token, amount }
+        { token, amount, system }
       );
       return response.data;
     } catch (err: any | AxiosError) {
@@ -66,12 +75,11 @@ class OperationsService {
     }
   }
 
-  async receiveOperation() {
+  async getOperationsAndNotifications() {
     return this.sendOperation;
   }
 
   async createNotification(message: string) {
-    MessageService.setSMSMessage(message);
     this.sendOperation.notifications.push({
       id: uuidv4(),
       message,
@@ -97,12 +105,18 @@ class OperationsService {
     return this.sendOperation.operations.find((el) => el.id === id);
   }
 
-  private setOperation(operation: Operation, token: string, data: any) {
+  private setOperation(
+    operation: Operation,
+    token: string,
+    data: any,
+    system: System
+  ) {
     this.sendOperation.operations.push({
       id: uuidv4(),
       type: operation,
       token,
       ...data,
+      system,
     });
   }
 }

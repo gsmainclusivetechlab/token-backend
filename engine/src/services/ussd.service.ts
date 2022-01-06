@@ -19,28 +19,26 @@ class USSDService {
     try {
       switch (ussdSplitted[0]) {
         case USSDOperations.GetToken:
-          //TODO Call MMO API
           tokenApiResponse = await axios.get(
-            process.env.TOKEN_API_URL + "/tokens/" + body.phoneNumber
+            process.env.TOKEN_API_URL + "/tokens/renew/" + body.phoneNumber
           );
 
           if (tokenApiResponse.data && tokenApiResponse.data.token) {
             const message = "Your token is " + tokenApiResponse.data.token;
-            await axios.post(process.env.USSD_GATEWAY_API_URL + "/receive", {
+            await axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
               message: message,
             });
           }
 
           return "Thanks for using Engine API";
         case USSDOperations.DeleteToken:
-          //TODO Call MMO API
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + "/tokens/invalidate/" + body.phoneNumber
           );
 
           if (tokenApiResponse.data && tokenApiResponse.data) {
             const message = "Your token was deleted";
-            await axios.post(process.env.USSD_GATEWAY_API_URL + "/receive", {
+            await axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
               message: message,
             });
           }
@@ -60,6 +58,7 @@ class USSDService {
             amount: ussdSplitted[1],
             type: "cash-in",
             ...cashInAccountInfo,
+            system: body.system,
           });
           return "Thanks for using Engine API";
         case USSDOperations.CashOut:
@@ -75,6 +74,7 @@ class USSDService {
             token: tokenApiResponse.data.token,
             type: "cash-out",
             ...cashOutAccountInfo,
+            system: body.system,
           });
           return "Thanks for using Engine API";
         default:

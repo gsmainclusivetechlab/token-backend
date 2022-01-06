@@ -10,6 +10,41 @@ class SendRoute {
 
   constructor(public app: Server) {}
 
+  /**
+   * @openapi
+   * /send:
+   *   post:
+   *     tags:
+   *        - "Send"
+   *     summary: Send an action
+   *     description: Makes a request to the Engine API to process the action present in body
+   *     requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            properties:
+   *              phoneNumber:
+   *                type: string
+   *                description: Customer's phone number.
+   *                example: "+233207212676"
+   *              text:
+   *                type: string
+   *                description: Action to be done.
+   *                example: "GET_TOKEN"
+   *              system:
+   *                type: string
+   *                description: System used.
+   *                example: "mock"
+   *     responses:
+   *        '200':
+   *           description: OK
+   *           content:
+   *             application/json:
+   *               example: "Thanks for using Engine API"
+   *
+   */
   @Post("/")
   public send(request: Request) {
     return SendService.processSend(request);
