@@ -12,6 +12,7 @@ export interface CreateOperationBody {
     fullName: string;
   };
   lei: string;
+  system: string;
 }
 
 interface CreateOperation extends CreateOperationBody{

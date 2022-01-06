@@ -29,17 +29,18 @@ class SendRoute {
    *                type: string
    *                description: Customer's phone number.
    *                example: "+233207212676"
-   *                required: true
    *              serviceCode:
    *                type: string
    *                description: Dial short code.
    *                example: "*165#"
-   *                required: true
    *              text:
    *                type: string
    *                description: Action to be done.
    *                example: "1"
-   *                required: true
+   *              system:
+   *                type: string
+   *                description: System used.
+   *                example: "mock"
    *     responses:
    *        '200':
    *           description: OK

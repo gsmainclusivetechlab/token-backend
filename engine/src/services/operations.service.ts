@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Operation, Action } from "../interfaces/cash-in-out";
+import { Operation, Action, System } from "../interfaces/cash-in-out";
 import { NotFoundError, UserFacingError } from "../classes/errors";
 import { AccountNameReturn } from "../interfaces/mmo";
 import { TokenDecodeInfo } from "../interfaces/token";
@@ -35,7 +35,8 @@ class OperationsService {
     operation: Operation,
     action: Action,
     token: string,
-    amount: string
+    amount: string,
+    system: System
   ) {
     if (!(action === "accept" || action === "reject")) {
       throw new UserFacingError("Invalid action");
@@ -43,6 +44,10 @@ class OperationsService {
 
     if (!(operation === "cash-in" || operation === "cash-out")) {
       throw new UserFacingError("Invalid type");
+    }
+
+    if (!(system === "mock" || system === "live")) {
+      throw new UserFacingError("Invalid System");
     }
 
     if (action === "accept") {
@@ -72,6 +77,7 @@ class OperationsService {
           },
         ],
         currency: "RWF", // RWF
+        system,
       };
       axios.post(
         `${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(
@@ -84,8 +90,15 @@ class OperationsService {
       return { status: "pending" };
     } else {
       const notification = `The operation of ${operation} was rejected`;
+
+      //Agent Notification
       axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
         notification,
+      });
+      //Customer Notification
+      axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
+        message: notification,
+        system,
       });
 
       return { status: "reject" };

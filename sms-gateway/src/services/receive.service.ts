@@ -8,12 +8,16 @@ class ReceiveService {
     try {
       const { body } = request;
 
-      const response = await axios.post(
-        process.env.PROXY_API_URL + "/sms-gateway/receive",
-        body
-      );
-
-      return response.data;
+      switch (body.system) {
+        case "mock":
+          axios.post(process.env.PROXY_API_URL + "/sms-gateway/receive", body);
+          return;
+        case "live":
+          //Call Twilio
+          return;
+        default:
+          throw new UserFacingError("Invalid system");
+      }
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err) && err.response) {
         logService.log(LogLevels.ERROR, err.response?.data?.error);

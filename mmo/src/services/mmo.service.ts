@@ -32,14 +32,14 @@ class MmoService {
     switch (type) {
       case 'withdrawal':
         try {
-          await axios.put(callbackUrl, {amount: body.amount, type, phoneNumber: body.creditParty[0].value});
+          await axios.put(callbackUrl, {amount: body.amount, type, phoneNumber: body.creditParty[0].value, system: body.system});
         } catch (error) {
           throw new UserFacingError(error as string);
         }
         break;
       case 'deposit':
         try {
-          await axios.put(callbackUrl, {amount: body.amount, type, phoneNumber: body.creditParty[0].value});
+          await axios.put(callbackUrl, {amount: body.amount, type, phoneNumber: body.creditParty[0].value, system: body.system});
         } catch (error) {
           throw new UserFacingError(error as string);
         }
