@@ -25,7 +25,7 @@ class HooksService {
 
   processMMO(request: Request) {
     const operation: Operation = GetOperationFromType(request.body.type);
-    const notification = `The operation of ${operation} was successfully`;
+    const notification = `The operation of ${operation} was successful`;
     axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
       notification,
     });

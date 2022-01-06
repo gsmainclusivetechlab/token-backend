@@ -66,6 +66,11 @@ class AccountsRoute {
   public getAccountName(request: Request<{phoneNumber: string}, {}, {}, AccountNameQueryParams>) {
     return mmoService.getAccountName(request.params.phoneNumber)
   }
+
+  @Get("authorize")
+  public authorizeUser(request: Request<{}, {}, {}, {pin: string}>) {
+    return mmoService.authorizeUser(request.query.pin)
+  }
 }
 
 export default AccountsRoute;

@@ -55,6 +55,13 @@ class MmoService {
       pollLimit: 100,
     };
   }
+
+  authorizeUser(pin: string) {
+    if(pin !== '1234') {
+      throw new UserFacingError('Invalid PIN')
+    }
+    return {message: "User authorized"}
+  }
 }
 const mmoService = new MmoService();
 export { mmoService };
