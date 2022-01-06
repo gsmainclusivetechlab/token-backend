@@ -33,6 +33,10 @@ class SMSGatewayRoute {
    *                type: string
    *                description: Action to be done.
    *                example: "GET_TOKEN"
+   *              system:
+   *                type: string
+   *                description: System used.
+   *                example: "mock"
    *     responses:
    *        '200':
    *           description: OK

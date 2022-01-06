@@ -40,6 +40,7 @@ export interface TransactionsBody {
     }
   ];
   currency: string; // RWF
+  system: string; //mock or live
 }
 
 export interface TransactionsRes {

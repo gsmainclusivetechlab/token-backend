@@ -1,5 +1,5 @@
 import { Request, Router } from "express";
-import { Operation, Action } from "../interfaces/cash-in-out";
+import { Operation, Action, System } from "../interfaces/cash-in-out";
 import Server from "../classes/server";
 import { RouteHandler, Post, Get } from "../decorators/router-handler";
 import { OperationsService } from "../services/operations.service";
@@ -10,7 +10,6 @@ class OperationsRoute {
   public router: Router;
 
   constructor(public app: Server) {}
-
 
   /**
    * @openapi
@@ -75,16 +74,17 @@ class OperationsRoute {
     request: Request<
       { operation: Operation; action: Action },
       {},
-      { token: string; amount: string },
+      { token: string; amount: string; system: System },
       {}
     >
   ) {
-    const { token, amount } = request.body;
+    const { token, amount, system } = request.body;
     return OperationsService.startOperation(
       request.params.operation,
       request.params.action,
       token,
-      amount
+      amount,
+      system
     );
   }
 }

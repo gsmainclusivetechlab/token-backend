@@ -29,6 +29,10 @@ class ReceiveRoute {
    *                type: string
    *                description: Message to send to users.
    *                example: "Your token is 233207212676"
+   *              system:
+   *                type: string
+   *                description: System used.
+   *                example: "mock"
    *     responses:
    *        '200':
    *           description: OK
