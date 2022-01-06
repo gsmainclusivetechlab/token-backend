@@ -1,7 +1,7 @@
 import { Request, Router } from "express";
 
 import Server from "../classes/server";
-import { RouteHandler, Get, Put } from "../decorators/router-handler";
+import { RouteHandler, Get, Put, Post } from "../decorators/router-handler";
 import { AccountNameQueryParams } from "../interfaces/account-name";
 import { mmoService } from "../services/mmo.service";
 
@@ -70,7 +70,7 @@ class AccountsRoute {
   /**
    * @openapi
    * /accounts/authorize:
-   *   get:
+   *   post:
    *     tags:
    *        - "Accounts"
    *     summary: Authorize customer
@@ -96,9 +96,9 @@ class AccountsRoute {
    *                   description: Message from MMO API
    *                   example: User authorized
   */
-  @Get("authorize")
-  public authorizeUser(request: Request<{}, {}, {}, {pin: string}>) {
-    return mmoService.authorizeUser(request.query.pin)
+  @Post("authorize")
+  public authorizeUser(request: Request<{}, {}, {pin: string; phoneNumber: string}>) {
+    return mmoService.authorizeUser(request.body.pin, request.body.phoneNumber)
   }
 }
 
