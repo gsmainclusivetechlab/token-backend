@@ -87,6 +87,10 @@ class OperationsService {
         { headers }
       );
 
+      axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
+        message: `Send a message with PIN <pin>`,
+        system,
+      });
       return { status: "pending" };
     } else {
       const notification = `The operation of ${operation} was rejected`;
