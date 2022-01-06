@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { NotFoundError, UserFacingError } from '../classes/errors';
+import { NotFoundError, UnauthorizedError, UserFacingError } from '../classes/errors';
 import { AccountNameError } from '../interfaces/account-name';
 import {
   TransactionsRes,
@@ -86,7 +86,7 @@ class MmoService {
 
   async authorizeUser(pin: string, phoneNumber: string) {
     if (pin !== '1234') {
-      throw new UserFacingError('Invalid PIN');
+      throw new UnauthorizedError('Invalid PIN');
     }
     const transaction = this.findTransactionByStatus('pending', phoneNumber);
     if (!transaction) {
