@@ -25,6 +25,7 @@ class SMSService {
             const message = 'Your token is ' + tokenApiResponse.data.token;
             await axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
               message: message,
+              system: body.system
             });
           }
 
@@ -38,12 +39,16 @@ class SMSService {
             const message = 'Your token was deleted';
             await axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
               message: message,
+              system: body.system
             });
           }
 
           return 'Thanks for using Engine API';
-
         case SMSOperations.CashIn:
+          if(!smsSplitted[1]){
+            throw new UserFacingError("Missing amount"); 
+          }
+          
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
           );
@@ -60,6 +65,10 @@ class SMSService {
           });
           return 'Thanks for using Engine API';
         case SMSOperations.CashOut:
+          if(!smsSplitted[1]){
+            throw new UserFacingError("Missing amount"); 
+          }
+
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
           );
@@ -83,8 +92,8 @@ class SMSService {
             });
           } catch (error: any | AxiosError) {
             if (axios.isAxiosError(error)) {
-              if(error.code === '401') {
-                const notification = `Wrong PIN`;
+              if(error.response?.status === 401) {
+                const notification = `Operation Rejected - Wrong PIN`;
                 //Agent Notification
                 axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
                   notification,

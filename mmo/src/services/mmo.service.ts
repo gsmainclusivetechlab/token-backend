@@ -86,6 +86,7 @@ class MmoService {
 
   async authorizeUser(pin: string, phoneNumber: string) {
     if (pin !== '1234') {
+      this.transactions.splice(this.findTransactionByStatusIndex('pending', phoneNumber), 1);
       throw new UnauthorizedError('Invalid PIN');
     }
     const transaction = this.findTransactionByStatus('pending', phoneNumber);
@@ -111,6 +112,16 @@ class MmoService {
     phoneNumber: string
   ) {
     return this.transactions.find(
+      (transaction) =>
+        transaction.status === status && transaction.phoneNumber === phoneNumber
+    );
+  }
+
+  private findTransactionByStatusIndex(
+    status: TransactionStatus,
+    phoneNumber: string
+  ) {
+    return this.transactions.findIndex(
       (transaction) =>
         transaction.status === status && transaction.phoneNumber === phoneNumber
     );

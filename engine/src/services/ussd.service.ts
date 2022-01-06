@@ -27,6 +27,7 @@ class USSDService {
             const message = "Your token is " + tokenApiResponse.data.token;
             await axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
               message: message,
+              system: body.system
             });
           }
 
@@ -40,11 +41,16 @@ class USSDService {
             const message = "Your token was deleted";
             await axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
               message: message,
+              system: body.system
             });
           }
 
           return "Thanks for using Engine API";
         case USSDOperations.CashIn:
+          if(!ussdSplitted[1]){
+            throw new UserFacingError("Missing amount"); 
+          }
+
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + "/tokens/" + body.phoneNumber
           );
@@ -62,6 +68,10 @@ class USSDService {
           });
           return "Thanks for using Engine API";
         case USSDOperations.CashOut:
+          if(!ussdSplitted[1]){
+            throw new UserFacingError("Missing amount"); 
+          }
+
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + "/tokens/" + body.phoneNumber
           );

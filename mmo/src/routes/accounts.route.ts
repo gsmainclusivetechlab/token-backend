@@ -96,7 +96,7 @@ class AccountsRoute {
    *                   description: Message from MMO API
    *                   example: User authorized
   */
-  @Post("authorize")
+  @Post("/authorize")
   public authorizeUser(request: Request<{}, {}, {pin: string; phoneNumber: string}>) {
     return mmoService.authorizeUser(request.body.pin, request.body.phoneNumber)
   }
