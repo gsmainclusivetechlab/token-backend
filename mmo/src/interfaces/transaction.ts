@@ -9,6 +9,7 @@ export type TransactionType =
   | 'reversal'
   | 'withdrawal';
 
+export type TransactionStatus = 'pending' | 'accepted'
 export interface TransactionsHeaders {
   transactionType: TransactionType;
   'X-Callback-URL': string;
@@ -24,7 +25,6 @@ export interface TransactionsHeaders {
   'X-Account-Holding-Institution-Identifier-Type'?: string;
   'X-Account-Holding-Institution-Identifier'?: string;
 }
-
 export interface TransactionsBody {
   amount: string; // 200.00
   debitParty: [
@@ -40,7 +40,7 @@ export interface TransactionsBody {
     }
   ];
   currency: string; // RWF
-  system: string; //mock or live
+  system: 'mock' | 'live'; //mock or live
 }
 
 export interface TransactionsRes {
@@ -49,4 +49,14 @@ export interface TransactionsRes {
   notificationMethod: string;
   objectReference: string;
   pollLimit: number;
+}
+
+export interface Transaction {
+  id: string;
+  phoneNumber: string;
+  type: TransactionType;
+  callbackUrl: string;
+  status: TransactionStatus;
+  system: 'mock' | 'live',
+  amount: string;
 }

@@ -36,7 +36,7 @@ class HooksService {
       throw new UserFacingError("Invalid System");
     }
 
-    const notification = `The operation of ${operation} was successfully`;
+    const notification = `The operation of ${operation} was successful`;
     //Agent Notification
     axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
       notification,

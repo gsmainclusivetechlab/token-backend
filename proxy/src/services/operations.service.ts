@@ -1,12 +1,12 @@
-import axios, { AxiosError } from "axios";
-import { UserFacingError } from "../classes/errors";
-import { Action, Operation, System } from "../interfaces/cash-in-out";
-import { AccountNameReturn } from "../interfaces/mmo";
-import SafeAwait from "../lib/safe-await";
-import { v4 as uuidv4 } from "uuid";
-import { LogLevels, logService } from "./log.service";
-import { MessageService } from "./message.service";
-import { CreateOperationBody, SendOperation } from "../interfaces/operations";
+import axios, { AxiosError } from 'axios';
+import { UserFacingError } from '../classes/errors';
+import { Action, Operation, System } from '../interfaces/cash-in-out';
+import { AccountNameReturn } from '../interfaces/mmo';
+import SafeAwait from '../lib/safe-await';
+import { v4 as uuidv4 } from 'uuid';
+import { LogLevels, logService } from './log.service';
+import { MessageService } from './message.service';
+import { CreateOperationBody, SendOperation } from '../interfaces/operations';
 
 class OperationsService {
   sendOperation: SendOperation = {
@@ -19,12 +19,12 @@ class OperationsService {
     type: Operation,
     system: System
   ) {
-    if (!(type === "cash-in" || type === "cash-out")) {
-      throw new UserFacingError("Invalid type");
+    if (!(type === 'cash-in' || type === 'cash-out')) {
+      throw new UserFacingError('Invalid type');
     }
 
-    if (!(system === "mock" || system === "live")) {
-      throw new UserFacingError("Invalid system");
+    if (!(system === 'mock' || system === 'live')) {
+      throw new UserFacingError('Invalid system');
     }
 
     const [accountInfoError, accountInfoData] = await SafeAwait(
@@ -42,27 +42,28 @@ class OperationsService {
 
   async manageOperation(action: Action, operationId: string) {
     try {
-      if (!(action === "accept" || action === "reject")) {
-        throw new UserFacingError("Invalid action");
+      if (!(action === 'accept' || action === 'reject')) {
+        throw new UserFacingError('Invalid action');
       }
       const operation = this.getOperation(operationId);
       if (!operation) {
-        throw new UserFacingError("Something went wrong");
+        throw new UserFacingError('Something went wrong');
       }
       const { token, type, amount, system } = operation;
       if (!token) {
         throw new UserFacingError("Operation doesn't exist");
       }
 
+      const response = await axios.post(
+        `${process.env.ENGINE_API_URL}/operations/${type}/${action}`,
+        { token, amount, system }
+      );
+
       this.sendOperation.operations.splice(
         this.sendOperation.operations.findIndex((el) => el.id === operationId),
         1
       );
 
-      const response = await axios.post(
-        `${process.env.ENGINE_API_URL}/operations/${type}/${action}`,
-        { token, amount, system }
-      );
       return response.data;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err) && err.response) {
@@ -88,8 +89,8 @@ class OperationsService {
 
   async createOperation(body: CreateOperationBody) {
     this.sendOperation.operations.push({
-      id: uuidv4(),
       ...body,
+      id: uuidv4()
     });
   }
 
