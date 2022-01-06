@@ -3,19 +3,24 @@ import { db } from '../classes/server';
 class QueriesService {
   findByToken(token: string) {
     return new Promise((resolve, reject) => {
-      db.query(`SELECT * FROM registry WHERE token='${token}' AND active=true`, (err, rows) => {
-        if (err) {
-          return reject('Error getting data');
+      db.query(
+        'SELECT * FROM registry WHERE token = ? AND active = ?',
+        [token, true],
+        (err, rows) => {
+          if (err) {
+            return reject('Error getting data');
+          }
+          return resolve(rows[0]);
         }
-        return resolve(rows[0]);
-      });
+      );
     });
   }
 
   findByPhoneNumber(phoneNumber: string) {
     return new Promise((resolve, reject) => {
       db.query(
-        `SELECT * FROM registry WHERE phoneNumber='${phoneNumber}' AND active=true`,
+        `SELECT * FROM registry WHERE phoneNumber = ? AND active = ?`,
+        [phoneNumber, true],
         (err, rows) => {
           if (err) {
             return reject('Error getting data');
@@ -29,10 +34,10 @@ class QueriesService {
   createToken(token: string, phoneNumber: string, indicative: string) {
     const insertQuery = `
       INSERT INTO registry (phoneNumber, indicative, token)
-      VALUES ('${phoneNumber}', '${indicative}', '${token}');
+      VALUES (?, ? ,?);
     `;
     return new Promise((resolve, reject) => {
-      db.query(insertQuery, (err, rows) => {
+      db.query(insertQuery, [phoneNumber, indicative, token],(err, rows) => {
         if (err) {
           return reject('Error creating registry');
         }
@@ -45,14 +50,14 @@ class QueriesService {
     const insertQuery = `
       UPDATE registry
       SET active = false
-      WHERE phoneNumber = "${phoneNumber}";
+      WHERE phoneNumber = ?;
     `;
     return new Promise((resolve, reject) => {
-      db.query(insertQuery, (err, rows) => {
+      db.query(insertQuery, [phoneNumber] ,(err, rows) => {
         if (err) {
           return reject('Error invalidating token');
         }
-        return resolve({message: 'Token invalidated'});
+        return resolve({ message: 'Token invalidated' });
       });
     });
   }
