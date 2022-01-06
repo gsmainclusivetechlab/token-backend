@@ -14,7 +14,7 @@ class ReceiveService {
           axios.post(process.env.PROXY_API_URL + "/sms-gateway/receive", body);
           return;
         case "live":
-          // TwilioService.sendMessage()
+          TwilioService.sendMessage(body.phoneNumber, body.message)
           return;
         default:
           throw new UserFacingError("Invalid system");

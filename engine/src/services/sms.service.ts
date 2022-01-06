@@ -25,7 +25,8 @@ class SMSService {
             const message = 'Your token is ' + tokenApiResponse.data.token;
             await axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
               message: message,
-              system: body.system
+              system: body.system,
+              phoneNumber: body.phoneNumber
             });
           }
 
@@ -39,7 +40,8 @@ class SMSService {
             const message = 'Your token was deleted';
             await axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
               message: message,
-              system: body.system
+              system: body.system,
+              phoneNumber: body.phoneNumber
             });
           }
 
@@ -48,7 +50,7 @@ class SMSService {
           if(!smsSplitted[1]){
             throw new UserFacingError("Missing amount"); 
           }
-          
+
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber
           );
@@ -61,7 +63,7 @@ class SMSService {
             token: tokenApiResponse.data.token,
             type: 'cash-in',
             ...cashInAccountInfo,
-            system: body.system,
+            system: body.system
           });
           return 'Thanks for using Engine API';
         case SMSOperations.CashOut:

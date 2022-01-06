@@ -91,6 +91,7 @@ class OperationsService {
         axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
           message: `Send a message with PIN <pin>`,
           system,
+          phoneNumber: tokenData.data.phoneNumber
         });
         return { status: 'pending' };
       } catch (err: any | AxiosError) {

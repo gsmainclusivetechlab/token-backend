@@ -14,7 +14,7 @@ class TwilioService {
     );
   }
 
-  async sendMessage(message: string, phoneNumber: string) {
+  async sendMessage(phoneNumber: string, message: string) {
     try {
       await this.twilio.messages.create({body: message, from: process.env.TWILIO_PHONE, to: phoneNumber})
       return {message: 'Message sent.'}

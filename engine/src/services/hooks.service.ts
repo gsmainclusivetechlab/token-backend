@@ -24,7 +24,7 @@ class HooksService {
   }
 
   async processMMO(request: Request) {
-    const { type, system } = request.body;
+    const { type, system, phoneNumber } = request.body;
 
     const operation: Operation = GetOperationFromType(type);
 
@@ -45,6 +45,7 @@ class HooksService {
     axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
       message: notification,
       system,
+      phoneNumber
     });
 
     return "Thanks for using Engine API";
