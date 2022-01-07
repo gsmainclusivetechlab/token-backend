@@ -3,6 +3,7 @@ import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { LogLevels, logService } from './log.service';
 import { Twilio } from 'twilio';
+import { TwilioHookBody } from '../../interface/twilio';
 
 class TwilioService {
   twilio: Twilio;
@@ -16,12 +17,24 @@ class TwilioService {
 
   async sendMessage(phoneNumber: string, message: string) {
     try {
-      await this.twilio.messages.create({body: message, from: process.env.TWILIO_PHONE, to: phoneNumber})
-      return {message: 'Message sent.'}
+      await this.twilio.messages.create({
+        body: message,
+        from: process.env.TWILIO_MESSAGE_SID,
+        to: phoneNumber,
+      });
+      return { message: 'Message sent.' };
     } catch (error) {
-      logService.log(LogLevels.ERROR, JSON.stringify(error))
-      throw new UserFacingError('Error sending message')
+      logService.log(LogLevels.ERROR, JSON.stringify(error));
+      throw new UserFacingError('Error sending message');
     }
+  }
+
+  parseMessage(obj: TwilioHookBody) {
+    return {
+      phoneNumber: obj.from,
+      text: obj.body,
+      system: 'live',
+    };
   }
 }
 

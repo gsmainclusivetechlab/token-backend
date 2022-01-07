@@ -12,20 +12,20 @@ import { v4 as uuidv4 } from 'uuid';
 class MmoService {
   transactions: Transaction[] = [];
   async getAccountName(phoneNumber: string): Promise<{} | AccountNameError> {
-    if (phoneNumber === '+233207212676') {
-      return {
-        name: {
-          title: 'Dr.',
-          firstName: 'Ruizao',
-          middleName: 'P.',
-          lastName: 'Escobar',
-          fullName: 'Rui',
-        },
-        lei: 'AAAA0012345678901299',
-      };
-    } else {
-      throw new NotFoundError('Account does not exist');
-    }
+    return {
+      name: {
+        title: 'Dr.',
+        firstName: 'Ruizao',
+        middleName: 'P.',
+        lastName: 'Escobar',
+        fullName: 'Rui',
+      },
+      lei: 'AAAA0012345678901299',
+    };
+    // if (phoneNumber === '+233207212676') {
+    // } else {
+    //   throw new NotFoundError('Account does not exist');
+    // }
   }
 
   async startTransaction(
