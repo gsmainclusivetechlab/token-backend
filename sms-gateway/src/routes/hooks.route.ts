@@ -1,6 +1,7 @@
 import { Request, Router } from "express";
 import Server from "../classes/server";
 import { RouteHandler, Post, Get } from "../decorators/router-handler";
+import { SendService } from "../services/send.service";
 import { TwilioService } from "../services/twilio.service";
 
 @RouteHandler("/hooks")
@@ -12,7 +13,8 @@ class HooksRoute {
 
   @Post("/twilio")
   public hooks(request: Request) {
-    return {"test": "hello"}
+    request.body = TwilioService.parseMessage(request.body)
+    return SendService.processSend(request)
   }
 
 

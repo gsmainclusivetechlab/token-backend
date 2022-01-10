@@ -154,3 +154,7 @@
         interval: 1s
         timeout: 3s
         retries: 10
+
+  networks:
+    gsma-bridge:
+      driver: bridge
