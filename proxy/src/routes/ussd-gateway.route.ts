@@ -29,17 +29,19 @@ class USSDGatewayRoute {
    *                type: string
    *                description: Customer's phone number.
    *                example: "+233207212676"
-   *                required: true
    *              serviceCode:
    *                type: string
    *                description: Dial short code.
    *                example: "*165#"
-   *                required: true
    *              text:
    *                type: string
    *                description: Action to be done.
    *                example: "1"
-   *                required: true
+   *              system:
+   *                type: string
+   *                description: System used.
+   *                example: "mock"
+   *
    *     responses:
    *        '200':
    *           description: OK
@@ -51,35 +53,6 @@ class USSDGatewayRoute {
   @Post("/send")
   public sendUSSDGateway(request: Request) {
     return USSDGatewayService.processSend(request);
-  }
-
-  /**
-   * @openapi
-   * /ussd-gateway/receive:
-   *   post:
-   *     tags:
-   *        - "USSD-Gateway"
-   *     summary: Receive messages
-   *     description: Receive a message from USSD Gateway API and store it in memory
-   *     requestBody:
-   *      required: true
-   *      content:
-   *        application/json:
-   *          schema:
-   *            type: object
-   *            properties:
-   *              message:
-   *                type: string
-   *                description: Message to send to users.
-   *                example: "Your token is 233207212676"
-   *     responses:
-   *        '200':
-   *           description: OK
-   *
-   */
-  @Post("/receive")
-  public receiveUSSDGateway(request: Request) {
-    return USSDGatewayService.processReceive(request);
   }
 }
 

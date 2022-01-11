@@ -23,12 +23,31 @@ class HooksService {
     return await USSDService.processUSSDMessage(body);
   }
 
-  processMMO(request: Request) {
-    const operation: Operation = GetOperationFromType(request.body.type);
-    const notification = `The operation of ${operation} was successfully`;
+  async processMMO(request: Request) {
+    const { type, system, phoneNumber } = request.body;
+
+    const operation: Operation = GetOperationFromType(type);
+
+    if (!operation) {
+      throw new UserFacingError("Invalid Operation");
+    }
+
+    if (!(system === "mock" || system === "live")) {
+      throw new UserFacingError("Invalid System");
+    }
+
+    const notification = `The operation of ${operation} was successful`;
+    //Agent Notification
     axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
       notification,
     });
+    //Customer Notification
+    axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
+      message: notification,
+      system,
+      phoneNumber
+    });
+
     return "Thanks for using Engine API";
   }
 
@@ -69,6 +88,16 @@ class HooksService {
     if (body.text.trim() === "") {
       throw new UserFacingError(
         "INVALID_REQUEST - Property text can't be empty"
+      );
+    }
+
+    if (!body.system) {
+      throw new UserFacingError("INVALID_REQUEST - Missing property system");
+    }
+
+    if (!(body.system !== "mock" || body.system !== "live")) {
+      throw new UserFacingError(
+        "INVALID_REQUEST - Property system with wrong value"
       );
     }
   }

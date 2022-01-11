@@ -1,21 +1,30 @@
-import axios, { AxiosError } from "axios";
-import { UserFacingError } from "../classes/errors";
-import { Action, Operation } from "../interfaces/cash-in-out";
-import { AccountNameReturn } from "../interfaces/mmo";
-import SafeAwait from "../lib/safe-await";
-import { v4 as uuidv4 } from "uuid";
-import { LogLevels, logService } from "./log.service";
-import { MessageService } from "./message.service";
-import { CreateOperationBody, SendOperation } from "../interfaces/operations";
+import axios, { AxiosError } from 'axios';
+import { UserFacingError } from '../classes/errors';
+import { Action, Operation, System } from '../interfaces/cash-in-out';
+import { AccountNameReturn } from '../interfaces/mmo';
+import SafeAwait from '../lib/safe-await';
+import { v4 as uuidv4 } from 'uuid';
+import { LogLevels, logService } from './log.service';
+import { MessageService } from './message.service';
+import { CreateOperationBody, SendOperation } from '../interfaces/operations';
 
 class OperationsService {
   sendOperation: SendOperation = {
     operations: [],
     notifications: [],
   };
-  async getAccountInfo(amount: string, token: string, type: Operation) {
-    if (!(type === "cash-in" || type === "cash-out")) {
-      throw new UserFacingError("Invalid type");
+  async getAccountInfo(
+    amount: string,
+    token: string,
+    type: Operation,
+    system: System
+  ) {
+    if (!(type === 'cash-in' || type === 'cash-out')) {
+      throw new UserFacingError('Invalid type');
+    }
+
+    if (!(system === 'mock' || system === 'live')) {
+      throw new UserFacingError('Invalid system');
     }
 
     const [accountInfoError, accountInfoData] = await SafeAwait(
@@ -27,33 +36,34 @@ class OperationsService {
     if (accountInfoError) {
       throw new UserFacingError(accountInfoError.response.data.error);
     }
-    this.setOperation(type, token, accountInfoData.data);
+    this.setOperation(type, token, accountInfoData.data, system);
     return accountInfoData.data;
   }
 
   async manageOperation(action: Action, operationId: string) {
     try {
-      if (!(action === "accept" || action === "reject")) {
-        throw new UserFacingError("Invalid action");
+      if (!(action === 'accept' || action === 'reject')) {
+        throw new UserFacingError('Invalid action');
       }
-      const operation = this.getOperation(operationId)
-      if(!operation) {
+      const operation = this.getOperation(operationId);
+      if (!operation) {
         throw new UserFacingError('Something went wrong');
       }
-      const { token, type, amount } = operation
+      const { token, type, amount, system } = operation;
       if (!token) {
         throw new UserFacingError("Operation doesn't exist");
       }
+
+      const response = await axios.post(
+        `${process.env.ENGINE_API_URL}/operations/${type}/${action}`,
+        { token, amount, system }
+      );
 
       this.sendOperation.operations.splice(
         this.sendOperation.operations.findIndex((el) => el.id === operationId),
         1
       );
 
-      const response = await axios.post(
-        `${process.env.ENGINE_API_URL}/operations/${type}/${action}`,
-        { token, amount }
-      );
       return response.data;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err) && err.response) {
@@ -71,7 +81,6 @@ class OperationsService {
   }
 
   async createNotification(message: string) {
-    MessageService.setSMSMessage(message);
     this.sendOperation.notifications.push({
       id: uuidv4(),
       message,
@@ -80,8 +89,8 @@ class OperationsService {
 
   async createOperation(body: CreateOperationBody) {
     this.sendOperation.operations.push({
-      id: uuidv4(),
       ...body,
+      id: uuidv4()
     });
   }
 
@@ -97,12 +106,18 @@ class OperationsService {
     return this.sendOperation.operations.find((el) => el.id === id);
   }
 
-  private setOperation(operation: Operation, token: string, data: any) {
+  private setOperation(
+    operation: Operation,
+    token: string,
+    data: any,
+    system: System
+  ) {
     this.sendOperation.operations.push({
       id: uuidv4(),
       type: operation,
       token,
       ...data,
+      system,
     });
   }
 }

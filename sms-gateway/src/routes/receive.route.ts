@@ -29,6 +29,14 @@ class ReceiveRoute {
    *                type: string
    *                description: Message to send to users.
    *                example: "Your token is 233207212676"
+   *              system:
+   *                type: string
+   *                description: System used.
+   *                example: "mock"
+   *              phoneNumber:
+   *                type: string
+   *                description: When the system property have the value - live, we need to send the receive phone number of the message.
+   *                example: "+447360264774"
    *     responses:
    *        '200':
    *           description: OK

@@ -1,7 +1,7 @@
 import { Request, Router } from "express";
 import Server from "../classes/server";
 import { RouteHandler, Post, Get, Delete } from "../decorators/router-handler";
-import { Action, Operation } from "../interfaces/cash-in-out";
+import { Action, Operation, System } from "../interfaces/cash-in-out";
 import { CreateOperationBody } from "../interfaces/operations";
 import { OperationsService } from "../services/operations.service";
 
@@ -87,17 +87,12 @@ class OperationsRoute {
    *          $ref: "#/components/schemas/CustomerNameInformation"
    *        lei:
    *          type: string
+   *        system:
+   *          type: string
    *
    */
   @Get("/")
-  public getOperationsAndNotifications(
-    request: Request<
-      {},
-      {},
-      {},
-      {}
-    >
-  ) {
+  public getOperationsAndNotifications(request: Request<{}, {}, {}, {}>) {
     return OperationsService.getOperationsAndNotifications();
   }
 
@@ -108,7 +103,7 @@ class OperationsRoute {
    *     tags:
    *        - "Operations"
    *     summary: Get user's account info
-   *     description: Makes a request to the Engine API in order to get the user's account info, 
+   *     description: Makes a request to the Engine API in order to get the user's account info,
    *                  and if the user's account exist, the system create the operation in memory
    *     parameters:
    *       - in: query
@@ -132,6 +127,13 @@ class OperationsRoute {
    *         schema:
    *           type: string
    *           example: "cash-in"
+   *       - in: query
+   *         name: system
+   *         required: true
+   *         description: System type.
+   *         schema:
+   *           type: string
+   *           example: "mock"
    *     responses:
    *       '200':
    *         description: OK
@@ -158,7 +160,7 @@ class OperationsRoute {
    *                 amount:
    *                    type: string
    *                    example: "100"
-   * 
+   *
    * components:
    *  schemas:
    *    CustomerNameInformation:
@@ -174,7 +176,7 @@ class OperationsRoute {
    *          type: string
    *        fullName:
    *          type: string
-   * 
+   *
    */
   @Get("/account-info")
   public getAccountInfo(
@@ -182,11 +184,11 @@ class OperationsRoute {
       {},
       {},
       {},
-      { token: string; amount: string; type: Operation }
+      { token: string; amount: string; type: Operation; system: System }
     >
   ) {
-    const { token, amount, type } = request.query;
-    return OperationsService.getAccountInfo(amount, token, type);
+    const { token, amount, type, system } = request.query;
+    return OperationsService.getAccountInfo(amount, token, type, system);
   }
 
   /**
@@ -227,7 +229,7 @@ class OperationsRoute {
    *     tags:
    *        - "Operations"
    *     summary: Create an operation
-   *     description: Create an operation in memory 
+   *     description: Create an operation in memory
    *     requestBody:
    *      required: true
    *      content:
@@ -248,7 +250,8 @@ class OperationsRoute {
    *                  lastName: "Jesus",
    *                  fullName: "Jorge Jesus",
    *                },
-   *                lei: "AAAA0012345678901299"
+   *                lei: "AAAA0012345678901299",
+   *                system: "mock"
    *               }
    *     responses:
    *        '200':
@@ -256,9 +259,7 @@ class OperationsRoute {
    *
    */
   @Post("/register")
-  public createOperation(
-    request: Request<{}, {}, CreateOperationBody>
-  ) {
+  public createOperation(request: Request<{}, {}, CreateOperationBody>) {
     return OperationsService.createOperation(request.body);
   }
 
@@ -299,7 +300,6 @@ class OperationsRoute {
    */
   @Post("/:action/:id")
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
-    const { token, amount } = request.body;
     return OperationsService.manageOperation(
       request.params.action,
       request.params.id
@@ -313,7 +313,7 @@ class OperationsRoute {
    *     tags:
    *      - "Operations"
    *     summary: Remove notification
-   *     description: Remove the specific notification from memory 
+   *     description: Remove the specific notification from memory
    *     parameters:
    *      - in: path
    *        name: id

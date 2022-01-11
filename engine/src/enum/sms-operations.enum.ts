@@ -3,6 +3,7 @@ export enum SMSOperations {
   DeleteToken = "DELETE_TOKEN",
   CashIn = "CASH_IN",
   CashOut = "CASH_OUT",
+  Pin = "PIN",
 }
 
 export function findKeyByValueSMSOperations(value: string) {

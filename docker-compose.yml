@@ -34,6 +34,9 @@
       environment:
         - ENGINE_API_URL=http://engineservice:4400
         - PROXY_API_URL=http://nodeproxy:4000
+        - TWILIO_SID=${TWILIO_SID}
+        - TWILIO_TOKEN=${TWILIO_TOKEN}
+        - TWILIO_MESSAGE_SID=${TWILIO_MESSAGE_SID}
       depends_on:
         engineservice:
           condition: service_healthy
