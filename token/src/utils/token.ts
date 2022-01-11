@@ -2,7 +2,7 @@ export class Token {
   static generate(phoneNumber: string, indicative: string) {
     const generateRandom = (multiplierLength: number) => {
       const power = Math.pow(10, multiplierLength);
-      const multiplier = Math.floor(Math.random() * 9 * power) + 1 * power;
+      const multiplier = Math.floor(Math.random() * power) + 1 * power;
       const timestamp = new Date().getTime();
       return String(multiplier * timestamp).substring(0, phoneNumber.length);
     };

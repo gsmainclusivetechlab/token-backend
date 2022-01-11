@@ -27,7 +27,8 @@ class USSDService {
             const message = "Your token is " + tokenApiResponse.data.token;
             await axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
               message: message,
-              system: body.system
+              system: body.system,
+              phoneNumber: body.phoneNumber
             });
           }
 
@@ -41,7 +42,8 @@ class USSDService {
             const message = "Your token was deleted";
             await axios.post(process.env.SMS_GATEWAY_API_URL + "/receive", {
               message: message,
-              system: body.system
+              system: body.system,
+              phoneNumber: body.phoneNumber
             });
           }
 

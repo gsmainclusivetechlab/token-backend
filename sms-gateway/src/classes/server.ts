@@ -7,8 +7,8 @@ import http from "http";
 import https from "https";
 import { UserFacingError } from "../classes/errors";
 import { LogLevels, logService } from "../services/log.service";
-import swaggerUi from 'swagger-ui-express';
-import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from "swagger-ui-express";
+import swaggerJSDoc from "swagger-jsdoc";
 
 const errorHandler = (err: any, req: any, res: any, next: any) => {
   logService.log(LogLevels.WARNING, `Catch all errors`);
@@ -73,6 +73,7 @@ class Server {
         },
       })
     );
+    this.app.use(bodyParser.urlencoded({ extended: false }));
     // this.app.use((req, res, next) => {
     //   req.headers.origin = req.headers.origin || req.headers.host;
     //   next();
@@ -102,15 +103,15 @@ class Server {
 
   public addDocsRoute() {
     const swaggerDefinition = {
-      openapi: '3.0.0',
+      openapi: "3.0.0",
       info: {
-        title: 'SMS-Gateway API',
-        version: '1.1.0',
+        title: "SMS-Gateway API",
+        version: "1.1.0",
       },
       servers: [
         {
-          url: 'http://localhost:4100',
-          description: 'Development server',
+          url: "http://localhost:4100",
+          description: "Development server",
         },
       ],
     };
@@ -121,8 +122,8 @@ class Server {
     };
 
     const swaggerSpec = swaggerJSDoc(options);
-    this.routes.push('/docs');
-    this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    this.routes.push("/docs");
+    this.app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   }
 
   // Exposed public routes (service discovery)

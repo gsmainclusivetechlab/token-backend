@@ -19,7 +19,7 @@ class TwilioService {
     try {
       await this.twilio.messages.create({
         body: message,
-        from: process.env.TWILIO_MESSAGE_SID,
+        messagingServiceSid: process.env.TWILIO_MESSAGE_SID,
         to: phoneNumber,
       });
       return { message: 'Message sent.' };
@@ -31,8 +31,8 @@ class TwilioService {
 
   parseMessage(obj: TwilioHookBody) {
     return {
-      phoneNumber: obj.from,
-      text: obj.body,
+      phoneNumber: obj.From,
+      text: obj.Body,
       system: 'live',
     };
   }
