@@ -1,7 +1,7 @@
 import { Request, Router } from "express";
 
 import Server from "../classes/server";
-import { RouteHandler, Get, Put } from "../decorators/router-handler";
+import { RouteHandler, Get, Put, Post } from "../decorators/router-handler";
 import { AccountNameQueryParams } from "../interfaces/account-name";
 import { mmoService } from "../services/mmo.service";
 
@@ -65,6 +65,40 @@ class AccountsRoute {
   @Get("/msisdn/:phoneNumber/accountname")
   public getAccountName(request: Request<{phoneNumber: string}, {}, {}, AccountNameQueryParams>) {
     return mmoService.getAccountName(request.params.phoneNumber)
+  }
+
+  /**
+   * @openapi
+   * /accounts/authorize:
+   *   post:
+   *     tags:
+   *        - "Accounts"
+   *     summary: Authorize customer
+   *     description: Check if PIN is equal to 1234
+   *     parameters:
+   *       - in: query
+   *         name: pin
+   *         required: true
+   *         description: Customer's PIN.
+   *         schema:
+   *           type: string
+   *           example: "1234"
+   *     responses:
+   *       200:
+   *         description: Created
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   description: Message from MMO API
+   *                   example: User authorized
+  */
+  @Post("/authorize")
+  public authorizeUser(request: Request<{}, {}, {pin: string; phoneNumber: string}>) {
+    return mmoService.authorizeUser(request.body.pin, request.body.phoneNumber)
   }
 }
 

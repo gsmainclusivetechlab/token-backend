@@ -1,9 +1,9 @@
-import { Request, Router } from 'express';
-import { HooksService } from '../services/hooks.service';
-import Server from '../classes/server';
-import { RouteHandler, Post, Put } from '../decorators/router-handler';
+import { Request, Router } from "express";
+import { HooksService } from "../services/hooks.service";
+import Server from "../classes/server";
+import { RouteHandler, Post, Put } from "../decorators/router-handler";
 
-@RouteHandler('/hooks')
+@RouteHandler("/hooks")
 class HooksRoute {
   // Services Injection
   public router: Router;
@@ -33,8 +33,12 @@ class HooksRoute {
    *                type: string
    *                description: Action to be done.
    *                example: CASH_IN 200
+   *              system:
+   *                type: string
+   *                description: System used.
+   *                example: "mock"
    */
-  @Post('/sms-gateway')
+  @Post("/sms-gateway")
   public smsGatewayWebhooks(request: Request) {
     return HooksService.processSMSGateway(request);
   }
@@ -62,8 +66,12 @@ class HooksRoute {
    *                type: string
    *                description: Action to be done.
    *                example: "#165*"
+   *              system:
+   *                type: string
+   *                description: System used.
+   *                example: "mock"
    */
-  @Post('/ussd-gateway')
+  @Post("/ussd-gateway")
   public ussdGatewayWebhooks(request: Request) {
     return HooksService.processUSSDGateway(request);
   }
@@ -95,8 +103,12 @@ class HooksRoute {
    *                type: string
    *                description: Operation's type.
    *                example: deposit
+   *              system:
+   *                type: string
+   *                description: System used.
+   *                example: "mock"
    */
-  @Put('/mmo')
+  @Put("/mmo")
   public mmoWebhooks(request: Request) {
     return HooksService.processMMO(request);
   }

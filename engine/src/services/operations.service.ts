@@ -1,10 +1,11 @@
-import axios from "axios";
-import { Operation, Action } from "../interfaces/cash-in-out";
-import { NotFoundError, UserFacingError } from "../classes/errors";
-import { AccountNameReturn } from "../interfaces/mmo";
-import { TokenDecodeInfo } from "../interfaces/token";
-import { GetTypeFromOperation } from "../lib/operations";
-import SafeAwait from "../lib/safe-await";
+import axios, { AxiosError } from 'axios';
+import { Operation, Action, System } from '../interfaces/cash-in-out';
+import { NotFoundError, UserFacingError } from '../classes/errors';
+import { AccountNameReturn } from '../interfaces/mmo';
+import { TokenDecodeInfo } from '../interfaces/token';
+import { GetTypeFromOperation } from '../lib/operations';
+import SafeAwait from '../lib/safe-await';
+import { logService, LogLevels } from './log.service';
 
 class OperationsService {
   async getAccountInfo(amount: string, token?: string, phone?: string) {
@@ -35,17 +36,22 @@ class OperationsService {
     operation: Operation,
     action: Action,
     token: string,
-    amount: string
+    amount: string,
+    system: System
   ) {
-    if (!(action === "accept" || action === "reject")) {
-      throw new UserFacingError("Invalid action");
+    if (!(action === 'accept' || action === 'reject')) {
+      throw new UserFacingError('Invalid action');
     }
 
-    if (!(operation === "cash-in" || operation === "cash-out")) {
-      throw new UserFacingError("Invalid type");
+    if (!(operation === 'cash-in' || operation === 'cash-out')) {
+      throw new UserFacingError('Invalid type');
     }
 
-    if (action === "accept") {
+    if (!(system === 'mock' || system === 'live')) {
+      throw new UserFacingError('Invalid System');
+    }
+
+    if (action === 'accept') {
       const [tokenError, tokenData] = await SafeAwait(
         axios.get<TokenDecodeInfo>(
           `${process.env.TOKEN_API_URL}/tokens/decode/${token}`
@@ -55,40 +61,62 @@ class OperationsService {
         throw new UserFacingError(tokenError.error);
       }
       const headers = {
-        "X-Callback-URL": `${process.env.ENGINE_API_URL}/hooks/mmo`,
+        'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`,
       };
       const body = {
         amount,
         debitParty: [
           {
-            key: "msisdn", // accountid
+            key: 'msisdn', // accountid
             value: tokenData.data.phoneNumber, // 2999
           },
         ],
         creditParty: [
           {
-            key: "msisdn", // accountid
+            key: 'msisdn', // accountid
             value: tokenData.data.phoneNumber, // 2999
           },
         ],
-        currency: "RWF", // RWF
+        currency: 'RWF', // RWF
+        system,
       };
-      axios.post(
-        `${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(
-          operation
-        )}`,
-        body,
-        { headers }
-      );
-
-      return { status: "pending" };
+      try {
+        await axios.post(
+          `${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(
+            operation
+          )}`,
+          body,
+          { headers }
+        );
+        axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
+          message: `Send a message with PIN <pin>`,
+          system,
+          phoneNumber: tokenData.data.phoneNumber
+        });
+        return { status: 'pending' };
+      } catch (err: any | AxiosError) {
+        if (axios.isAxiosError(err) && err.response) {
+          logService.log(LogLevels.ERROR, err.response?.data?.error);
+          throw new UserFacingError(err.response?.data?.error);
+        } else {
+          logService.log(LogLevels.ERROR, err.message);
+          throw new UserFacingError(err.message);
+        }
+      }
     } else {
       const notification = `The operation of ${operation} was rejected`;
+
+      //Agent Notification
       axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
         notification,
       });
+      //Customer Notification
+      axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
+        message: notification,
+        system,
+      });
 
-      return { status: "reject" };
+      return { status: 'reject' };
     }
   }
 }
