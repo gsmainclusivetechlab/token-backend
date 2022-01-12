@@ -104,6 +104,7 @@ class SMSService {
                 axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
                   message: notification,
                   system: body.system,
+                  phoneNumber: body.phoneNumber
                 });
               }
             }
