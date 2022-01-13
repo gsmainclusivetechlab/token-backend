@@ -56,18 +56,18 @@ class USSDService {
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + "/tokens/" + body.phoneNumber
           );
-          const cashInAccountInfo = await OperationsService.getAccountInfo(
-            ussdSplitted[1],
-            undefined,
-            body.phoneNumber
-          );
-          await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
-            token: tokenApiResponse.data.token,
-            amount: ussdSplitted[1],
-            type: "cash-in",
-            ...cashInAccountInfo,
-            system: body.system,
-          });
+          // const cashInAccountInfo = await OperationsService.getAccountInfo(
+          //   ussdSplitted[1],
+          //   undefined,
+          //   body.phoneNumber
+          // );
+          // await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
+          //   token: tokenApiResponse.data.token,
+          //   amount: ussdSplitted[1],
+          //   type: "cash-in",
+          //   ...cashInAccountInfo,
+          //   system: body.system,
+          // });
           return "Thanks for using Engine API";
         case USSDOperations.CashOut:
           if(!ussdSplitted[1]){
@@ -77,17 +77,17 @@ class USSDService {
           tokenApiResponse = await axios.get(
             process.env.TOKEN_API_URL + "/tokens/" + body.phoneNumber
           );
-          const cashOutAccountInfo = await OperationsService.getAccountInfo(
-            ussdSplitted[1],
-            undefined,
-            body.phoneNumber
-          );
-          await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
-            token: tokenApiResponse.data.token,
-            type: "cash-out",
-            ...cashOutAccountInfo,
-            system: body.system,
-          });
+          // const cashOutAccountInfo = await OperationsService.getAccountInfo(
+          //   ussdSplitted[1],
+          //   undefined,
+          //   body.phoneNumber
+          // );
+          // await axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
+          //   token: tokenApiResponse.data.token,
+          //   type: "cash-out",
+          //   ...cashOutAccountInfo,
+          //   system: body.system,
+          // });
           return "Thanks for using Engine API";
         default:
           throw new UserFacingError("INVALID_OPERATION");

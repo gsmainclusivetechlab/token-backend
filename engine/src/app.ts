@@ -5,6 +5,7 @@ import LivenessProbeRoute from "./routes/liveness-probe.route";
 import Server from "./classes/server";
 import HooksRoute from "./routes/hooks.route";
 import OperationsRoute from './routes/operations.route';
+import AccountsRoute from './routes/accounts.route';
 
 dotenv.config({ path: '.env' });
 
@@ -15,6 +16,7 @@ const app = new Server(process.env.PORT || 4400);
 new LivenessProbeRoute(app);
 new HooksRoute(app);
 new OperationsRoute(app);
+new AccountsRoute(app);
 
 const index = new IndexRoute(app.getRoutes());
 app.addRoute("/", index.router);

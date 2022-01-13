@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Request } from "express";
 import { UserFacingError } from "../classes/errors";
-import { Operation } from "../interfaces/cash-in-out";
+import { OperationType } from "../interfaces/operation";
 import { GetOperationFromType } from "../lib/operations";
 import { SMSService } from "./sms.service";
 import { USSDService } from "./ussd.service";
@@ -26,7 +26,7 @@ class HooksService {
   async processMMO(request: Request) {
     const { type, system, phoneNumber } = request.body;
 
-    const operation: Operation = GetOperationFromType(type);
+    const operation: OperationType = GetOperationFromType(type);
 
     if (!operation) {
       throw new UserFacingError("Invalid Operation");
