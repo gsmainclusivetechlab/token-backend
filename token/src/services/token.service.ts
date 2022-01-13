@@ -1,8 +1,7 @@
-import { UserFacingError } from "../classes/errors";
-import { db } from "../classes/server";
-import { Token } from "../utils/token";
-import { phone as phoneLib } from "phone";
-import { queriesService } from "./queries.service";
+import { UserFacingError } from '../classes/errors';
+import { Token } from '../utils/token';
+import { phone as phoneLib } from 'phone';
+import { queriesService } from './queries.service';
 class TokenService {
   async getToken(phone: string) {
     const { phoneNumber, countryCode } = this.validatePhone(phone);
@@ -22,11 +21,11 @@ class TokenService {
       const tokenData = await queriesService.findByToken(token);
       if (tokenData) {
         if (!Token.verifyControlDigit(token, (tokenData as any).indicative)) {
-          throw new UserFacingError("Invalid token.");
+          throw new UserFacingError('Invalid token.');
         }
         return tokenData;
       } else {
-        throw new UserFacingError("Invalid token.");
+        throw new UserFacingError('Invalid token.');
       }
     } catch (err: any) {
       throw new UserFacingError(err.message);
@@ -48,14 +47,13 @@ class TokenService {
   }
 
   async renew(phone: string) {
-    const { phoneNumber } = this.validatePhone(phone);
+    const { phoneNumber, countryCode } = this.validatePhone(phone);
     try {
       const tokenData = await queriesService.findByPhoneNumber(phoneNumber);
       if (tokenData) {
         await queriesService.invalidateToken(phoneNumber);
       }
-
-      return this.getToken(phoneNumber);
+      return this.handleTokenGeneration(phoneNumber, countryCode);
     } catch (err: any) {
       throw new UserFacingError(err.message);
     }
@@ -64,7 +62,7 @@ class TokenService {
   private validatePhone(phone: string) {
     const parsedPhone = phoneLib(phone);
     if (!parsedPhone.isValid) {
-      throw new UserFacingError("Invalid phone number.");
+      throw new UserFacingError('Invalid phone number.');
     }
     return parsedPhone;
   }
@@ -86,21 +84,12 @@ class TokenService {
     }
   }
 
-  private async handleTokenGeneration(
-    phoneNumber: string,
-    countryCode: string
-  ) {
+  private async handleTokenGeneration(phoneNumber: string, countryCode: string) {
     const noIndicativePhone = phoneNumber.split(countryCode)[1];
-    const onlyIndicative = countryCode.split("+")[1];
-    const phoneNumberWithoutLastDigit = noIndicativePhone.substring(
-      0,
-      noIndicativePhone.length - 1
-    );
-    const token = await this.calculateToken(
-      phoneNumberWithoutLastDigit,
-      onlyIndicative
-    );
-    return queriesService.createToken(token, phoneNumber, countryCode);
+    const onlyIndicative = countryCode.split('+')[1];
+    const phoneNumberWithoutLastDigit = noIndicativePhone.substring(0, noIndicativePhone.length - 1);
+    const token = await this.calculateToken(phoneNumberWithoutLastDigit, onlyIndicative);
+    return queriesService.createToken(token, phoneNumber);
   }
 }
 const tokenService = new TokenService();
