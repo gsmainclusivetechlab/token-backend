@@ -16,9 +16,9 @@ class AccountsRoute {
     return AccountsService.createAccount(fullName, phoneNumber);
   }
 
-  @Delete('/')
-  public deleteAccount(request: Request<{}, {}, { phoneNumber: string }, {}>) {
-    const { phoneNumber } = request.body;
+  @Delete('/:phoneNumber')
+  public deleteAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {
+    const { phoneNumber } = request.params;
     return AccountsService.deleteAccount(phoneNumber);
   }
 

@@ -1,7 +1,7 @@
 import { Request, Router } from 'express';
 
 import Server from '../classes/server';
-import { RouteHandler, Get, Put, Post } from '../decorators/router-handler';
+import { RouteHandler, Get, Put, Post, Delete } from '../decorators/router-handler';
 import { AccountNameQueryParams } from '../interfaces/account-name';
 import { mmoService } from '../services/mmo.service';
 
@@ -15,6 +15,12 @@ class AccountsRoute {
   public createUserAccount(request: Request<{}, {}, { fullName: string; phoneNumber: string }, {}>) {
     const { fullName, phoneNumber } = request.body;
     return mmoService.createUserAccount(fullName, phoneNumber);
+  }
+
+  @Delete('/:phoneNumber')
+  public deleteUserAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {
+    const { phoneNumber } = request.params;
+    return mmoService.deleteUserAccount(phoneNumber);
   }
 
   /**

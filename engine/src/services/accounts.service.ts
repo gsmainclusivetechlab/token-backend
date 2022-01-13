@@ -25,9 +25,22 @@ class AccountsService {
     }
   }
 
-  //TODO Quando souber se é ON DELETE SET NULL OR CASCADE
   async deleteAccount(phoneNumber: string) {
-    return;
+    try {
+      return await axios.delete(`${process.env.MMO_API_URL}/accounts/${phoneNumber}`);
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err) && err.response) {
+        logService.log(LogLevels.ERROR, err.response?.data?.error);
+        if (err.response.status === 404) {
+          throw new NotFoundError(err.response?.data?.error);
+        } else {
+          throw new UserFacingError(err.response?.data?.error);
+        }
+      } else {
+        logService.log(LogLevels.ERROR, err.message);
+        throw new UserFacingError(err.message);
+      }
+    }
   }
 
   async getAccountInfo(identifier: string) {

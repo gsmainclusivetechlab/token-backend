@@ -38,6 +38,15 @@ class MmoService {
     //TODO Adicionar algo no SQL para impedir inserts de novo users com o mesmo número de telefone
   }
 
+  async deleteUserAccount(phoneNumber: string) {
+    const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(phoneNumber);
+    if (!findAccount) {
+      throw new NotFoundError(`Account doesn't exist`);
+    }
+
+    return await QueriesService.deleteUserAccount(phoneNumber);
+  }
+
   async getAccountName(identifier: string): Promise<any | AccountNameError> {
     const account = await QueriesService.findAccountByPhoneNumberOrToken(identifier);
     if (!account) {
