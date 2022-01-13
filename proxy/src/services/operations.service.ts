@@ -1,43 +1,63 @@
 import axios, { AxiosError } from 'axios';
 import { UserFacingError } from '../classes/errors';
-import { Action, Operation, System } from '../interfaces/cash-in-out';
 import { AccountNameReturn } from '../interfaces/mmo';
 import SafeAwait from '../lib/safe-await';
 import { v4 as uuidv4 } from 'uuid';
 import { LogLevels, logService } from './log.service';
 import { MessageService } from './message.service';
-import { CreateOperationBody, SendOperation } from '../interfaces/operations';
+import { Action, CreateOperationBody, OperationType, CreateOperation, OperationNotification } from '../interfaces/operations';
 
 class OperationsService {
-  sendOperation: SendOperation = {
-    operations: [],
-    notifications: [],
-  };
-  async getAccountInfo(
-    amount: string,
-    token: string,
-    type: Operation,
-    system: System
-  ) {
-    if (!(type === 'cash-in' || type === 'cash-out')) {
-      throw new UserFacingError('Invalid type');
-    }
+  operations: CreateOperation[] = [];
+  notifications: OperationNotification[] = [];
+  // async getAccountInfo(
+  //   amount: string,
+  //   token: string,
+  //   type: Operation,
+  //   system: System
+  // ) {
+  //   if (!(type === 'cash-in' || type === 'cash-out')) {
+  //     throw new UserFacingError('Invalid type');
+  //   }
 
-    if (!(system === 'mock' || system === 'live')) {
+  //   if (!(system === 'mock' || system === 'live')) {
+  //     throw new UserFacingError('Invalid system');
+  //   }
+
+  //   const [accountInfoError, accountInfoData] = await SafeAwait(
+  //     axios.get<AccountNameReturn>(
+  //       `${process.env.ENGINE_API_URL}/operations/account-info`,
+  //       { params: { token, amount } }
+  //     )
+  //   );
+  //   if (accountInfoError) {
+  //     throw new UserFacingError(accountInfoError.response.data.error);
+  //   }
+  //   this.setOperation(type, token, accountInfoData.data, system);
+  //   return accountInfoData.data;
+  // }
+
+  async createOperation(elem: CreateOperationBody) {
+    //TODO
+    // if (!(elem.type === 'cash-in' || elem.type === 'cash-out')) {
+    //   throw new UserFacingError('Invalid type');
+    // }
+
+    if (!(elem.system === 'mock' || elem.system === 'live')) {
       throw new UserFacingError('Invalid system');
     }
 
-    const [accountInfoError, accountInfoData] = await SafeAwait(
-      axios.get<AccountNameReturn>(
-        `${process.env.ENGINE_API_URL}/operations/account-info`,
-        { params: { token, amount } }
-      )
-    );
+    const [accountInfoError, accountInfoData] = await SafeAwait(axios.get(`${process.env.ENGINE_API_URL}/accounts/${elem.identifier}`));
     if (accountInfoError) {
       throw new UserFacingError(accountInfoError.response.data.error);
     }
-    this.setOperation(type, token, accountInfoData.data, system);
-    return accountInfoData.data;
+
+    elem.identifierType = elem.identifier === accountInfoData.data.phoneNumber ? 'phoneNumber' : 'token';
+    elem.customerInfo = { ...accountInfoData.data };
+
+    this.setOperation(elem);
+
+    return elem;
   }
 
   async manageOperation(action: Action, operationId: string) {
@@ -45,22 +65,19 @@ class OperationsService {
       if (!(action === 'accept' || action === 'reject')) {
         throw new UserFacingError('Invalid action');
       }
-      const operation = this.getOperation(operationId);
+      const operation = this.findOperationById(operationId);
+      // if (!operation) {
+      //   throw new UserFacingError('Something went wrong');
+      // }
+
       if (!operation) {
-        throw new UserFacingError('Something went wrong');
-      }
-      const { token, type, amount, system } = operation;
-      if (!token) {
         throw new UserFacingError("Operation doesn't exist");
       }
 
-      const response = await axios.post(
-        `${process.env.ENGINE_API_URL}/operations/${type}/${action}`,
-        { token, amount, system }
-      );
+      const response = await axios.post(`${process.env.ENGINE_API_URL}/operations/${action}`, { ...operation });
 
-      this.sendOperation.operations.splice(
-        this.sendOperation.operations.findIndex((el) => el.id === operationId),
+      this.operations.splice(
+        this.operations.findIndex((el: CreateOperation) => el.id === operationId),
         1
       );
 
@@ -76,49 +93,72 @@ class OperationsService {
     }
   }
 
-  async getOperationsAndNotifications() {
-    return this.sendOperation;
+  async getOperationsAndNotificationsToAgent() {
+    const operationTypes: OperationType[] = ['cash-in', 'cash-out'];
+    return {
+      operations: this.filterOperationsByTypes(operationTypes),
+      notifications: this.filterNotificationsByTypes(operationTypes),
+    };
   }
 
-  async createNotification(message: string) {
-    this.sendOperation.notifications.push({
-      id: uuidv4(),
-      message,
+  async getOperationsAndNotificationsToMerchant() {
+    const operationTypes: OperationType[] = ['merchant-payment'];
+
+    return {
+      operations: this.filterOperationsByTypes(operationTypes),
+      notifications: this.filterNotificationsByTypes(operationTypes),
+    };
+  }
+
+  async createNotification(elem: OperationNotification) {
+    elem.id = uuidv4();
+    this.notifications.push({
+      ...elem,
     });
   }
 
-  async createOperation(body: CreateOperationBody) {
-    this.sendOperation.operations.push({
-      ...body,
-      id: uuidv4()
-    });
+  //TODO Refactor
+  // async createOperation(body: CreateOperationBody) {
+  //   this.sendOperation.operations.push({
+  //     ...body,
+  //     id: uuidv4()
+  //   });
+  // }
+
+  async registerOperation(elem: CreateOperationBody) {
+    this.setOperation(elem);
   }
 
   async deleteNotification(id: string) {
-    this.sendOperation.notifications.splice(
-      this.sendOperation.notifications.findIndex((el) => el.id === id),
-      1
-    );
-    return { message: `The notification with id ${id} was deleted` };
+    //TODO Validar se a notificação exist
+    // this.sendOperation.notifications.splice(
+    //   this.sendOperation.notifications.findIndex((el) => el.id === id),
+    //   1
+    // );
+    // return { message: `The notification with id ${id} was deleted` };
   }
 
-  private getOperation(id: string) {
-    return this.sendOperation.operations.find((el) => el.id === id);
-  }
-
-  private setOperation(
-    operation: Operation,
-    token: string,
-    data: any,
-    system: System
-  ) {
-    this.sendOperation.operations.push({
+  private setOperation(operation: CreateOperationBody) {
+    this.operations.push({
       id: uuidv4(),
-      type: operation,
-      token,
-      ...data,
-      system,
+      ...operation,
     });
+  }
+
+  private findOperationById(id: string) {
+    return this.operations.find((el: CreateOperation) => el.id === id);
+  }
+
+  private findNotificationById(id: string) {
+    return this.notifications.find((el: OperationNotification) => el.id === id);
+  }
+
+  private filterOperationsByTypes(operationTypes: OperationType[]) {
+    return this.operations.filter((el: CreateOperation) => operationTypes.includes(el.type));
+  }
+
+  private filterNotificationsByTypes(operationTypes: OperationType[]) {
+    return this.notifications.filter((el: OperationNotification) => operationTypes.includes(el.operationType));
   }
 }
 

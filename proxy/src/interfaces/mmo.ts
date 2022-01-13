@@ -1,3 +1,4 @@
+//TODO Refactor
 export interface AccountNameReturn {
   name: {
     title: string;
@@ -7,4 +8,10 @@ export interface AccountNameReturn {
     fullName: string;
   };
   lei: string;
+}
+
+export interface AccountInfo {
+  fullName: string;
+  phoneNumber: string;
+  indicative: string;
 }

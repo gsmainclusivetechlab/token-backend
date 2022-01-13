@@ -1,8 +1,7 @@
 import { Request, Router } from "express";
 import Server from "../classes/server";
 import { RouteHandler, Post, Get, Delete } from "../decorators/router-handler";
-import { Action, Operation, System } from "../interfaces/cash-in-out";
-import { CreateOperationBody } from "../interfaces/operations";
+import { Action, CreateOperationBody, OperationNotification } from "../interfaces/operations";
 import { OperationsService } from "../services/operations.service";
 
 @RouteHandler("/operations")
@@ -91,9 +90,14 @@ class OperationsRoute {
    *          type: string
    *
    */
-  @Get("/")
-  public getOperationsAndNotifications(request: Request<{}, {}, {}, {}>) {
-    return OperationsService.getOperationsAndNotifications();
+  @Get("/agent")
+  public getOperationsAndNotificationsToAgent(request: Request<{}, {}, {}, {}>) {
+    return OperationsService.getOperationsAndNotificationsToAgent();
+  }
+
+  @Get("/merchant")
+  public getOperationsAndNotificationsToMerchant(request: Request<{}, {}, {}, {}>) {
+    return OperationsService.getOperationsAndNotificationsToMerchant();
   }
 
   /**
@@ -178,48 +182,29 @@ class OperationsRoute {
    *          type: string
    *
    */
-  @Get("/account-info")
-  public getAccountInfo(
+  // @Get("/account-info")
+  // public getAccountInfo(
+  //   request: Request<
+  //     {},
+  //     {},
+  //     {},
+  //     { token: string; amount: string; type: Operation; system: System }
+  //   >
+  // ) {
+  //   const { token, amount, type, system } = request.query;
+  //   return OperationsService.getAccountInfo(amount, token, type, system);
+  // }
+
+  @Post("/")
+  public createOperation(
     request: Request<
       {},
       {},
-      {},
-      { token: string; amount: string; type: Operation; system: System }
+      CreateOperationBody,
+      {}
     >
   ) {
-    const { token, amount, type, system } = request.query;
-    return OperationsService.getAccountInfo(amount, token, type, system);
-  }
-
-  /**
-   * @openapi
-   * /operations/notify:
-   *   post:
-   *     tags:
-   *        - "Operations"
-   *     summary: Create a notification
-   *     description: Create a notification for the agent and the customer in memory
-   *     requestBody:
-   *      required: true
-   *      content:
-   *        application/json:
-   *          schema:
-   *            type: object
-   *            properties:
-   *              notification:
-   *                type: string
-   *                description: Message to send to agent.
-   *                example: "Make your test"
-   *     responses:
-   *        '200':
-   *           description: OK
-   *
-   */
-  @Post("/notify")
-  public createNotification(
-    request: Request<{}, {}, { notification: string }>
-  ) {
-    return OperationsService.createNotification(request.body.notification);
+    return OperationsService.createOperation(request.body);
   }
 
   /**
@@ -259,8 +244,8 @@ class OperationsRoute {
    *
    */
   @Post("/register")
-  public createOperation(request: Request<{}, {}, CreateOperationBody>) {
-    return OperationsService.createOperation(request.body);
+  public registerOperation(request: Request<{}, {}, CreateOperationBody>) {
+    return OperationsService.registerOperation(request.body);
   }
 
   /**
@@ -300,11 +285,43 @@ class OperationsRoute {
    */
   @Post("/:action/:id")
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
+    const { action, id } = request.params;
     return OperationsService.manageOperation(
-      request.params.action,
-      request.params.id
+      action,
+      id
     );
   }
+
+  /**
+   * @openapi
+   * /operations/notify:
+   *   post:
+   *     tags:
+   *        - "Operations"
+   *     summary: Create a notification
+   *     description: Create a notification for the agent and the customer in memory
+   *     requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            type: object
+   *            properties:
+   *              notification:
+   *                type: string
+   *                description: Message to send to agent.
+   *                example: "Make your test"
+   *     responses:
+   *        '200':
+   *           description: OK
+   *
+   */
+   @Post("/notify")
+   public createNotification(
+     request: Request<{}, {}, OperationNotification, {}>
+   ) {
+     return OperationsService.createNotification(request.body);
+   }
 
   /**
    * @openapi
