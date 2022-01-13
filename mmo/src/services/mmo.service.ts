@@ -1,41 +1,44 @@
 import axios from 'axios';
 import { NotFoundError, UnauthorizedError, UserFacingError } from '../classes/errors';
-import { AccountNameError } from '../interfaces/account-name';
+import { AccountNameReturn } from '../interfaces/account-name';
 import { TransactionsRes, TransactionsBody, TransactionType, Transaction, TransactionStatus, Merchant } from '../interfaces/transaction';
 import { v4 as uuidv4 } from 'uuid';
 import { phone as phoneLib } from 'phone';
-import { LogLevels, logService } from './log.service';
 import { QueriesService } from './queries.service';
 class MmoService {
   transactions: Transaction[] = [];
   merchants: Merchant[] = [{ code: '4321', name: 'XPTO Lda', available: true }];
 
-  async createUserAccount(fullName: string, phoneNumber: string) {
-    // try {
+  async createUserAccount(fullName: string, phoneNumber: string): Promise<AccountNameReturn> {
+    if (!fullName) {
+      throw new UserFacingError('INVALID_REQUEST - Missing property fullName');
+    }
 
-    // } catch (err: any) {
-    //   logService.log(LogLevels.ERROR, err.message);
-    //   throw new UserFacingError(err.message);
-    // }
+    if (fullName.trim() === '') {
+      throw new UserFacingError("INVALID_REQUEST - Property fullName can't be empty");
+    }
 
-    //Sacar o indicativo e ao mesmo tempo validar o telefone -> const { phoneNumber, countryCode } = this.validatePhone(phone);
+    if (!phoneNumber) {
+      throw new UserFacingError('INVALID_REQUEST - Missing property phoneNumber');
+    }
+
+    if (phoneNumber.trim() === '') {
+      throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
+    }
+
     const phoneResult = phoneLib(phoneNumber);
     if (!phoneResult.isValid) {
       throw new UserFacingError('Invalid phone number.');
     }
 
-    //Ver se o telefone ja esta registado
     const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(phoneNumber);
     if (findAccount) {
       throw new UserFacingError('Account already exist.');
     }
 
-    //Fazer o novo insert
     await QueriesService.createUserAccount(fullName, phoneNumber, phoneResult.countryCode);
 
     return { fullName, phoneNumber, indicative: phoneResult.countryCode };
-
-    //TODO Adicionar algo no SQL para impedir inserts de novo users com o mesmo número de telefone
   }
 
   async deleteUserAccount(phoneNumber: string) {
@@ -47,20 +50,13 @@ class MmoService {
     return await QueriesService.deleteUserAccount(phoneNumber);
   }
 
-  async getAccountName(identifier: string): Promise<any | AccountNameError> {
+  async getAccountName(identifier: string): Promise<AccountNameReturn> {
     const account = await QueriesService.findAccountByPhoneNumberOrToken(identifier);
     if (!account) {
       throw new NotFoundError("Account doesn't exist");
     }
 
     return account;
-
-    // try {
-
-    // } catch (err: any) {
-    //   logService.log(LogLevels.ERROR, err.message);
-    //   throw new UserFacingError(err.message);
-    // }
   }
 
   async startTransaction(type: TransactionType, callbackUrl: string, body: TransactionsBody): Promise<TransactionsRes> {

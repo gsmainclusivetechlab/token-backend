@@ -3,6 +3,41 @@ import { NotFoundError, UserFacingError } from '../classes/errors';
 import { LogLevels, logService } from './log.service';
 
 class AccountsService {
+  async createAccount(fullName: string, phoneNumber: string) {
+    try {
+      if (!fullName) {
+        throw new UserFacingError('INVALID_REQUEST - Missing property fullName');
+      }
+
+      if (fullName.trim() === '') {
+        throw new UserFacingError("INVALID_REQUEST - Property fullName can't be empty");
+      }
+
+      if (!phoneNumber) {
+        throw new UserFacingError('INVALID_REQUEST - Missing property phoneNumber');
+      }
+
+      if (phoneNumber.trim() === '') {
+        throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
+      }
+
+      await axios.post(`${process.env.ENGINE_API_URL}/accounts/`, {
+        fullName,
+        phoneNumber,
+      });
+
+      return { fullName, phoneNumber };
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err) && err.response) {
+        logService.log(LogLevels.ERROR, err.response?.data?.error);
+        throw new UserFacingError(err.response?.data?.error);
+      } else {
+        logService.log(LogLevels.ERROR, err.message);
+        throw new UserFacingError(err.message);
+      }
+    }
+  }
+
   async deleteAccount(phoneNumber: string) {
     try {
       return await axios.delete(`${process.env.ENGINE_API_URL}/accounts/${phoneNumber}`);

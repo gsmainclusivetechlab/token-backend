@@ -6,6 +6,22 @@ import { LogLevels, logService } from './log.service';
 class AccountsService {
   async createAccount(fullName: string, phoneNumber: string) {
     try {
+      if (!fullName) {
+        throw new UserFacingError('INVALID_REQUEST - Missing property fullName');
+      }
+
+      if (fullName.trim() === '') {
+        throw new UserFacingError("INVALID_REQUEST - Property fullName can't be empty");
+      }
+
+      if (!phoneNumber) {
+        throw new UserFacingError('INVALID_REQUEST - Missing property phoneNumber');
+      }
+
+      if (phoneNumber.trim() === '') {
+        throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
+      }
+
       await axios.post(`${process.env.MMO_API_URL}/accounts/`, {
         fullName,
         phoneNumber,

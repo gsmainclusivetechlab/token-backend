@@ -1,4 +1,5 @@
 import { App } from '../app';
+import { AccountNameReturn } from '../interfaces/account-name';
 
 class QueriesService {
   createUserAccount(fullName: string, phoneNumber: string, indicative: string) {
@@ -27,7 +28,7 @@ class QueriesService {
     });
   }
 
-  findAccountByPhoneNumberOrToken(identifier: string) {
+  findAccountByPhoneNumberOrToken(identifier: string): Promise<AccountNameReturn | undefined> {
     const selectQuery = 'SELECT U.* FROM tokens T, users U WHERE T.user_id=U.id AND T.active=true AND (U.phoneNumber = ? OR T.token = ?)';
     return new Promise((resolve, reject) => {
       App.getDBInstance().query(

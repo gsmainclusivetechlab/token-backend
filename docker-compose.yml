@@ -80,9 +80,9 @@
         - gsma-bridge
       environment:
         - HOST=tokendbservice
-        - DB_USER=gsma-sa
-        - DB_PASSWORD=password
-        - DB_DATABASE=tokens
+        - DB_USER=root
+        - DB_PASSWORD=1234
+        - DB_DATABASE=registry
       depends_on:
         tokendbservice:
           condition: service_healthy
@@ -148,6 +148,11 @@
         - "4300:4300"
       networks:
         - gsma-bridge
+      environment:
+        - HOST=tokendbservice
+        - DB_USER=root
+        - DB_PASSWORD=1234
+        - DB_DATABASE=registry
       depends_on:
         tokendbservice:
           condition: service_healthy
