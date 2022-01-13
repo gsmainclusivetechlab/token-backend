@@ -149,6 +149,9 @@
         - "4300:4300"
       networks:
         - gsma-bridge
+      depends_on:
+        tokendbservice:
+          condition: service_healthy
       healthcheck:
         test: curl -f http://localhost:4300/health
         interval: 1s

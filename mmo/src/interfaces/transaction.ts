@@ -41,6 +41,7 @@ export interface TransactionsBody {
   ];
   currency: string; // RWF
   system: 'mock' | 'live'; //mock or live
+  merchantCode: string
 }
 
 export interface TransactionsRes {
@@ -59,4 +60,11 @@ export interface Transaction {
   status: TransactionStatus;
   system: 'mock' | 'live',
   amount: string;
+  merchant?: Merchant;
+}
+
+export interface Merchant {
+  code: string;
+  name: string;
+  available: boolean;
 }

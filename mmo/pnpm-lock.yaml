@@ -19,7 +19,7 @@ specifiers:
   mysql: ^2.18.1
   nodemon: ^2.0.15
   openapi-types: ^10.0.0
-  phone: ^3.1.10
+  phone: ^3.1.11
   pnpm: ^6.24.4
   swagger-jsdoc: ^6.1.0
   swagger-ui-express: ^4.3.0

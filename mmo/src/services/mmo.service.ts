@@ -1,80 +1,97 @@
 import axios from 'axios';
 import { NotFoundError, UnauthorizedError, UserFacingError } from '../classes/errors';
 import { AccountNameError } from '../interfaces/account-name';
-import {
-  TransactionsRes,
-  TransactionsBody,
-  TransactionType,
-  Transaction,
-  TransactionStatus,
-} from '../interfaces/transaction';
+import { TransactionsRes, TransactionsBody, TransactionType, Transaction, TransactionStatus, Merchant } from '../interfaces/transaction';
 import { v4 as uuidv4 } from 'uuid';
+import { phone as phoneLib } from 'phone';
+import { LogLevels, logService } from './log.service';
+import { QueriesService } from './queries.service';
 class MmoService {
   transactions: Transaction[] = [];
-  async getAccountName(phoneNumber: string): Promise<{} | AccountNameError> {
-    return {
-      name: {
-        title: 'Dr.',
-        firstName: 'Ruizao',
-        middleName: 'P.',
-        lastName: 'Escobar',
-        fullName: 'Rui',
-      },
-      lei: 'AAAA0012345678901299',
-    };
-    // if (phoneNumber === '+233207212676') {
-    // } else {
-    //   throw new NotFoundError('Account does not exist');
+  merchants: Merchant[] = [{ code: '4321', name: 'XPTO Lda', available: true }];
+
+  async createUserAccount(fullName: string, phoneNumber: string) {
+    // try {
+
+    // } catch (err: any) {
+    //   logService.log(LogLevels.ERROR, err.message);
+    //   throw new UserFacingError(err.message);
+    // }
+
+    //Sacar o indicativo e ao mesmo tempo validar o telefone -> const { phoneNumber, countryCode } = this.validatePhone(phone);
+    const phoneResult = phoneLib(phoneNumber);
+    if (!phoneResult.isValid) {
+      throw new UserFacingError('Invalid phone number.');
+    }
+
+    //Ver se o telefone ja esta registado
+    const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(phoneNumber);
+    if (findAccount) {
+      throw new UserFacingError('Account already exist.');
+    }
+
+    //Fazer o novo insert
+    await QueriesService.createUserAccount(fullName, phoneNumber, phoneResult.countryCode);
+
+    return { fullName, phoneNumber, indicative: phoneResult.countryCode };
+
+    //TODO Adicionar algo no SQL para impedir inserts de novo users com o mesmo número de telefone
+  }
+
+  async getAccountName(identifier: string): Promise<any | AccountNameError> {
+    const account = await QueriesService.findAccountByPhoneNumberOrToken(identifier);
+    if (!account) {
+      throw new NotFoundError("Account doesn't exist");
+    }
+
+    return account;
+
+    // try {
+
+    // } catch (err: any) {
+    //   logService.log(LogLevels.ERROR, err.message);
+    //   throw new UserFacingError(err.message);
     // }
   }
 
-  async startTransaction(
-    type: TransactionType,
-    callbackUrl: string,
-    body: TransactionsBody
-  ): Promise<TransactionsRes> {
+  async startTransaction(type: TransactionType, callbackUrl: string, body: TransactionsBody): Promise<TransactionsRes> {
     const phoneNumber = body.creditParty[0].value;
     if (this.findTransactionByStatus('pending', phoneNumber)) {
-      throw new UserFacingError(
-        'There is a pending transaction for this customer'
-      );
+      throw new UserFacingError('There is a pending transaction for this customer');
     }
     const transactionId = uuidv4();
-    this.transactions.push({
-      callbackUrl,
-      type,
-      phoneNumber: body.creditParty[0].value,
-      id: uuidv4(),
-      system: body.system,
-      status: 'pending',
-      amount: body.amount
-    });
-    // switch (type) {
-    //   case 'withdrawal':
-    //     try {
-    //       await axios.put(callbackUrl, {
-    //         amount: body.amount,
-    //         type,
-    //         phoneNumber: body.creditParty[0].value,
-    //       });
-    //     } catch (error) {
-    //       throw new UserFacingError(error as string);
-    //     }
-    //     break;
-    //   case 'deposit':
-    //     try {
-    //       await axios.put(callbackUrl, {
-    //         amount: body.amount,
-    //         type,
-    //         phoneNumber: body.creditParty[0].value,
-    //       });
-    //     } catch (error) {
-    //       throw new UserFacingError(error as string);
-    //     }
-    //     break;
-    //   default:
-    //     throw new UserFacingError('Invalid operation');
-    // }
+
+    switch (type) {
+      case 'merchantpay':
+        const findMerchant = this.findMerchantByCode(body.merchantCode);
+
+        if (findMerchant) {
+          this.transactions.push({
+            callbackUrl,
+            type,
+            phoneNumber: body.creditParty[0].value,
+            id: uuidv4(),
+            system: body.system,
+            status: 'pending',
+            amount: body.amount,
+            merchant: findMerchant,
+          });
+        } else {
+          throw new UserFacingError("Don't exist a merchant available with this code");
+        }
+
+        break;
+      default:
+        this.transactions.push({
+          callbackUrl,
+          type,
+          phoneNumber: body.creditParty[0].value,
+          id: uuidv4(),
+          system: body.system,
+          status: 'pending',
+          amount: body.amount,
+        });
+    }
     return {
       serverCorrelationId: transactionId,
       status: 'pending',
@@ -107,24 +124,15 @@ class MmoService {
     return transaction;
   }
 
-  private findTransactionByStatus(
-    status: TransactionStatus,
-    phoneNumber: string
-  ) {
-    return this.transactions.find(
-      (transaction) =>
-        transaction.status === status && transaction.phoneNumber === phoneNumber
-    );
+  private findTransactionByStatus(status: TransactionStatus, phoneNumber: string) {
+    return this.transactions.find((transaction) => transaction.status === status && transaction.phoneNumber === phoneNumber);
   }
 
-  private findTransactionByStatusIndex(
-    status: TransactionStatus,
-    phoneNumber: string
-  ) {
-    return this.transactions.findIndex(
-      (transaction) =>
-        transaction.status === status && transaction.phoneNumber === phoneNumber
-    );
+  private findTransactionByStatusIndex(status: TransactionStatus, phoneNumber: string) {
+    return this.transactions.findIndex((transaction) => transaction.status === status && transaction.phoneNumber === phoneNumber);
+  }
+  private findMerchantByCode(code: string) {
+    return this.merchants.find((elem: Merchant) => elem.code == code && elem.available);
   }
 }
 const mmoService = new MmoService();

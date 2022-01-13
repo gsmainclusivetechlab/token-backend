@@ -7,11 +7,9 @@ import http from "http";
 import https from "https";
 import { UserFacingError } from "../classes/errors";
 import { LogLevels, logService } from "../services/log.service";
-import { Connection, createConnection } from 'mysql'
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
-
-export var db: Connection
+import mysql from 'mysql';
 
 const errorHandler = (err: any, req: any, res: any, next: any) => {
   logService.log(LogLevels.WARNING, `Catch all errors`);
@@ -56,6 +54,7 @@ class Server {
   protected app: express.Application;
   protected httpServer: http.Server;
   protected httpsServer: https.Server;
+  protected db: mysql.Connection;
   private routes: string[] = [];
   public port: number | string;
 
@@ -64,6 +63,7 @@ class Server {
     this.port = port;
     this.app.set("port", port);
     this.config();
+    this.connectDB();
     this.getServerInstance();
   }
 
@@ -97,6 +97,16 @@ class Server {
       );
       res.send(200);
     });
+  }
+
+  private connectDB() {
+    this.db = mysql.createConnection({
+      host: process.env.HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+    });
+    this.db.connect();
   }
 
   // Routing Methods
@@ -184,6 +194,10 @@ class Server {
     } else {
       return this.httpServer;
     }
+  }
+
+  public getDBInstance(): mysql.Connection {
+    return this.db;
   }
 }
 
