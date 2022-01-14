@@ -90,14 +90,9 @@ class OperationsRoute {
    *          type: string
    *
    */
-  @Get("/agent")
-  public getOperationsAndNotificationsToAgent(request: Request<{}, {}, {}, {}>) {
-    return OperationsService.getOperationsAndNotificationsToAgent();
-  }
-
-  @Get("/merchant")
-  public getOperationsAndNotificationsToMerchant(request: Request<{}, {}, {}, {}>) {
-    return OperationsService.getOperationsAndNotificationsToMerchant();
+  @Get("/")
+  public getOperationsAndNotifications(request: Request<{}, {}, {}, {}>) {
+    return OperationsService.getOperationsAndNotifications();
   }
 
   /**

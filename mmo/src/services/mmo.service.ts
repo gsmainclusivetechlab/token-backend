@@ -80,9 +80,10 @@ class MmoService {
             status: 'pending',
             amount: body.amount,
             merchant: findMerchant,
+            identifierType: body.identifierType
           });
         } else {
-          throw new UserFacingError("Don't exist a merchant available with this code");
+          throw new NotFoundError("Don't exist a merchant available with this code");
         }
 
         break;
@@ -95,6 +96,7 @@ class MmoService {
           system: body.system,
           status: 'pending',
           amount: body.amount,
+          identifierType: body.identifierType
         });
     }
     return {
@@ -117,11 +119,13 @@ class MmoService {
     }
     transaction.status = 'accepted';
     try {
+      //TODO Colocar aqui o Nome do customer?
       await axios.put(transaction.callbackUrl, {
         amount: transaction.amount,
         type: transaction.type,
         system: transaction.system,
         phoneNumber: transaction.phoneNumber,
+        identifierType: transaction.identifierType
       });
     } catch (error) {
       throw new UserFacingError(error as string);

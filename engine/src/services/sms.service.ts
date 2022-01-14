@@ -8,6 +8,7 @@ import { OperationsService } from './operations.service';
 import { phone as phoneLib } from 'phone';
 import SafeAwait from '../lib/safe-await';
 import { AccountsService } from './accounts.service';
+import { HooksService } from './hooks.service';
 
 class SMSService {
   async processSMSMessage(obj: SMSWebhookBody) {
@@ -66,7 +67,7 @@ class SMSService {
             system,
             identifier: tokenApiResponse.data.token,
             identifierType: 'token',
-            customerInfo: getAccountNameData
+            customerInfo: getAccountNameData,
           };
 
           axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
@@ -89,11 +90,11 @@ class SMSService {
             system,
             identifier: tokenApiResponse.data.token,
             identifierType: 'token',
-            customerInfo: getAccountNameData
+            customerInfo: getAccountNameData,
           };
 
           axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
-            ...operationCashOutObj
+            ...operationCashOutObj,
           });
           break;
         case SMSOperations.Pin:
@@ -110,43 +111,53 @@ class SMSService {
               phoneNumber,
             });
           } catch (error: any | AxiosError) {
+            //TODO Falta os throws
             if (axios.isAxiosError(error)) {
               if (error.response?.status === 401) {
-                const notification = `Operation Rejected - Wrong PIN`;
-                //Agent Notification
-                axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
-                  notification,
-                });
-                this.sendCustomerNotification(phoneNumber, notification, system);
+                //TODO
+                const message = `Operation Rejected - Wrong PIN`;
+                
+                HooksService.sendAgentMerchantNotification(message);
+                this.sendCustomerNotification(phoneNumber, message, system);
               }
             }
           }
           break;
-        // case SMSOperations.Payment:
-        //   if (!smsSplitted[1]) {
-        //     throw new UserFacingError('Missing merchant code');
-        //   }
+        case SMSOperations.Payment:
+          if (!smsSplitted[1]) {
+            throw new UserFacingError('Missing merchant code');
+          }
 
-        //   if (!smsSplitted[2]) {
-        //     throw new UserFacingError('Missing amount');
-        //   }
+          if (!smsSplitted[2]) {
+            throw new UserFacingError('Missing amount');
+          }
 
-        //   tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL + '/tokens/' + body.phoneNumber);
-        //   //TODO Fazer refactor ao getAccountInfo para nao receber o amount
-        //   const responseAccountInfo = await OperationsService.getAccountInfo(smsSplitted[2], undefined, body.phoneNumber);
+          tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
 
-        //   const operationObj: Operation = {
-        //     type: 'merchant-payment',
-        //     amount: smsSplitted[2],
-        //     phoneNumber: body.phoneNumber,
-        //     system: body.system,
-        //     merchantCode: smsSplitted[1],
-        //   };
+          const operationMerchantPaymentObj: Operation = {
+            type: 'merchant-payment',
+            amount: smsSplitted[2],
+            identifier: tokenApiResponse.data.token,
+            system,
+            merchantCode: smsSplitted[1],
+            customerInfo: getAccountNameData,
+          };
 
-        //   //TODO Adicionar operação e fazer refactor para receber o telefone
-        //   const responseTransaction = await OperationsService.manageOperation('accept', operationObj);
+          try {
+            await OperationsService.manageOperation('accept', operationMerchantPaymentObj);
+          } catch (err: any) {
+            //TODO Falta os throws
+            if (err.name === 'NotFoundError') {
+              //Perceber se a mensagem é pq o merchant não existe
+              const message = `TODO`;
+              this.sendCustomerNotification(phoneNumber, message, system);
+              throw new NotFoundError(err.message);
+            } else {
+              throw new UserFacingError(err.message);
+            }
+          }
 
-        //   return 'Thanks for using Engine API';
+          break;
         default:
           //TODO Colocar messagem
           const message = 'TODO';

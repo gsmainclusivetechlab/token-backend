@@ -8,6 +8,7 @@ import SafeAwait from '../lib/safe-await';
 import { logService, LogLevels } from './log.service';
 import { AccountsService } from './accounts.service';
 import { SMSService } from './sms.service';
+import { HooksService } from './hooks.service';
 
 class OperationsService {
   async manageOperation(action: Action, operation: Operation) {
@@ -47,13 +48,16 @@ class OperationsService {
       let phoneNumber = null;
 
       if (operation.identifierType === 'token') {
-        const [tokenError, tokenData] = await SafeAwait(
-          axios.get<TokenDecodeInfo>(`${process.env.TOKEN_API_URL}/tokens/decode/${operation.identifier}`)
-        );
-        if (tokenError) {
-          throw new UserFacingError(tokenError.error);
-        }
-        phoneNumber = tokenData.data.phoneNumber;
+        //TODO Avaliar se é necessário esta chamada
+        // const [tokenError, tokenData] = await SafeAwait(
+        //   axios.get<TokenDecodeInfo>(`${process.env.TOKEN_API_URL}/tokens/decode/${operation.identifier}`)
+        // );
+        // if (tokenError) {
+        //   throw new UserFacingError(tokenError.error);
+        // }
+        // phoneNumber = tokenData.data.phoneNumber;
+
+        phoneNumber = getAccountNameData.phoneNumber;
       } else {
         phoneNumber = operation.identifier;
       }
@@ -79,6 +83,7 @@ class OperationsService {
           currency: 'RWF', // RWF
           system: operation.system,
           merchantCode: operation.merchantCode,
+          identifierType: operation.identifierType,
         };
 
         await axios.post(`${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(operation.type)}`, body, { headers });
@@ -88,14 +93,12 @@ class OperationsService {
 
         return { status: 'pending' };
       } else {
-        const message = `The operation of ${operation} was rejected`;
+        //TODO operation type + amount + identifier
+        const message = `operation: ${operation.type} + identifier: ${operation.identifier} + amount: ${operation.amount}`;
 
-        //Agent Notification
-        axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
-          message,
-          operationType: operation.type,
-        });
+        //const message = `The operation of ${operation} was rejected`;
 
+        HooksService.sendAgentMerchantNotification(message);
         SMSService.sendCustomerNotification(phoneNumber, message, operation.system);
 
         return { status: 'reject' };

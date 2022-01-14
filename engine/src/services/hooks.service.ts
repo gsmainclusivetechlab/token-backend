@@ -24,11 +24,11 @@ class HooksService {
   }
 
   async processMMO(request: Request) {
-    const { type, system, phoneNumber } = request.body;
+    const { type, system, phoneNumber, amount, identifierType } = request.body;
 
-    const operation: OperationType = GetOperationFromType(type);
+    const operationType: OperationType = GetOperationFromType(type);
 
-    if (!operation) {
+    if (!operationType) {
       throw new UserFacingError('Invalid Operation');
     }
 
@@ -36,13 +36,23 @@ class HooksService {
       throw new UserFacingError('Invalid System');
     }
 
-    const notification = `The operation of ${operation} was successful`;
-    //Agent Notification
-    axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
-      notification,
-    });
+    let identifier = null;
 
-    SMSService.sendCustomerNotification(phoneNumber, notification, system);
+    if (identifierType === 'token') {
+      const tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
+      identifier = tokenApiResponse.data.token;
+    } else {
+      identifier = phoneNumber;
+    }
+
+    //TODO Colocar aqui o Nome do customer?
+
+    //TODO operation type + amount + identifier
+    const message = `operation: ${operationType} + identifier: ${identifier} + amount: ${amount}`;
+
+    //const notification = `The operation of ${operation} was successful`;
+    this.sendAgentMerchantNotification(message);
+    SMSService.sendCustomerNotification(phoneNumber, message, system);
 
     return { message: 'Thanks for using Engine API' };
   }
@@ -79,6 +89,12 @@ class HooksService {
     if (!(body.system !== 'mock' || body.system !== 'live')) {
       throw new UserFacingError('INVALID_REQUEST - Property system with wrong value');
     }
+  }
+
+  sendAgentMerchantNotification(message: string) {
+    axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
+      message,
+    });
   }
 }
 

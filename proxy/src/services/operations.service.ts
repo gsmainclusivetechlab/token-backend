@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { UserFacingError } from '../classes/errors';
+import { NotFoundError, UserFacingError } from '../classes/errors';
 import { AccountNameReturn } from '../interfaces/mmo';
 import SafeAwait from '../lib/safe-await';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,32 +10,6 @@ import { Action, CreateOperationBody, OperationType, CreateOperation, OperationN
 class OperationsService {
   operations: CreateOperation[] = [];
   notifications: OperationNotification[] = [];
-  // async getAccountInfo(
-  //   amount: string,
-  //   token: string,
-  //   type: Operation,
-  //   system: System
-  // ) {
-  //   if (!(type === 'cash-in' || type === 'cash-out')) {
-  //     throw new UserFacingError('Invalid type');
-  //   }
-
-  //   if (!(system === 'mock' || system === 'live')) {
-  //     throw new UserFacingError('Invalid system');
-  //   }
-
-  //   const [accountInfoError, accountInfoData] = await SafeAwait(
-  //     axios.get<AccountNameReturn>(
-  //       `${process.env.ENGINE_API_URL}/operations/account-info`,
-  //       { params: { token, amount } }
-  //     )
-  //   );
-  //   if (accountInfoError) {
-  //     throw new UserFacingError(accountInfoError.response.data.error);
-  //   }
-  //   this.setOperation(type, token, accountInfoData.data, system);
-  //   return accountInfoData.data;
-  // }
 
   async createOperation(elem: CreateOperationBody) {
     //TODO
@@ -93,20 +67,10 @@ class OperationsService {
     }
   }
 
-  async getOperationsAndNotificationsToAgent() {
-    const operationTypes: OperationType[] = ['cash-in', 'cash-out'];
+  async getOperationsAndNotifications() {
     return {
-      operations: this.filterOperationsByTypes(operationTypes),
-      notifications: this.filterNotificationsByTypes(operationTypes),
-    };
-  }
-
-  async getOperationsAndNotificationsToMerchant() {
-    const operationTypes: OperationType[] = ['merchant-payment'];
-
-    return {
-      operations: this.filterOperationsByTypes(operationTypes),
-      notifications: this.filterNotificationsByTypes(operationTypes),
+      operations: this.operations,
+      notifications: this.notifications,
     };
   }
 
@@ -117,25 +81,18 @@ class OperationsService {
     });
   }
 
-  //TODO Refactor
-  // async createOperation(body: CreateOperationBody) {
-  //   this.sendOperation.operations.push({
-  //     ...body,
-  //     id: uuidv4()
-  //   });
-  // }
-
   async registerOperation(elem: CreateOperationBody) {
     this.setOperation(elem);
   }
 
   async deleteNotification(id: string) {
-    //TODO Validar se a notificação exist
-    // this.sendOperation.notifications.splice(
-    //   this.sendOperation.notifications.findIndex((el) => el.id === id),
-    //   1
-    // );
-    // return { message: `The notification with id ${id} was deleted` };
+    const index = this.findIndexNotificationById(id);
+    if (index === -1) {
+      throw new NotFoundError(`The notification with id ${id} doesn't exist.`);
+    } else {
+      this.notifications.splice(index, 1);
+      return { message: `The notification with id ${id} was deleted` };
+    }
   }
 
   private setOperation(operation: CreateOperationBody) {
@@ -149,16 +106,8 @@ class OperationsService {
     return this.operations.find((el: CreateOperation) => el.id === id);
   }
 
-  private findNotificationById(id: string) {
-    return this.notifications.find((el: OperationNotification) => el.id === id);
-  }
-
-  private filterOperationsByTypes(operationTypes: OperationType[]) {
-    return this.operations.filter((el: CreateOperation) => operationTypes.includes(el.type));
-  }
-
-  private filterNotificationsByTypes(operationTypes: OperationType[]) {
-    return this.notifications.filter((el: OperationNotification) => operationTypes.includes(el.operationType));
+  private findIndexNotificationById(id: string) {
+    return this.notifications.findIndex((el: OperationNotification) => el.id === id);
   }
 }
 
