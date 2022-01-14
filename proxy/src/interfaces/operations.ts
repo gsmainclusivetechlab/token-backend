@@ -1,4 +1,4 @@
-import { AccountInfo } from "./mmo";
+import { AccountNameReturn } from "./mmo";
 
 export type OperationType = "cash-in" | "cash-out" | "merchant-payment";
 
@@ -15,7 +15,7 @@ export interface CreateOperationBody {
   identifierType: IndentifierType;
   amount: string;
   type: OperationType;
-  customerInfo: AccountInfo;
+  customerInfo: AccountNameReturn;
   system: string;
   merchantCode: string;
 }

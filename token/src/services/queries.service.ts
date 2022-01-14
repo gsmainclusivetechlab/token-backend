@@ -2,13 +2,14 @@ import { db } from '../classes/server';
 
 class QueriesService {
   findByToken(token: string) {
-    const selectQuery = 'SELECT * FROM tokens WHERE token = ? AND active = ?';
+    const selectQuery =
+      'SELECT T.token, U.phoneNumber, U.indicative FROM tokens T, users U WHERE T.user_id=U.id AND T.token = ? AND T.active = ?';
     return new Promise((resolve, reject) => {
       db.query(selectQuery, [token, true], (err, rows) => {
         if (err) {
           return reject('Error getting data');
         }
-        return resolve(rows[0]);
+        return resolve(rows[0] ? { token: rows[0].token, phoneNumber: rows[0].phoneNumber, indicative: rows[0].indicative } : undefined);
       });
     });
   }
