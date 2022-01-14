@@ -9,13 +9,13 @@ class MmoService {
   transactions: Transaction[] = [];
   merchants: Merchant[] = [{ code: '4321', name: 'XPTO Lda', available: true }];
 
-  async createUserAccount(fullName: string, phoneNumber: string): Promise<AccountNameReturn> {
-    if (!fullName) {
-      throw new UserFacingError('INVALID_REQUEST - Missing property fullName');
+  async createUserAccount(nickName: string, phoneNumber: string): Promise<AccountNameReturn> {
+    if (!nickName) {
+      throw new UserFacingError('INVALID_REQUEST - Missing property nickName');
     }
 
-    if (fullName.trim() === '') {
-      throw new UserFacingError("INVALID_REQUEST - Property fullName can't be empty");
+    if (nickName.trim() === '') {
+      throw new UserFacingError("INVALID_REQUEST - Property nickName can't be empty");
     }
 
     if (!phoneNumber) {
@@ -36,9 +36,9 @@ class MmoService {
       throw new UserFacingError('Account already exist.');
     }
 
-    await QueriesService.createUserAccount(fullName, phoneNumber, phoneResult.countryCode);
+    await QueriesService.createUserAccount(nickName, phoneNumber, phoneResult.countryCode);
 
-    return { fullName, phoneNumber, indicative: phoneResult.countryCode };
+    return { nickName, phoneNumber, indicative: phoneResult.countryCode };
   }
 
   async deleteUserAccount(phoneNumber: string) {

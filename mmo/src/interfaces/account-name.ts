@@ -14,7 +14,7 @@ export interface AccountNameQueryParams {
 }
 
 export interface AccountNameReturn {
-  fullName: string;
+  nickName: string;
   phoneNumber: string;
   indicative: string;
 }

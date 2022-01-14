@@ -12,9 +12,9 @@ class AccountsRoute {
   constructor(public app: Server) {}
 
   @Post('/')
-  public createUserAccount(request: Request<{}, {}, { fullName: string; phoneNumber: string }, {}>) {
-    const { fullName, phoneNumber } = request.body;
-    return mmoService.createUserAccount(fullName, phoneNumber);
+  public createUserAccount(request: Request<{}, {}, { nickName: string; phoneNumber: string }, {}>) {
+    const { nickName, phoneNumber } = request.body;
+    return mmoService.createUserAccount(nickName, phoneNumber);
   }
 
   @Delete('/:phoneNumber')

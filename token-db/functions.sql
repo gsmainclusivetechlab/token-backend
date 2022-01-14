@@ -1,7 +1,7 @@
 -- CREATE USERS TABLE
 CREATE TABLE users(
    id SERIAL, 
-   fullName VARCHAR(100) NOT NULL,
+   nickName VARCHAR(100) NOT NULL,
    phoneNumber VARCHAR(50) NOT NULL,
    indicative VARCHAR(50) NOT NULL,
    PRIMARY KEY (id)
@@ -41,7 +41,7 @@ END;//
 delimiter ;
 
 -- ADD USER RECORD
-INSERT INTO users (fullName, phoneNumber, indicative)
+INSERT INTO users (nickName, phoneNumber, indicative)
 VALUES ("Twilio","+447401232937", "+44");
 
 -- ADD TOKEN RECORD
@@ -51,13 +51,13 @@ VALUES ("442172976342",
 );
 
 -- SELECT's
-SELECT u.fullName
+SELECT u.nickName
 FROM tokens t
 INNER JOIN users u ON t.user_id=u.id 
 WHERE t.active = true
 AND u.phoneNumber = "+447401232937";
 
-SELECT u.fullName
+SELECT u.nickName
 FROM tokens t,
      users u 
 WHERE t.user_id=u.id 

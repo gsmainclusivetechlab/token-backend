@@ -3,14 +3,14 @@ import { NotFoundError, UserFacingError } from '../classes/errors';
 import { LogLevels, logService } from './log.service';
 
 class AccountsService {
-  async createAccount(fullName: string, phoneNumber: string) {
+  async createAccount(nickName: string, phoneNumber: string) {
     try {
-      if (!fullName) {
-        throw new UserFacingError('INVALID_REQUEST - Missing property fullName');
+      if (!nickName) {
+        throw new UserFacingError('INVALID_REQUEST - Missing property nickName');
       }
 
-      if (fullName.trim() === '') {
-        throw new UserFacingError("INVALID_REQUEST - Property fullName can't be empty");
+      if (nickName.trim() === '') {
+        throw new UserFacingError("INVALID_REQUEST - Property nickName can't be empty");
       }
 
       if (!phoneNumber) {
@@ -22,11 +22,11 @@ class AccountsService {
       }
 
       await axios.post(`${process.env.ENGINE_API_URL}/accounts/`, {
-        fullName,
+        nickName,
         phoneNumber,
       });
 
-      return { fullName, phoneNumber };
+      return { nickName, phoneNumber };
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err) && err.response) {
         logService.log(LogLevels.ERROR, err.response?.data?.error);

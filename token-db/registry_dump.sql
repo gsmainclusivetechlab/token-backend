@@ -72,7 +72,7 @@ DROP TABLE IF EXISTS `users`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `fullName` varchar(100) NOT NULL,
+  `nickName` varchar(100) NOT NULL,
   `phoneNumber` varchar(50) NOT NULL,
   `indicative` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
@@ -118,4 +118,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-13 15:33:50
+-- Dump completed on 2022-01-14 13:56:06

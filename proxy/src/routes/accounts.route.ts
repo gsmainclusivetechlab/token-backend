@@ -11,9 +11,9 @@ class AccountsRoute {
   constructor(public app: Server) {}
 
   @Post("/")
-  public createAccount(request: Request<{}, {}, { fullName: string; phoneNumber: string }, {}>) {
-    const { fullName, phoneNumber } = request.body;
-    return AccountsService.createAccount(fullName, phoneNumber);
+  public createAccount(request: Request<{}, {}, { nickName: string; phoneNumber: string }, {}>) {
+    const { nickName, phoneNumber } = request.body;
+    return AccountsService.createAccount(nickName, phoneNumber);
   }
 
   @Delete("/:phoneNumber")
