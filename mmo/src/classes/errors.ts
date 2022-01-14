@@ -32,4 +32,13 @@ class NotFoundError extends BaseError {
   }
 }
 
-export { UserFacingError, UnauthorizedError, NotFoundError };
+class ConflictError extends BaseError {
+  constructor(msg: string, options = {}) {
+    super(msg);
+  }
+  get statusCode() {
+    return 409;
+  }
+}
+
+export { UserFacingError, UnauthorizedError, NotFoundError, ConflictError };

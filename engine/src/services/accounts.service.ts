@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { NotFoundError, UserFacingError } from '../classes/errors';
 import SafeAwait from '../lib/safe-await';
+import { catchError } from '../utils/catch-error';
 import { LogLevels, logService } from './log.service';
 
 class AccountsService {
@@ -31,13 +32,7 @@ class AccountsService {
 
       return { nickName, phoneNumber };
     } catch (err: any | AxiosError) {
-      if (axios.isAxiosError(err) && err.response) {
-        logService.log(LogLevels.ERROR, err.response?.data?.error);
-        throw new UserFacingError(err.response?.data?.error);
-      } else {
-        logService.log(LogLevels.ERROR, err.message);
-        throw new UserFacingError(err.message);
-      }
+      catchError(err);
     }
   }
 

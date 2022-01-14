@@ -5,7 +5,7 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import https from "https";
-import { UserFacingError } from "../classes/errors";
+import { ConflictError, UserFacingError } from "../classes/errors";
 import { LogLevels, logService } from "../services/log.service";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -14,6 +14,11 @@ const errorHandler = (err: any, req: any, res: any, next: any) => {
   logService.log(LogLevels.WARNING, `Catch all errors`);
   if (err instanceof UserFacingError) {
     res.status(400).send({ error: err.message || "Something went wrong" });
+    return;
+  }
+
+  if (err instanceof ConflictError) {
+    res.status(409).send({ error: err.message || 'Something went wrong' });
     return;
   }
 

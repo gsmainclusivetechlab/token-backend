@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { NotFoundError, UnauthorizedError, UserFacingError } from '../classes/errors';
+import { ConflictError, NotFoundError, UnauthorizedError, UserFacingError } from '../classes/errors';
 import { AccountNameReturn } from '../interfaces/account-name';
 import { TransactionsRes, TransactionsBody, TransactionType, Transaction, TransactionStatus, Merchant } from '../interfaces/transaction';
 import { v4 as uuidv4 } from 'uuid';
@@ -33,7 +33,7 @@ class MmoService {
 
     const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(phoneNumber);
     if (findAccount) {
-      throw new UserFacingError('Account already exist.');
+      throw new ConflictError('This mobile phone is already registered to another user.');
     }
 
     await QueriesService.createUserAccount(nickName, phoneNumber, phoneResult.countryCode);
