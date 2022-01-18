@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { Request } from "express";
 import { UserFacingError } from "../classes/errors";
+import { catchError } from "../utils/catch-error";
 import { LogLevels, logService } from "./log.service";
 import { TwilioService } from "./twilio.service";
 
@@ -22,13 +23,7 @@ class ReceiveService {
           throw new UserFacingError("Invalid system");
       }
     } catch (err: any | AxiosError) {
-      if (axios.isAxiosError(err) && err.response) {
-        logService.log(LogLevels.ERROR, err.response?.data?.error);
-        throw new UserFacingError(err.response?.data?.error);
-      } else {
-        logService.log(LogLevels.ERROR, err.message);
-        throw new UserFacingError(err.message);
-      }
+      catchError(err);
     }
   }
 

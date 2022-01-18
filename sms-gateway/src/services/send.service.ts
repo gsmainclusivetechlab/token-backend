@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { Request } from 'express';
 import { NotFoundError, UserFacingError } from '../classes/errors';
+import { catchError } from '../utils/catch-error';
 import { LogLevels, logService } from './log.service';
 
 class SendService {
@@ -66,17 +67,7 @@ class SendService {
       const response = await axios.post(path, body);
       return response.data;
     } catch (err: any | AxiosError) {
-      if (axios.isAxiosError(err) && err.response) {
-        logService.log(LogLevels.ERROR, err.response?.data?.error);
-        if (err.response.status === 404) {
-          throw new NotFoundError(err.response?.data?.error);
-        } else {
-          throw new UserFacingError(err.response?.data?.error);
-        }
-      } else {
-        logService.log(LogLevels.ERROR, err.message);
-        throw new UserFacingError(err.message);
-      }
+      catchError(err);
     }
   }
 }
