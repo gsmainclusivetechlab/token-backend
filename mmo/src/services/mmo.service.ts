@@ -108,6 +108,7 @@ class MmoService {
           identifierType: body.identifierType
         });
     }
+    
     return {
       serverCorrelationId: transactionId,
       status: 'pending',

@@ -72,6 +72,16 @@ class HooksService {
     if (!(body.system === 'mock' || body.system === 'live')) {
       throw new UserFacingError('INVALID_REQUEST - Property system with wrong value');
     }
+
+    if (!body.system) {
+      throw new UserFacingError("INVALID_REQUEST - Missing property system");
+    }
+
+    if (!(body.system !== "mock" || body.system !== "live")) {
+      throw new UserFacingError(
+        "INVALID_REQUEST - Property system with wrong value"
+      );
+    }
   }
 
   private validateBodyPropertiesMMO(body: MMOWebhookBody) {
