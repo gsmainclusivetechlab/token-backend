@@ -13,10 +13,17 @@ export interface AccountNameQueryParams {
   'X-Account-Holding-Institution-Identifier'?: string;
 }
 
+export interface CreateAccountReturn {
+  nickName: string;
+  phoneNumber: string;
+  indicative: string;
+}
+
 export interface AccountNameReturn {
   nickName: string;
   phoneNumber: string;
   indicative: string;
+  active: boolean;
 }
 
 export interface AccountNameError {

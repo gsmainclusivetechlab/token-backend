@@ -5,7 +5,7 @@ import cors from 'cors';
 import express from 'express';
 import http from 'http';
 import https from 'https';
-import { ConflictError, UserFacingError } from '../classes/errors';
+import { ConflictError, NotFoundError, UnauthorizedError, UserFacingError } from '../classes/errors';
 import { LogLevels, logService } from '../services/log.service';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -23,15 +23,18 @@ const errorHandler = (err: any, req: any, res: any, next: any) => {
     return;
   }
 
+  if (err instanceof UnauthorizedError) {
+    res.status(401).send({ error: err.message || 'Something went wrong' });
+    return;
+  }
+
+  if (err instanceof NotFoundError) {
+    res.status(404).send({ error: err.message || 'Something went wrong' });
+    return;
+  }
+
   logService.log(LogLevels.ERROR, `Bubbled up error`, [err.message, err.stack]);
-  if (err.name === 'UnauthorizedError') {
-    res.status(401).send({ error: err.message });
-    return;
-  }
-  if (err.name === 'NotFoundError') {
-    res.status(404).send({ error: err.message });
-    return;
-  }
+
   if (res.headersSent) {
     return next(err);
   }

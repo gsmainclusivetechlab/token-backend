@@ -29,7 +29,18 @@ class QueriesService {
   }
 
   findAccountByPhoneNumberOrToken(identifier: string): Promise<AccountNameReturn | undefined> {
-    const selectQuery = 'SELECT U.* FROM tokens T, users U WHERE T.user_id=U.id AND T.active=true AND (U.phoneNumber = ? OR T.token = ?)';
+    const selectQuery = `SELECT U.*, 
+                               (CASE WHEN (SELECT COUNT(T1.active) 
+                                           FROM tokens T1 
+                                           WHERE T1.active = true 
+                                           AND T.user_id = T1.user_id ) > 0 
+                                     THEN true 
+                                     ELSE false 
+                                END) AS active  
+                         FROM tokens T, 
+                              users U 
+                         WHERE T.user_id=U.id 
+                         AND (U.phoneNumber = ? OR T.token = ?)`;
     return new Promise((resolve, reject) => {
       App.getDBInstance().query(selectQuery, [identifier, identifier], (err, rows) => {
         if (err) {
@@ -41,6 +52,7 @@ class QueriesService {
                 nickName: rows[0].nickName,
                 phoneNumber: rows[0].phoneNumber,
                 indicative: rows[0].indicative,
+                active: rows[0].active === 1 ? true : false
               }
             : undefined
         );

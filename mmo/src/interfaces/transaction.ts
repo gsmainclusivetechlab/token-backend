@@ -26,7 +26,7 @@ export interface TransactionsHeaders {
   'X-Account-Holding-Institution-Identifier'?: string;
 }
 export interface TransactionsBody {
-  amount: string; // 200.00
+  amount: number; // 200.00
   debitParty: [
     {
       key: string; // accountid
@@ -60,7 +60,7 @@ export interface Transaction {
   callbackUrl: string;
   status: TransactionStatus;
   system: 'mock' | 'live',
-  amount: string;
+  amount: number;
   merchant?: Merchant;
   identifierType: IndentifierType;
 }

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ConflictError, NotFoundError, UnauthorizedError, UserFacingError } from '../classes/errors';
-import { AccountNameReturn } from '../interfaces/account-name';
+import { AccountNameReturn, CreateAccountReturn } from '../interfaces/account-name';
 import { TransactionsRes, TransactionsBody, TransactionType, Transaction, TransactionStatus, Merchant } from '../interfaces/transaction';
 import { v4 as uuidv4 } from 'uuid';
 import { phone as phoneLib } from 'phone';
@@ -9,7 +9,7 @@ class MmoService {
   transactions: Transaction[] = [];
   merchants: Merchant[] = [{ code: '4321', name: 'XPTO Lda', available: true }];
 
-  async createUserAccount(nickName: string, phoneNumber: string): Promise<AccountNameReturn> {
+  async createUserAccount(nickName: string, phoneNumber: string): Promise<CreateAccountReturn> {
     if (!nickName) {
       throw new UserFacingError('INVALID_REQUEST - Missing property nickName');
     }
@@ -44,7 +44,7 @@ class MmoService {
   async deleteUserAccount(phoneNumber: string) {
     const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(phoneNumber);
     if (!findAccount) {
-      throw new NotFoundError(`Account doesn't exist`);
+      throw new NotFoundError(`Doesn't exist any user with this phone number or token.`);
     }
 
     return await QueriesService.deleteUserAccount(phoneNumber);
@@ -53,7 +53,7 @@ class MmoService {
   async getAccountName(identifier: string): Promise<AccountNameReturn> {
     const account = await QueriesService.findAccountByPhoneNumberOrToken(identifier);
     if (!account) {
-      throw new NotFoundError("Account doesn't exist");
+      throw new NotFoundError("Doesn't exist any user with this phone number or token.");
     }
 
     return account;
