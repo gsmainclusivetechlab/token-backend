@@ -77,7 +77,7 @@ class HooksService {
       throw new UserFacingError("INVALID_REQUEST - Missing property system");
     }
 
-    if (!(body.system !== "mock" || body.system !== "live")) {
+    if (!(body.system === "mock" || body.system === "live")) {
       throw new UserFacingError(
         "INVALID_REQUEST - Property system with wrong value"
       );
