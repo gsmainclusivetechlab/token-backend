@@ -1,8 +1,6 @@
 import axios, { AxiosError } from 'axios';
-import { NotFoundError, UserFacingError } from '../classes/errors';
-import SafeAwait from '../lib/safe-await';
+import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
-import { LogLevels, logService } from './log.service';
 
 class AccountsService {
   async createAccount(nickName: string, phoneNumber: string) {
@@ -40,38 +38,17 @@ class AccountsService {
     try {
       return await axios.delete(`${process.env.MMO_API_URL}/accounts/${phoneNumber}`);
     } catch (err: any | AxiosError) {
-      if (axios.isAxiosError(err) && err.response) {
-        logService.log(LogLevels.ERROR, err.response?.data?.error);
-        if (err.response.status === 404) {
-          throw new NotFoundError(err.response?.data?.error);
-        } else {
-          throw new UserFacingError(err.response?.data?.error);
-        }
-      } else {
-        logService.log(LogLevels.ERROR, err.message);
-        throw new UserFacingError(err.message);
-      }
+      catchError(err);
     }
   }
 
   async getAccountInfo(identifier: string) {
-    const [getAccountNameError, getAccountNameData] = await SafeAwait(
-      axios.get(`${process.env.MMO_API_URL}/accounts/${identifier}/accountname`)
-    );
-    if (getAccountNameError) {
-      if (axios.isAxiosError(getAccountNameError) && getAccountNameError.response) {
-        logService.log(LogLevels.ERROR, getAccountNameError.response.data?.error);
-        if (getAccountNameError.response?.status === 404) {
-          throw new NotFoundError('OPERATION_ERROR - ' + getAccountNameError.response?.data?.error);
-        } else {
-          throw new UserFacingError('OPERATION_ERROR - ' + getAccountNameError.response?.data?.error);
-        }
-      } else {
-        logService.log(LogLevels.ERROR, getAccountNameError.message);
-        throw new UserFacingError('OPERATION_ERROR - ' + getAccountNameError.message);
-      }
+    try {
+      const response = await axios.get(`${process.env.MMO_API_URL}/accounts/${identifier}/accountname`);
+      return { ...response.data };
+    } catch (err: any | AxiosError) {
+      catchError(err);
     }
-    return { ...getAccountNameData.data };
   }
 }
 

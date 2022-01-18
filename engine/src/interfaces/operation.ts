@@ -4,18 +4,18 @@ export type OperationType = "cash-in" | "cash-out" | "merchant-payment";
 
 export type Action = "accept" | "reject";
 
-export type MmoOperation = "deposit" | "withdraw";
+export type MmoOperation = "deposit" | "withdraw" | "merchantpay";
 
 export type SystemType = "mock" | "live";
 
-export type IndentifierType = "phoneNumber" | "token";
+export type IdentifierType = "phoneNumber" | "token";
 
 export interface Operation {
   type: OperationType;
-  amount: string;
+  amount: number;
   system: SystemType;
   merchantCode?: string;
   identifier: string;
-  identifierType?: IndentifierType;
+  identifierType?: IdentifierType;
   customerInfo: AccountNameReturn;
 }

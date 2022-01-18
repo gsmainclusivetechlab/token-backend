@@ -1,15 +1,10 @@
-import { Request, Router } from "express";
-import Server from "../classes/server";
-import { RouteHandler, Post, Get } from "../decorators/router-handler";
-import {
-  Action,
-  Operation,
-  OperationType,
-  SystemType,
-} from "../interfaces/operation";
-import { OperationsService } from "../services/operations.service";
+import { Request, Router } from 'express';
+import Server from '../classes/server';
+import { RouteHandler, Post } from '../decorators/router-handler';
+import { Action, Operation } from '../interfaces/operation';
+import { OperationsService } from '../services/operations.service';
 
-@RouteHandler("/operations")
+@RouteHandler('/operations')
 class OperationsRoute {
   // Services Injection
   public router: Router;
@@ -40,11 +35,8 @@ class OperationsRoute {
    *           type: string
    *           example: "accept"
    */
-  @Post("/:action")
-  //TODO Mudar o nome, passar mais coisas para o body
-  public startOperation(
-    request: Request<{ action: Action }, {}, Operation, {}>
-  ) {
+  @Post('/:action')
+  public manageOperation(request: Request<{ action: Action }, {}, Operation, {}>) {
     const { action } = request.params;
     return OperationsService.manageOperation(action, request.body);
   }
