@@ -16,11 +16,29 @@ class UserFacingError extends BaseError {
 class UnauthorizedError extends BaseError {
   constructor(msg: string, options = {}) {
     super(msg);
-    console.log("Making UnauthorizedError with msg: ", msg);
+    console.log('Making UnauthorizedError with msg: ', msg);
   }
   get statusCode() {
     return 401;
   }
 }
 
-export { UserFacingError, UnauthorizedError };
+class NotFoundError extends BaseError {
+  constructor(msg: string, options = {}) {
+    super(msg);
+  }
+  get statusCode() {
+    return 404;
+  }
+}
+
+class ConflictError extends BaseError {
+  constructor(msg: string, options = {}) {
+    super(msg);
+  }
+  get statusCode() {
+    return 409;
+  }
+}
+
+export { UserFacingError, UnauthorizedError, NotFoundError, ConflictError };

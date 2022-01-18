@@ -2,39 +2,36 @@ import { db } from '../classes/server';
 
 class QueriesService {
   findByToken(token: string) {
+    const selectQuery =
+      'SELECT T.token, U.phoneNumber, U.indicative FROM tokens T, users U WHERE T.user_id=U.id AND T.token = ? AND T.active = ?';
     return new Promise((resolve, reject) => {
-      db.query(`SELECT * FROM registry WHERE token='${token}' AND active=true`, (err, rows) => {
+      db.query(selectQuery, [token, true], (err, rows) => {
         if (err) {
           return reject('Error getting data');
         }
-        return resolve(rows[0]);
+        return resolve(rows[0] ? { token: rows[0].token, phoneNumber: rows[0].phoneNumber, indicative: rows[0].indicative } : undefined);
       });
     });
   }
 
   findByPhoneNumber(phoneNumber: string) {
+    const selectQuery = 'SELECT T.token, U.phoneNumber FROM tokens T, users U WHERE T.user_id=U.id AND T.active=true AND U.phoneNumber= ?';
     return new Promise((resolve, reject) => {
-      db.query(
-        `SELECT * FROM registry WHERE phoneNumber='${phoneNumber}' AND active=true`,
-        (err, rows) => {
-          if (err) {
-            return reject('Error getting data');
-          }
-          return resolve(rows[0] ? { token: rows[0].token } : undefined);
+      db.query(selectQuery, [phoneNumber], (err, rows) => {
+        if (err) {
+          return reject('Error getting data');
         }
-      );
+        return resolve(rows[0] ? { token: rows[0].token } : undefined);
+      });
     });
   }
 
-  createToken(token: string, phoneNumber: string, indicative: string) {
-    const insertQuery = `
-      INSERT INTO registry (phoneNumber, indicative, token)
-      VALUES ('${phoneNumber}', '${indicative}', '${token}');
-    `;
+  createToken(token: string, phoneNumber: string) {
+    const insertQuery = 'INSERT INTO tokens (token, user_id) VALUES (?, (SELECT id FROM users WHERE phoneNumber= ?))';
     return new Promise((resolve, reject) => {
-      db.query(insertQuery, (err, rows) => {
+      db.query(insertQuery, [token, phoneNumber], (err, rows) => {
         if (err) {
-          return reject('Error creating registry');
+          return reject('Error creating token');
         }
         return resolve({ token });
       });
@@ -42,17 +39,13 @@ class QueriesService {
   }
 
   invalidateToken(phoneNumber: string) {
-    const insertQuery = `
-      UPDATE registry
-      SET active = false
-      WHERE phoneNumber = "${phoneNumber}";
-    `;
+    const updateQuery = 'UPDATE tokens T, users U SET T.active=false WHERE T.user_id=U.id AND U.phoneNumber = ?';
     return new Promise((resolve, reject) => {
-      db.query(insertQuery, (err, rows) => {
+      db.query(updateQuery, [phoneNumber], (err, rows) => {
         if (err) {
           return reject('Error invalidating token');
         }
-        return resolve({message: 'Token invalidated'});
+        return resolve({ message: 'Token invalidated' });
       });
     });
   }

@@ -1,43 +1,43 @@
 import axios, { AxiosError } from 'axios';
-import { UserFacingError } from '../classes/errors';
-import { Action, Operation, System } from '../interfaces/cash-in-out';
+import { NotFoundError, UserFacingError } from '../classes/errors';
 import { AccountNameReturn } from '../interfaces/mmo';
 import SafeAwait from '../lib/safe-await';
 import { v4 as uuidv4 } from 'uuid';
 import { LogLevels, logService } from './log.service';
 import { MessageService } from './message.service';
-import { CreateOperationBody, SendOperation } from '../interfaces/operations';
+import { Action, CreateOperationBody, OperationType, CreateOperation, OperationNotification } from '../interfaces/operations';
+import { catchError } from '../utils/catch-error';
 
 class OperationsService {
-  sendOperation: SendOperation = {
-    operations: [],
-    notifications: [],
-  };
-  async getAccountInfo(
-    amount: string,
-    token: string,
-    type: Operation,
-    system: System
-  ) {
-    if (!(type === 'cash-in' || type === 'cash-out')) {
-      throw new UserFacingError('Invalid type');
-    }
+  operations: CreateOperation[] = [];
+  notifications: OperationNotification[] = [];
 
-    if (!(system === 'mock' || system === 'live')) {
-      throw new UserFacingError('Invalid system');
-    }
+  async createOperation(elem: CreateOperationBody) {
+    this.validateCreateOperationBody(elem);
 
-    const [accountInfoError, accountInfoData] = await SafeAwait(
-      axios.get<AccountNameReturn>(
-        `${process.env.ENGINE_API_URL}/operations/account-info`,
-        { params: { token, amount } }
-      )
-    );
+    const [accountInfoError, accountInfoData] = await SafeAwait(axios.get(`${process.env.ENGINE_API_URL}/accounts/${elem.identifier}`));
     if (accountInfoError) {
-      throw new UserFacingError(accountInfoError.response.data.error);
+      catchError(accountInfoError);
     }
-    this.setOperation(type, token, accountInfoData.data, system);
-    return accountInfoData.data;
+
+    if (elem.type === 'merchant-payment') {
+      const [merchantInfoError, merchantInfoData] = await SafeAwait(
+        axios.get(`${process.env.ENGINE_API_URL}/accounts/merchant/${elem.merchantCode}`)
+      );
+      if (merchantInfoError) {
+        catchError(merchantInfoError);
+      }
+    }
+
+    elem.identifierType = elem.identifier === accountInfoData.data.phoneNumber ? 'phoneNumber' : 'token';
+    if (elem.identifierType === 'token' && !accountInfoData.data.active) {
+      throw new UserFacingError(`Doesn't exist any user with this phone number or token.`);
+    }
+    elem.customerInfo = { ...accountInfoData.data };
+
+    this.setOperation(elem);
+
+    return elem;
   }
 
   async manageOperation(action: Action, operationId: string) {
@@ -45,22 +45,16 @@ class OperationsService {
       if (!(action === 'accept' || action === 'reject')) {
         throw new UserFacingError('Invalid action');
       }
-      const operation = this.getOperation(operationId);
+      const operation = this.findOperationById(operationId);
+
       if (!operation) {
-        throw new UserFacingError('Something went wrong');
-      }
-      const { token, type, amount, system } = operation;
-      if (!token) {
         throw new UserFacingError("Operation doesn't exist");
       }
 
-      const response = await axios.post(
-        `${process.env.ENGINE_API_URL}/operations/${type}/${action}`,
-        { token, amount, system }
-      );
+      const response = await axios.post(`${process.env.ENGINE_API_URL}/operations/${action}`, { ...operation });
 
-      this.sendOperation.operations.splice(
-        this.sendOperation.operations.findIndex((el) => el.id === operationId),
+      this.operations.splice(
+        this.operations.findIndex((el: CreateOperation) => el.id === operationId),
         1
       );
 
@@ -77,48 +71,82 @@ class OperationsService {
   }
 
   async getOperationsAndNotifications() {
-    return this.sendOperation;
+    return {
+      operations: this.operations,
+      notifications: this.notifications,
+    };
   }
 
-  async createNotification(message: string) {
-    this.sendOperation.notifications.push({
-      id: uuidv4(),
-      message,
+  async createNotification(elem: OperationNotification) {
+    elem.id = uuidv4();
+    this.notifications.push({
+      ...elem,
     });
   }
 
-  async createOperation(body: CreateOperationBody) {
-    this.sendOperation.operations.push({
-      ...body,
-      id: uuidv4()
-    });
+  async registerOperation(elem: CreateOperationBody) {
+    this.setOperation(elem);
   }
 
   async deleteNotification(id: string) {
-    this.sendOperation.notifications.splice(
-      this.sendOperation.notifications.findIndex((el) => el.id === id),
-      1
-    );
-    return { message: `The notification with id ${id} was deleted` };
+    const index = this.findIndexNotificationById(id);
+    if (index === -1) {
+      throw new NotFoundError(`The notification with id ${id} doesn't exist.`);
+    } else {
+      this.notifications.splice(index, 1);
+      return { message: `The notification with id ${id} was deleted` };
+    }
   }
 
-  private getOperation(id: string) {
-    return this.sendOperation.operations.find((el) => el.id === id);
-  }
-
-  private setOperation(
-    operation: Operation,
-    token: string,
-    data: any,
-    system: System
-  ) {
-    this.sendOperation.operations.push({
+  private setOperation(operation: CreateOperationBody) {
+    this.operations.push({
       id: uuidv4(),
-      type: operation,
-      token,
-      ...data,
-      system,
+      ...operation,
     });
+  }
+
+  private findOperationById(id: string) {
+    return this.operations.find((el: CreateOperation) => el.id === id);
+  }
+
+  private findIndexNotificationById(id: string) {
+    return this.notifications.findIndex((el: OperationNotification) => el.id === id);
+  }
+
+  private validateCreateOperationBody(elem: CreateOperationBody) {
+    if (!(elem.type === 'cash-in' || elem.type === 'cash-out' || elem.type === 'merchant-payment')) {
+      throw new UserFacingError('INVALID_REQUEST - Invalid type');
+    }
+
+    if (!(elem.system === 'mock' || elem.system === 'live')) {
+      throw new UserFacingError('INVALID_REQUEST - Invalid system');
+    }
+
+    if (!elem.identifier) {
+      throw new UserFacingError('INVALID_REQUEST - Missing property text');
+    }
+
+    if (elem.identifier.trim() === '') {
+      throw new UserFacingError("INVALID_REQUEST - Property identifier can't be empty");
+    }
+
+    if (!elem.amount) {
+      throw new UserFacingError('INVALID_REQUEST - Missing property amount');
+    }
+
+    if (elem.amount > 500) {
+      throw new UserFacingError(`INVALID_REQUEST - The value of property amount can't be greater than 500`);
+    }
+
+    if (elem.type === 'merchant-payment') {
+      if (!elem.merchantCode) {
+        throw new UserFacingError('INVALID_REQUEST - Missing property merchantCode');
+      }
+
+      if (elem.merchantCode.trim() === '') {
+        throw new UserFacingError("INVALID_REQUEST - Property merchantCode can't be empty");
+      }
+    }
   }
 }
 

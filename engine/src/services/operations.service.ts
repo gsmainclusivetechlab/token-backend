@@ -1,122 +1,87 @@
 import axios, { AxiosError } from 'axios';
-import { Operation, Action, System } from '../interfaces/cash-in-out';
-import { NotFoundError, UserFacingError } from '../classes/errors';
-import { AccountNameReturn } from '../interfaces/mmo';
-import { TokenDecodeInfo } from '../interfaces/token';
+import { Operation, Action } from '../interfaces/operation';
+import { UserFacingError } from '../classes/errors';
 import { GetTypeFromOperation } from '../lib/operations';
-import SafeAwait from '../lib/safe-await';
-import { logService, LogLevels } from './log.service';
+import { AccountsService } from './accounts.service';
+import { SMSService } from './sms.service';
+import { HooksService } from './hooks.service';
+import { catchError } from '../utils/catch-error';
 
 class OperationsService {
-  async getAccountInfo(amount: string, token?: string, phone?: string) {
-    let phoneNumber = phone;
-    if (token) {
-      const [tokenError, tokenData] = await SafeAwait(
-        axios.get<TokenDecodeInfo>(
-          `${process.env.TOKEN_API_URL}/tokens/decode/${token}`
-        )
-      );
-      if (tokenError) {
-        throw new UserFacingError(tokenError.response.data.error);
+  async manageOperation(action: Action, operation: Operation) {
+    try {
+      this.validateBody(action, operation);
+
+      const getAccountNameData = await AccountsService.getAccountInfo(operation.identifier);
+      operation.identifierType = operation.identifier === getAccountNameData.phoneNumber ? 'phoneNumber' : 'token';
+
+      if (operation.identifierType === 'token' && !getAccountNameData.active) {
+        throw new UserFacingError(`Doesn't exist any user with this phone number or token.`);
       }
-      phoneNumber = tokenData.data.phoneNumber;
+
+      let phoneNumber = getAccountNameData.phoneNumber;
+
+      if (action === 'accept') {
+        const headers = {
+          'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`,
+        };
+        const body = {
+          amount: operation.amount,
+          debitParty: [
+            {
+              key: 'msisdn', // accountid
+              value: phoneNumber, // 2999
+            },
+          ],
+          creditParty: [
+            {
+              key: 'msisdn', // accountid
+              value: phoneNumber, // 2999
+            },
+          ],
+          currency: 'RWF', // RWF
+          system: operation.system,
+          merchantCode: operation.merchantCode,
+          identifierType: operation.identifierType,
+        };
+
+        await axios.post(`${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(operation.type)}`, body, { headers });
+
+        const message = `Please, to continue the operation send the following message 'PIN <space> {VALUE}'`;
+        SMSService.sendCustomerNotification(phoneNumber, message, operation.system);
+
+        return { status: 'pending' };
+      } else {
+        const message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was rejected`;
+        HooksService.sendAgentMerchantNotification(message);
+        SMSService.sendCustomerNotification(phoneNumber, message, operation.system);
+
+        return { status: 'reject' };
+      }
+    } catch (err: any | AxiosError) {
+      catchError(err);
     }
-    const [mmoError, mmoData] = await SafeAwait(
-      axios.get<AccountNameReturn>(
-        `${process.env.MMO_API_URL}/accounts/msisdn/${phoneNumber}/accountname`
-      )
-    );
-    if (mmoError) {
-      throw new NotFoundError(mmoError.response.data.error);
-    }
-    return { ...mmoData.data, amount };
   }
 
-  async startOperation(
-    operation: Operation,
-    action: Action,
-    token: string,
-    amount: string,
-    system: System
-  ) {
+  private validateBody(action: Action, operation: Operation) {
     if (!(action === 'accept' || action === 'reject')) {
-      throw new UserFacingError('Invalid action');
+      throw new UserFacingError('INVALID_REQUEST - Invalid action');
     }
 
-    if (!(operation === 'cash-in' || operation === 'cash-out')) {
-      throw new UserFacingError('Invalid type');
+    if (!operation) {
+      throw new UserFacingError('INVALID_REQUEST - Missing object operation');
     }
 
-    if (!(system === 'mock' || system === 'live')) {
-      throw new UserFacingError('Invalid System');
+    if (!(operation.type === 'cash-in' || operation.type === 'cash-out' || operation.type === 'merchant-payment')) {
+      throw new UserFacingError('INVALID_REQUEST - Invalid type');
     }
 
-    if (action === 'accept') {
-      const [tokenError, tokenData] = await SafeAwait(
-        axios.get<TokenDecodeInfo>(
-          `${process.env.TOKEN_API_URL}/tokens/decode/${token}`
-        )
-      );
-      if (tokenError) {
-        throw new UserFacingError(tokenError.error);
-      }
-      const headers = {
-        'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`,
-      };
-      const body = {
-        amount,
-        debitParty: [
-          {
-            key: 'msisdn', // accountid
-            value: tokenData.data.phoneNumber, // 2999
-          },
-        ],
-        creditParty: [
-          {
-            key: 'msisdn', // accountid
-            value: tokenData.data.phoneNumber, // 2999
-          },
-        ],
-        currency: 'RWF', // RWF
-        system,
-      };
-      try {
-        await axios.post(
-          `${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(
-            operation
-          )}`,
-          body,
-          { headers }
-        );
-        axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
-          message: `Send a message with PIN <pin>`,
-          system,
-          phoneNumber: tokenData.data.phoneNumber
-        });
-        return { status: 'pending' };
-      } catch (err: any | AxiosError) {
-        if (axios.isAxiosError(err) && err.response) {
-          logService.log(LogLevels.ERROR, err.response?.data?.error);
-          throw new UserFacingError(err.response?.data?.error);
-        } else {
-          logService.log(LogLevels.ERROR, err.message);
-          throw new UserFacingError(err.message);
-        }
-      }
-    } else {
-      const notification = `The operation of ${operation} was rejected`;
+    if (!(operation.system === 'mock' || operation.system === 'live')) {
+      throw new UserFacingError('INVALID_REQUEST - Invalid System');
+    }
 
-      //Agent Notification
-      axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
-        notification,
-      });
-      //Customer Notification
-      axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
-        message: notification,
-        system,
-      });
-
-      return { status: 'reject' };
+    if (!operation.identifier) {
+      throw new UserFacingError('INVALID_REQUEST - Missing customer identifier');
     }
   }
 }

@@ -23,4 +23,22 @@ class UnauthorizedError extends BaseError {
   }
 }
 
-export { UserFacingError, UnauthorizedError };
+class NotFoundError extends BaseError {
+  constructor(msg: string, options = {}) {
+    super(msg);
+  }
+  get statusCode() {
+    return 404;
+  }
+}
+
+class ConflictError extends BaseError {
+  constructor(msg: string, options = {}) {
+    super(msg);
+  }
+  get statusCode() {
+    return 409;
+  }
+}
+
+export { UserFacingError, UnauthorizedError, NotFoundError, ConflictError };

@@ -3,7 +3,7 @@ import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { LogLevels, logService } from './log.service';
 import { Twilio } from 'twilio';
-import { TwilioHookBody } from '../../interface/twilio';
+import { TwilioHookBody } from '../interface/twilio';
 
 class TwilioService {
   twilio: Twilio;

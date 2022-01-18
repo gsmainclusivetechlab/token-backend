@@ -1,30 +1,30 @@
-import { Operation } from "./cash-in-out";
+import { AccountNameReturn } from "./mmo";
+
+export type OperationType = "cash-in" | "cash-out" | "merchant-payment";
+
+export type Action = "accept" | "reject";
+
+export type System = "mock" | "live";
+
+export type IndentifierType = "phoneNumber" | "token";
+
 
 export interface CreateOperationBody {
-  token: string;
-  amount: string;
-  type: Operation;
-  name: {
-    title: string;
-    firstName: string;
-    middleName: string;
-    lastName: string;
-    fullName: string;
-  };
-  lei: string;
+  identifier: string;
+  identifierType: IndentifierType;
+  amount: number;
+  type: OperationType;
+  customerInfo: AccountNameReturn;
   system: string;
+  merchantCode: string;
 }
 
-interface CreateOperation extends CreateOperationBody{
+export interface CreateOperation extends CreateOperationBody{
   id: string;
 }
 
-interface Notification {
+export interface OperationNotification  {
   id: string;
+  operationType: OperationType;
   message: string;
-}
-
-export interface SendOperation {
-  operations: CreateOperation[];
-  notifications: Notification[];
 }

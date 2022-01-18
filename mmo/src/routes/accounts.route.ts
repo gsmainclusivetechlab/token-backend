@@ -1,15 +1,27 @@
-import { Request, Router } from "express";
+import { Request, Router } from 'express';
 
-import Server from "../classes/server";
-import { RouteHandler, Get, Put, Post } from "../decorators/router-handler";
-import { AccountNameQueryParams } from "../interfaces/account-name";
-import { mmoService } from "../services/mmo.service";
+import Server from '../classes/server';
+import { RouteHandler, Get, Put, Post, Delete } from '../decorators/router-handler';
+import { AccountNameQueryParams } from '../interfaces/account-name';
+import { mmoService } from '../services/mmo.service';
 
-@RouteHandler("/accounts")
+@RouteHandler('/accounts')
 class AccountsRoute {
   public router: Router;
 
   constructor(public app: Server) {}
+
+  @Post('/')
+  public createUserAccount(request: Request<{}, {}, { nickName: string; phoneNumber: string }, {}>) {
+    const { nickName, phoneNumber } = request.body;
+    return mmoService.createUserAccount(nickName, phoneNumber);
+  }
+
+  @Delete('/:phoneNumber')
+  public deleteUserAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {
+    const { phoneNumber } = request.params;
+    return mmoService.deleteUserAccount(phoneNumber);
+  }
 
   /**
    * @openapi
@@ -61,10 +73,11 @@ class AccountsRoute {
    *                 lei:
    *                   type: string
    *                   description: Customer's account number
-  */
-  @Get("/msisdn/:phoneNumber/accountname")
-  public getAccountName(request: Request<{phoneNumber: string}, {}, {}, AccountNameQueryParams>) {
-    return mmoService.getAccountName(request.params.phoneNumber)
+   */
+  @Get('/:identifier/accountname')
+  public getAccountName(request: Request<{ identifier: string }, {}, {}, AccountNameQueryParams>) {
+    const { identifier } = request.params;
+    return mmoService.getAccountName(identifier);
   }
 
   /**
@@ -95,10 +108,16 @@ class AccountsRoute {
    *                   type: string
    *                   description: Message from MMO API
    *                   example: User authorized
-  */
-  @Post("/authorize")
-  public authorizeUser(request: Request<{}, {}, {pin: string; phoneNumber: string}>) {
-    return mmoService.authorizeUser(request.body.pin, request.body.phoneNumber)
+   */
+  @Post('/authorize')
+  public authorizeUser(request: Request<{}, {}, { pin: string; phoneNumber: string }>) {
+    return mmoService.authorizeUser(request.body.pin, request.body.phoneNumber);
+  }
+
+  @Get('/:code/merchant')
+  public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
+    const { code } = request.params;
+    return mmoService.getMerchant(code);
   }
 }
 

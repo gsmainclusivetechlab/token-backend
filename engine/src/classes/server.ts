@@ -5,7 +5,7 @@ import cors from 'cors';
 import express from 'express';
 import http from 'http';
 import https from 'https';
-import { UserFacingError } from './errors';
+import { ConflictError, NotFoundError, UnauthorizedError, UserFacingError } from './errors';
 import { LogLevels, logService } from '../services/log.service';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -17,15 +17,23 @@ const errorHandler = (err: any, req: any, res: any, next: any) => {
     return;
   }
 
+  if (err instanceof ConflictError) {
+    res.status(409).send({ error: err.message || 'Something went wrong' });
+    return;
+  }
+
+  if (err instanceof UnauthorizedError) {
+    res.status(401).send({ error: err.message || 'Something went wrong' });
+    return;
+  }
+
+  if (err instanceof NotFoundError) {
+    res.status(404).send({ error: err.message || 'Something went wrong' });
+    return;
+  }
+
   logService.log(LogLevels.ERROR, `Bubbled up error`, [err.message, err.stack]);
-  if (err.name === 'UnauthorizedError') {
-    res.status(401).send({ error: err.message });
-    return;
-  }
-  if (err.name === 'NotFoundError') {
-    res.status(404).send({ error: err.message });
-    return;
-  }
+
   if (res.headersSent) {
     return next(err);
   }
@@ -88,10 +96,7 @@ class Server {
     this.app.options('/*', (req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-      res.header(
-        'Access-Control-Allow-Headers',
-        'Content-Type, Authorization, Content-Length, X-Requested-With'
-      );
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
       res.send(200);
     });
   }
@@ -148,9 +153,7 @@ class Server {
     this.getHttpServer().listen(this.app.get('port'), () => {
       logService.log(
         logLevel || LogLevels.DEBUG,
-        `App is running at ${
-          process.env.PROTOCOL || 'http'
-        }://localhost:${this.app.get('port')} in ${this.app.get('env')} mode`
+        `App is running at ${process.env.PROTOCOL || 'http'}://localhost:${this.app.get('port')} in ${this.app.get('env')} mode`
       );
       logService.log(LogLevels.DEBUG, `Press CTRL-C to stop`);
     });

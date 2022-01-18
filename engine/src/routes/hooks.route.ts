@@ -2,6 +2,7 @@ import { Request, Router } from "express";
 import { HooksService } from "../services/hooks.service";
 import Server from "../classes/server";
 import { RouteHandler, Post, Put } from "../decorators/router-handler";
+import { MMOWebhookBody, SMSWebhookBody, USSDWebhookBody } from "../interfaces/hook";
 
 @RouteHandler("/hooks")
 class HooksRoute {
@@ -39,8 +40,8 @@ class HooksRoute {
    *                example: "mock"
    */
   @Post("/sms-gateway")
-  public smsGatewayWebhooks(request: Request) {
-    return HooksService.processSMSGateway(request);
+  public smsGatewayWebhooks(request: Request<{}, {}, SMSWebhookBody, {}>) {
+    return HooksService.processSMSGateway(request.body);
   }
 
   /**
@@ -72,8 +73,8 @@ class HooksRoute {
    *                example: "mock"
    */
   @Post("/ussd-gateway")
-  public ussdGatewayWebhooks(request: Request) {
-    return HooksService.processUSSDGateway(request);
+  public ussdGatewayWebhooks(request: Request<{}, {}, USSDWebhookBody, {}>) {
+    return HooksService.processUSSDGateway(request.body);
   }
 
   /**
@@ -109,8 +110,8 @@ class HooksRoute {
    *                example: "mock"
    */
   @Put("/mmo")
-  public mmoWebhooks(request: Request) {
-    return HooksService.processMMO(request);
+  public mmoWebhooks(request: Request<{}, {}, MMOWebhookBody, {}>) {
+    return HooksService.processMMO(request.body);
   }
 }
 
