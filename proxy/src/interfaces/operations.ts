@@ -10,10 +10,9 @@ export type IndentifierType = "phoneNumber" | "token";
 
 
 export interface CreateOperationBody {
-  //token: string;
   identifier: string;
   identifierType: IndentifierType;
-  amount: string;
+  amount: number;
   type: OperationType;
   customerInfo: AccountNameReturn;
   system: string;
