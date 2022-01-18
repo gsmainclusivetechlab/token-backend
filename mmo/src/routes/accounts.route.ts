@@ -113,6 +113,12 @@ class AccountsRoute {
   public authorizeUser(request: Request<{}, {}, { pin: string; phoneNumber: string }>) {
     return mmoService.authorizeUser(request.body.pin, request.body.phoneNumber);
   }
+
+  @Get('/:code/merchant')
+  public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
+    const { code } = request.params;
+    return mmoService.getMerchant(code);
+  }
 }
 
 export default AccountsRoute;

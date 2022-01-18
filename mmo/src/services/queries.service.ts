@@ -29,30 +29,19 @@ class QueriesService {
   }
 
   findAccountByPhoneNumberOrToken(identifier: string): Promise<AccountNameReturn | undefined> {
-    const selectQuery = `SELECT U.*, 
-                               (CASE WHEN (SELECT COUNT(T1.active) 
-                                           FROM tokens T1 
-                                           WHERE T1.active = true 
-                                           AND T.user_id = T1.user_id ) > 0 
-                                     THEN true 
-                                     ELSE false 
-                                END) AS active  
-                         FROM tokens T, 
-                              users U 
-                         WHERE T.user_id=U.id 
-                         AND (U.phoneNumber = ? OR T.token = ?)`;
+    const storeProcedure = `CALL GetAccount(?)`;
     return new Promise((resolve, reject) => {
-      App.getDBInstance().query(selectQuery, [identifier, identifier], (err, rows) => {
+      App.getDBInstance().query(storeProcedure, [identifier], (err, results, fields) => {
         if (err) {
           return reject('Error getting data');
         }
         return resolve(
-          rows[0]
+          results[0] && results[0][0]
             ? {
-                nickName: rows[0].nickName,
-                phoneNumber: rows[0].phoneNumber,
-                indicative: rows[0].indicative,
-                active: rows[0].active === 1 ? true : false
+                nickName: results[0][0].nickName,
+                phoneNumber: results[0][0].phoneNumber,
+                indicative: results[0][0].indicative,
+                active: results[0][0].active === 1 ? true : false,
               }
             : undefined
         );

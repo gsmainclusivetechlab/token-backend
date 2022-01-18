@@ -54,7 +54,7 @@ UNLOCK TABLES;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `checkRepeatedToken` BEFORE INSERT ON `tokens` FOR EACH ROW BEGIN
     IF EXISTS (SELECT 1 FROM tokens WHERE token=NEW.token AND active=true) THEN
-        SIGNAL SQLSTATE '50002' SET MESSAGE_TEXT = 'Already exist an equal token active';
+        SIGNAL SQLSTATE '50002' SET MESSAGE_TEXT = 'Already exist an equal active token';
     END IF;
 END */;;
 DELIMITER ;
@@ -108,6 +108,59 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Dumping routines for database 'registry'
+--
+/*!50003 DROP PROCEDURE IF EXISTS `GetAccount` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAccount`(IN identifier VARCHAR(50))
+BEGIN
+    CREATE TEMPORARY TABLE temp_user
+    (
+        nickName VARCHAR(100) NULL,
+        phoneNumber VARCHAR(50) NULL,
+        indicative VARCHAR(50) NULL,
+        active BOOLEAN DEFAULT false
+    );
+
+    INSERT INTO temp_user
+    SELECT DISTINCT U.nickName, U.phoneNumber, U.indicative, false
+    FROM tokens T,
+        users U
+    WHERE T.user_id=U.id
+    AND (U.phoneNumber = identifier OR T.token = identifier);
+
+    IF (SELECT 1 FROM temp_user) IS NOT NULL
+    AND (SELECT T.active
+         FROM tokens T,
+              users U
+         WHERE T.user_id=U.id
+         AND T.active=true
+         AND (U.phoneNumber = identifier OR T.token = identifier)) IS NOT NULL
+    THEN
+        UPDATE temp_user
+        SET active = true;
+    END IF;
+
+    SELECT * FROM temp_user;
+
+    DROP TEMPORARY TABLE IF EXISTS temp_user;
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -118,4 +171,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-14 13:56:06
+-- Dump completed on 2022-01-18 14:38:22

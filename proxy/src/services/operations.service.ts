@@ -18,11 +18,19 @@ class OperationsService {
     const [accountInfoError, accountInfoData] = await SafeAwait(axios.get(`${process.env.ENGINE_API_URL}/accounts/${elem.identifier}`));
     if (accountInfoError) {
       catchError(accountInfoError);
-      //throw new UserFacingError(accountInfoError.response.data.error);
+    }
+
+    if (elem.type === 'merchant-payment') {
+      const [merchantInfoError, merchantInfoData] = await SafeAwait(
+        axios.get(`${process.env.ENGINE_API_URL}/accounts/merchant/${elem.merchantCode}`)
+      );
+      if (merchantInfoError) {
+        catchError(merchantInfoError);
+      }
     }
 
     elem.identifierType = elem.identifier === accountInfoData.data.phoneNumber ? 'phoneNumber' : 'token';
-    if (elem.identifierType === 'token' && !accountInfoData.active) {
+    if (elem.identifierType === 'token' && !accountInfoData.data.active) {
       throw new UserFacingError(`Doesn't exist any user with this phone number or token.`);
     }
     elem.customerInfo = { ...accountInfoData.data };
@@ -38,9 +46,6 @@ class OperationsService {
         throw new UserFacingError('Invalid action');
       }
       const operation = this.findOperationById(operationId);
-      // if (!operation) {
-      //   throw new UserFacingError('Something went wrong');
-      // }
 
       if (!operation) {
         throw new UserFacingError("Operation doesn't exist");

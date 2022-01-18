@@ -31,6 +31,12 @@ class USSDService {
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
 
+      if(!getAccountNameData.active && ussdSplitted[0] !== USSDOperations.GetToken){
+        const message = `You need to request a new token to make that operation`;
+        SMSService.sendCustomerNotification(phoneNumber, message, system);
+        throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token');
+      }
+
       let tokenApiResponse = null;
 
       switch (ussdSplitted[0]) {

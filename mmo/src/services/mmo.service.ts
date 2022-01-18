@@ -59,6 +59,15 @@ class MmoService {
     return account;
   }
 
+  async getMerchant(code: string): Promise<any> {
+    const merchant = this.findMerchantByCode(code);
+    if (!merchant) {
+      throw new NotFoundError("Doesn't exist a merchant available with this code");
+    }
+
+    return merchant;
+  }
+
   async startTransaction(type: TransactionType, callbackUrl: string, body: TransactionsBody): Promise<TransactionsRes> {
     const phoneNumber = body.creditParty[0].value;
     if (this.findTransactionByStatus('pending', phoneNumber)) {
@@ -83,7 +92,7 @@ class MmoService {
             identifierType: body.identifierType
           });
         } else {
-          throw new NotFoundError("Don't exist a merchant available with this code");
+          throw new NotFoundError("Doesn't exist a merchant available with this code");
         }
 
         break;

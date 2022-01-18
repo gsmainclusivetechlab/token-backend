@@ -51,6 +51,12 @@ class AccountsRoute {
     const { identifier } = request.params;
     return AccountsService.getAccountInfo(identifier);
   }
+
+  @Get('/merchant/:code')
+  public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
+    const { code } = request.params;
+    return AccountsService.getMerchant(code);
+  }
 }
 
 export default AccountsRoute;

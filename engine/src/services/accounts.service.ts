@@ -50,6 +50,15 @@ class AccountsService {
       catchError(err);
     }
   }
+
+  async getMerchant(code: string) {
+    try {
+      const response = await axios.get(`${process.env.MMO_API_URL}/accounts/${code}/merchant`);
+      return { ...response.data };
+    } catch (err: any | AxiosError) {
+      catchError(err);
+    }
+  }
 }
 
 const accountsService = new AccountsService();
