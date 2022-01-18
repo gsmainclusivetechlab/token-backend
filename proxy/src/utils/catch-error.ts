@@ -15,7 +15,7 @@ export function catchError(err: Error | AxiosError) {
         throw new UserFacingError(err.response?.data?.error);
     }
   } else {
-    logService.log(LogLevels.ERROR);
+    logService.log(LogLevels.ERROR, err.message);
 
     switch (err.name) {
       case 'NotFoundError':
