@@ -12,10 +12,11 @@ class SendService {
       serviceCode: body.serviceCode, //the USSD code registered with your serviceCode
       //Operator: req.body.networkCode || req.body.Operator, //the end user's network Operator
       text: body.text,
+      system: body.system
     };
     switch(args.serviceCode) { 
       case "*165#": { 
-         return await UssdMenu.run(args);;
+         return await UssdMenu.run(args);
       } 
       case "*#0#": {
          return "ACK"; 
