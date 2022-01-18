@@ -7,6 +7,7 @@ import SMSGatewayRoute from './routes/sms-gateway.route';
 import MessageRoute from './routes/message.route';
 import USSDGatewayRoute from './routes/ussd-gateway.route';
 import OperationsRoute from './routes/operations.route';
+import AccountsRoute from './routes/accounts.route';
 
 dotenv.config({ path: '.env' });
 
@@ -19,6 +20,7 @@ new SMSGatewayRoute(app);
 new USSDGatewayRoute(app);
 new OperationsRoute(app);
 new MessageRoute(app);
+new AccountsRoute(app);
 
 const index = new IndexRoute(app.getRoutes());
 app.addRoute("/", index.router);

@@ -3,6 +3,7 @@ export enum USSDOperations {
   DeleteToken = "2",
   CashIn = "3",
   CashOut = "4",
+  Payment = "5"
 }
 
 export function findKeyByValueUSSDOperations(value: string) {

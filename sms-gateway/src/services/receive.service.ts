@@ -1,8 +1,9 @@
-import axios, { AxiosError } from "axios";
-import { Request } from "express";
-import { UserFacingError } from "../classes/errors";
-import { LogLevels, logService } from "./log.service";
-import { TwilioService } from "./twilio.service";
+import axios, { AxiosError } from 'axios';
+import { Request } from 'express';
+import { UserFacingError } from '../classes/errors';
+import { catchError } from '../utils/catch-error';
+import { LogLevels, logService } from './log.service';
+import { TwilioService } from './twilio.service';
 
 class ReceiveService {
   async processReceive(request: Request) {
@@ -12,69 +13,48 @@ class ReceiveService {
       this.requestValidation(body);
 
       switch (body.system) {
-        case "mock":
-          axios.post(process.env.PROXY_API_URL + "/sms-gateway/receive", body);
+        case 'mock':
+          axios.post(process.env.PROXY_API_URL + '/sms-gateway/receive', body);
           return;
-        case "live":
+        case 'live':
           TwilioService.sendMessage(body.phoneNumber, body.message);
           return;
         default:
-          throw new UserFacingError("Invalid system");
+          throw new UserFacingError('Invalid system');
       }
     } catch (err: any | AxiosError) {
-      if (axios.isAxiosError(err) && err.response) {
-        logService.log(LogLevels.ERROR, err.response?.data?.error);
-        throw new UserFacingError(err.response?.data?.error);
-      } else {
-        logService.log(LogLevels.ERROR, err.message);
-        throw new UserFacingError(err.message);
-      }
+      catchError(err);
     }
   }
 
   private requestValidation(body: any) {
-    if (!body.system || !(body.system === "mock" || body.system === "live")) {
-      throw new UserFacingError("INVALID_REQUEST - Invalid system value");
+    if (!body.system || !(body.system === 'mock' || body.system === 'live')) {
+      throw new UserFacingError('INVALID_REQUEST - Invalid system value');
     }
 
     if (!body.message) {
-      throw new UserFacingError("INVALID_REQUEST - Missing property message");
+      throw new UserFacingError('INVALID_REQUEST - Missing property message');
     }
 
-    if (!(typeof body.message === "string" || body.message instanceof String)) {
-      throw new UserFacingError(
-        "INVALID_REQUEST - Property message needs to be a string"
-      );
+    if (!(typeof body.message === 'string' || body.message instanceof String)) {
+      throw new UserFacingError('INVALID_REQUEST - Property message needs to be a string');
     }
 
-    if (body.message.trim() === "") {
-      throw new UserFacingError(
-        "INVALID_REQUEST - Property message can't be empty"
-      );
+    if (body.message.trim() === '') {
+      throw new UserFacingError("INVALID_REQUEST - Property message can't be empty");
     }
 
-    if (body.system === "live") {
+    if (body.system === 'live') {
       if (!body.phoneNumber) {
-        throw new UserFacingError(
-          "INVALID_REQUEST - Missing property phoneNumber"
-        );
+        throw new UserFacingError('INVALID_REQUEST - Missing property phoneNumber');
       }
 
-      if (
-        !(
-          typeof body.phoneNumber === "string" ||
-          body.phoneNumber instanceof String
-        )
-      ) {
-        throw new UserFacingError(
-          "INVALID_REQUEST - Property phoneNumber needs to be a string"
-        );
+      if (!(typeof body.phoneNumber === 'string' || body.phoneNumber instanceof String)) {
+        throw new UserFacingError('INVALID_REQUEST - Property phoneNumber needs to be a string');
       }
 
-      if (body.phoneNumber.trim() === "") {
-        throw new UserFacingError(
-          "INVALID_REQUEST - Property phoneNumber can't be empty"
-        );
+      if (body.phoneNumber.trim() === '') {
+        throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
       }
     }
   }

@@ -1,10 +1,6 @@
 export interface AccountNameReturn {
-  name: {
-    title: string;
-    firstName: string;
-    middleName: string;
-    lastName: string;
-    fullName: string;
-  };
-  lei: string;
+  nickName: string;
+  phoneNumber: string;
+  indicative: string;
+  active: boolean;
 }
