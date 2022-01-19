@@ -36,7 +36,8 @@ class AccountsService {
 
   async deleteAccount(phoneNumber: string) {
     try {
-      return await axios.delete(`${process.env.MMO_API_URL}/accounts/${phoneNumber}`);
+      const response = await axios.delete(`${process.env.MMO_API_URL}/accounts/${phoneNumber}`);
+      return { ...response.data };
     } catch (err: any | AxiosError) {
       catchError(err);
     }
