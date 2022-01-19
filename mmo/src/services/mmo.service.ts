@@ -44,7 +44,7 @@ class MmoService {
   async deleteUserAccount(phoneNumber: string) {
     const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(phoneNumber);
     if (!findAccount) {
-      throw new NotFoundError(`Doesn't exist any user with this phone number or token.`);
+      throw new NotFoundError(`Doesn't exist any user with this phone number.`);
     }
 
     return await QueriesService.deleteUserAccount(phoneNumber);
