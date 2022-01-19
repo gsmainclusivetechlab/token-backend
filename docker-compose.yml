@@ -147,6 +147,14 @@
         timeout: 3s
         retries: 10
 
+    client:
+       container_name: client
+       image: gsmainclusivetechlab/token:client-v1.3.0
+       ports:
+         - "8080:8080"
+       networks:
+         - gsma-bridge
+
   networks:
     gsma-bridge:
       driver: bridge
