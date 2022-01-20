@@ -47,7 +47,7 @@ class AccountsRoute {
    *                      example: "Test OpenApi"
    *                    phoneNumber:
    *                      type: string
-   *                      description: Customer phone number.
+   *                      example: "+441632960067"
    * 
    *        '409':
    *           description: This mobile phone is already registered to another user.

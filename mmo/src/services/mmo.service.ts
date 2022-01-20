@@ -125,11 +125,10 @@ class MmoService {
     }
     const transaction = this.findTransactionByStatus('pending', phoneNumber);
     if (!transaction) {
-      throw new UserFacingError(`This transaction doesn't exit`);
+      throw new NotFoundError(`Doesn't exist any pending transaction for this phone number`);
     }
     transaction.status = 'accepted';
     try {
-      //TODO Colocar aqui o Nome do customer?
       await axios.put(transaction.callbackUrl, {
         amount: transaction.amount,
         type: transaction.type,

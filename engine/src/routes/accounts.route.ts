@@ -47,7 +47,7 @@ class AccountsRoute {
    *                      example: "Test OpenApi"
    *                    phoneNumber:
    *                      type: string
-   *                      description: Customer phone number.
+   *                      example: "+441632960067"
    * 
    *        '409':
    *           description: This mobile phone is already registered to another user.
@@ -153,6 +153,17 @@ class AccountsRoute {
    *                      active: true,
    *                  }
    * 
+   *        '404':
+   *           description: Doesn't exist any user with this phone number.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist any user with this phone number."
+   * 
    * components:
    *  schemas:
    *    CustomerInformation:
@@ -213,6 +224,17 @@ class AccountsRoute {
    *                     type: boolean
    *                     description: "Flag that indicate if the merchant is available or not"
    *                     example: true
+   * 
+   *        '404':
+   *           description: Doesn't exist a merchant available with this code
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist a merchant available with this code"
    */
   @Get('/merchant/:code')
   public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
