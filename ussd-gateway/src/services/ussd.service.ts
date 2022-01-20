@@ -111,7 +111,6 @@ async function ussdGatewayRequest() {
 
     menu.end(response.data);
   } catch (err: any | AxiosError) {
-    //catchError(err);
     if (axios.isAxiosError(err) && err.response) {
       logService.log(LogLevels.ERROR, err.response?.data?.error);
       menu.end(err.response?.data?.error);

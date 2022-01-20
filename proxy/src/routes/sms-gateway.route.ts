@@ -58,6 +58,17 @@ class SMSGatewayRoute {
    *                  properties:
    *                    message:
    *                      type: string
+   * 
+   *        '404':
+   *           description: Doesn't exist any user with this phone number or merchant available with that code.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist any user with this phone number."
    */
   @Post('/send')
   public sendSMSGateway(request: Request) {
@@ -93,7 +104,7 @@ class SMSGatewayRoute {
    *                properties:
    *                  message:
    *                    type: string
-   *                    example: "Message received successfully"
+   *                    example: "Message sent."
    *
    */
   @Post('/receive')

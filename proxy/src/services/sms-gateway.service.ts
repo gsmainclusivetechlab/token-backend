@@ -22,7 +22,7 @@ class SMSGatewayService {
     try {
       const { body } = request;
       MessageService.setSMSMessage(body.message);
-      return { message: 'Message received successfully' };
+      return { message: 'Message sent.' };
     } catch (err: any | AxiosError) {
       catchError(err);
     }
