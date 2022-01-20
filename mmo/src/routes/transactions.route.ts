@@ -18,12 +18,19 @@ class TransactionsRoute {
 
   /**
    * @openapi
-   * /transactions/type/{type}:
-   *   get:
+   * /transactions/type/:type:
+   *   post:
    *     tags:
    *        - "Transactions"
    *     summary: Handles customer's transactions
    *     parameters:
+   *       - in: header
+   *         name: X-Callback-URL
+   *         description: Callback url
+   *         required: true
+   *         schema:
+   *           type: string
+   *           example: "http://localhost:4400/hooks/mmo"
    *       - in: path
    *         name: type
    *         required: true

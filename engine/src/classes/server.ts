@@ -113,7 +113,7 @@ class Server {
     const swaggerDefinition = {
       openapi: '3.0.0',
       info: {
-        title: 'Express API for JSONPlaceholder',
+        title: 'Engine API',
         version: '1.0.0',
       },
       servers: [

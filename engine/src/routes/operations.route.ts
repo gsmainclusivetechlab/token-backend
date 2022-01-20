@@ -14,7 +14,7 @@ class OperationsRoute {
   /**
    * @openapi
    * /operations/:action:
-   *   get:
+   *   post:
    *     tags:
    *        - "Operations"
    *     summary: Manage operations
@@ -42,6 +42,7 @@ class OperationsRoute {
    *              amount: 100
    *            }
    * 
+   *     responses:
    *        '200':
    *           description: OK
    *           content:
