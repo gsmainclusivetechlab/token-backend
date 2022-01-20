@@ -92,6 +92,7 @@ class OperationsRoute {
    */
   @Get("/")
   public getOperationsAndNotifications(request: Request<{}, {}, {}, {}>) {
+    console.log("Sucesso!");
     return OperationsService.getOperationsAndNotifications();
   }
 
