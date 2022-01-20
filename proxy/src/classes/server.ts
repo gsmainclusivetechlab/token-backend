@@ -54,7 +54,6 @@ const errorHandler = (err: any, req: any, res: any, next: any) => {
 
 const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
   logService.log(LogLevels.WARNING, `Bubbled up 404 error`, req.originalUrl);
-  console.log(`Bubbled up 404 error`, req.originalUrl);
   res.status(404).send({ code: 404, msg: "Not Found" });
 };
 
