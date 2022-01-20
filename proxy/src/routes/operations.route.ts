@@ -106,7 +106,7 @@ class OperationsRoute {
   /**
    * @openapi
    * /operations:
-   *   get:
+   *   post:
    *     tags:
    *        - "Operations"
    *     summary: Create an operation
@@ -117,10 +117,8 @@ class OperationsRoute {
    *      content:
    *        application/json:
    *          schema:
-   *            type: object
-   *            schema:
-   *              $ref: "#/components/schemas/Operation"
-   *            example:
+   *            $ref: "#/components/schemas/Operation"
+   *          example:
    *              {
    *                identifier: "233207212676",
    *                amount: 100,
@@ -165,6 +163,13 @@ class OperationsRoute {
    * 
    *        '400':
    *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
    * 
    * components:
    *   schemas:
@@ -218,10 +223,8 @@ class OperationsRoute {
    *      content:
    *        application/json:
    *          schema:
-   *            type: object
-   *            schema:
-   *              $ref: "#/components/schemas/Operation"
-   *            example:
+   *            $ref: "#/components/schemas/Operation"
+   *          example:
    *              { 
    *                 identifier: "233207212676",
    *                 identifierType: "token",
@@ -301,6 +304,13 @@ class OperationsRoute {
    * 
    *        '400':
    *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
    */
   @Post("/:action/:id")
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
@@ -324,10 +334,8 @@ class OperationsRoute {
    *      content:
    *        application/json:
    *          schema:
-   *            type: object
-   *            schema:
-   *              $ref: "#/components/schemas/Notification"
-   *            example: 
+   *            $ref: "#/components/schemas/Notification"
+   *          example: 
    *              {
    *                message: "Test OpenAPI"
    *              }
@@ -352,7 +360,7 @@ class OperationsRoute {
 
   /**
    * @openapi
-   * /operations/notification/{id}:
+   * /operations/notification/:id:
    *   delete:
    *     tags:
    *      - "Operations"

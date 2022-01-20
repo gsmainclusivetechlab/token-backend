@@ -51,6 +51,13 @@ class SMSGatewayRoute {
    * 
    *        '400':
    *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
    */
   @Post('/send')
   public sendSMSGateway(request: Request) {

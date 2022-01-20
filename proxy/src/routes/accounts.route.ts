@@ -108,6 +108,13 @@ class AccountsRoute {
    * 
    *        '400':
    *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
    */
   @Delete("/:phoneNumber")
   public deleteUserAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {

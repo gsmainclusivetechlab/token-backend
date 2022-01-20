@@ -56,6 +56,13 @@ class USSDGatewayRoute {
    * 
    *        '400':
    *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
    */
   @Post("/send")
   public sendUSSDGateway(request: Request) {
