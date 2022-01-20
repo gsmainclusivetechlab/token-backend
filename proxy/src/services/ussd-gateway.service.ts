@@ -1,7 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { Request } from "express";
-import { UserFacingError } from "../classes/errors";
-import { LogLevels, logService } from "./log.service";
+import { catchError } from "../utils/catch-error";
 import { MessageService } from "./message.service";
 
 class USSDGatewayService {
@@ -18,13 +17,7 @@ class USSDGatewayService {
 
       return response.data;
     } catch (err: any | AxiosError) {
-      if (axios.isAxiosError(err) && err.response) {
-        logService.log(LogLevels.ERROR, err.response?.data?.error);
-        throw new UserFacingError(err.response?.data?.error);
-      } else {
-        logService.log(LogLevels.ERROR, err.message);
-        throw new UserFacingError(err.message);
-      }
+      catchError(err);
     }
   }
 }

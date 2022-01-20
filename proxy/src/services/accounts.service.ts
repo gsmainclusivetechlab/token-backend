@@ -1,7 +1,6 @@
 import axios, { AxiosError } from 'axios';
-import { NotFoundError, UserFacingError } from '../classes/errors';
+import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
-import { LogLevels, logService } from './log.service';
 
 class AccountsService {
   async createAccount(nickName: string, phoneNumber: string) {
@@ -35,6 +34,14 @@ class AccountsService {
 
   async deleteAccount(phoneNumber: string) {
     try {
+      if (!phoneNumber) {
+        throw new UserFacingError('INVALID_REQUEST - Missing property phoneNumber');
+      }
+
+      if (phoneNumber.trim() === '') {
+        throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
+      }
+
       const response = await axios.delete(`${process.env.ENGINE_API_URL}/accounts/${phoneNumber}`);
       return { ...response.data };
     } catch (err: any | AxiosError) {

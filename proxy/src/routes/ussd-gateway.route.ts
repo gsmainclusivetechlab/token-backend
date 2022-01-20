@@ -46,9 +46,16 @@ class USSDGatewayRoute {
    *        '200':
    *           description: OK
    *           content:
-   *             application/json:
-   *               example: "Thanks for using Engine API"
-   *
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  message:
+   *                    type: string
+   *                    example: "Thanks for using Engine API"
+   * 
+   *        '400':
+   *           description: Invalid Request.
    */
   @Post("/send")
   public sendUSSDGateway(request: Request) {
