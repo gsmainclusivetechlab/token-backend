@@ -39,8 +39,6 @@ class HooksService {
       identifier = phoneNumber;
     }
 
-    //TODO Colocar aqui o Nome do customer?
-
     const message = `The ${operationType} operation with the value of ${amount} for the customer with the identifier ${identifier} was successful`;
     this.sendAgentMerchantNotification(message);
     SMSService.sendCustomerNotification(phoneNumber, message, system);

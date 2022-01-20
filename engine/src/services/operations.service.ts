@@ -83,6 +83,24 @@ class OperationsService {
     if (!operation.identifier) {
       throw new UserFacingError('INVALID_REQUEST - Missing customer identifier');
     }
+    
+    if (!operation.amount) {
+      throw new UserFacingError('INVALID_REQUEST - Missing property amount');
+    }
+
+    if (operation.amount > 500) {
+      throw new UserFacingError(`INVALID_REQUEST - The value of property amount can't be greater than 500`);
+    }
+
+    if (operation.type === 'merchant-payment') {
+      if (!operation.merchantCode) {
+        throw new UserFacingError('INVALID_REQUEST - Missing property merchantCode');
+      }
+
+      if (operation.merchantCode.trim() === '') {
+        throw new UserFacingError("INVALID_REQUEST - Property merchantCode can't be empty");
+      }
+    }
   }
 }
 
