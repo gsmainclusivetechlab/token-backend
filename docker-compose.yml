@@ -3,7 +3,7 @@
   services:
     nodeproxy:
       container_name: nodeproxy
-      image: gsmainclusivetechlab/token:proxy-v1.3.0
+      image: gsmainclusivetechlab/token:proxy-v1.3.1
 
       ports:
         - "4000:4000"
@@ -21,7 +21,7 @@
 
     nodesmsgateway:
       container_name: nodesmsgateway
-      image: gsmainclusivetechlab/token:sms-gateway-v1.3.0
+      image: gsmainclusivetechlab/token:sms-gateway-v1.3.1
 
       ports:
         - "4100:4100"
@@ -44,7 +44,7 @@
 
     nodeussdgateway:
       container_name: nodeussdgateway
-      image: gsmainclusivetechlab/token:ussd-gateway-v1.3.0
+      image: gsmainclusivetechlab/token:ussd-gateway-v1.3.1
 
       ports:
         - "4200:4200"
@@ -64,7 +64,7 @@
 
     tokenservice:
       container_name: tokenservice
-      image: gsmainclusivetechlab/token:generator-v1.3.0
+      image: gsmainclusivetechlab/token:generator-v1.3.1
 
       ports:
         - "3700:3700"
@@ -104,7 +104,7 @@
 
     engineservice:
       container_name: nodeengineservice
-      image: gsmainclusivetechlab/token:engine-v1.3.0
+      image: gsmainclusivetechlab/token:engine-v1.3.1
 
       ports:
         - "4400:4400"
@@ -128,7 +128,7 @@
 
     mmoservice:
       container_name: mmoservice
-      image: gsmainclusivetechlab/token:mmo-v1.2.0
+      image: gsmainclusivetechlab/token:mmo-v1.2.1
       ports:
         - "4300:4300"
       networks:
@@ -147,13 +147,13 @@
         timeout: 3s
         retries: 10
 
-    client:
-       container_name: client
-       image: gsmainclusivetechlab/token:client-v1.3.0
-       ports:
-         - "8080:8080"
-       networks:
-         - gsma-bridge
+    # client:
+    #    container_name: client
+    #    image: gsmainclusivetechlab/token:client-v1.3.0
+    #    ports:
+    #      - "8080:8080"
+    #    networks:
+    #      - gsma-bridge
 
   networks:
     gsma-bridge:
