@@ -25,6 +25,5 @@ export interface CreateOperation extends CreateOperationBody{
 
 export interface OperationNotification  {
   id: string;
-  operationType: OperationType;
   message: string;
 }

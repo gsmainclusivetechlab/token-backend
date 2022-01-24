@@ -46,9 +46,34 @@ class USSDGatewayRoute {
    *        '200':
    *           description: OK
    *           content:
-   *             application/json:
-   *               example: "Thanks for using Engine API"
-   *
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  message:
+   *                    type: string
+   *                    example: "Thanks for using Engine API"
+   * 
+   *        '400':
+   *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
+   * 
+   *        '404':
+   *           description: Doesn't exist any user with this phone number or merchant available with that code.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist any user with this phone number."
    */
   @Post("/send")
   public sendUSSDGateway(request: Request) {

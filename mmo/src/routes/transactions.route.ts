@@ -18,12 +18,19 @@ class TransactionsRoute {
 
   /**
    * @openapi
-   * /transactions/type/{type}:
-   *   get:
+   * /transactions/type/:type:
+   *   post:
    *     tags:
    *        - "Transactions"
    *     summary: Handles customer's transactions
    *     parameters:
+   *       - in: header
+   *         name: X-Callback-URL
+   *         description: Callback url
+   *         required: true
+   *         schema:
+   *           type: string
+   *           example: "http://localhost:4400/hooks/mmo"
    *       - in: path
    *         name: type
    *         required: true
@@ -31,6 +38,22 @@ class TransactionsRoute {
    *         schema:
    *           type: string
    *           example: "deposit"
+   *     requestBody:
+   *        required: true
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: "#/components/schemas/TransactionsBody"
+   *            example: 
+   *              {
+   *                amount: 100,
+   *                debitParty: [{key: "msisdn", value: "+233207212676"}],
+   *                creditParty: [{key: "msisdn", value: "+233207212676"}],
+   *                currency: "RWF",
+   *                system: "mock",
+   *                identifierType: "phoneNumber"
+   *              }
+   * 
    *     responses:
    *       200:
    *         description: Created
@@ -59,6 +82,58 @@ class TransactionsRoute {
    *                   type: number
    *                   description: Transactions poll limit
    *                   example: 100
+   * 
+   *       '400':
+   *          description: Invalid Request.
+   *          content:
+   *             application/json:
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   message:
+   *                     type: string
+   * 
+   * 
+   * components:
+   *  schemas:
+   *    TransactionsBody:
+   *      type: object
+   *      properties:
+   *        amount:
+   *          type: number
+   *          description: "Value associated with the operation"
+   *        debitParty:
+   *          type: array
+   *          description: "Account"
+   *          items:
+   *            type: object
+   *            properties:
+   *              key:
+   *                type: string  
+   *              value:
+   *                type: string  
+   *        creditParty:
+   *          type: array
+   *          description: "Account"
+   *          items:
+   *            type: object
+   *            properties:
+   *              key:
+   *                type: string  
+   *              value:
+   *                type: string  
+   *        currency:
+   *          type: string
+   *          description: "Currency of the operation"
+   *        system:
+   *          type: string
+   *          description: "System that is used. Value can be 'live' or 'mock'"
+   *        merchantCode:
+   *          type: string
+   *          description: "Merchant Code"
+   *        identifierType:
+   *          type: string
+   *          description: "Identify what is the identifier. Value can be 'token' or 'phoneNumber'"
   */
   @Post('/type/:type')
   public getAccountName(

@@ -1,11 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import { NotFoundError, UserFacingError } from '../classes/errors';
-import { AccountNameReturn } from '../interfaces/mmo';
 import SafeAwait from '../lib/safe-await';
 import { v4 as uuidv4 } from 'uuid';
-import { LogLevels, logService } from './log.service';
-import { MessageService } from './message.service';
-import { Action, CreateOperationBody, OperationType, CreateOperation, OperationNotification } from '../interfaces/operations';
+import { Action, CreateOperationBody, CreateOperation, OperationNotification } from '../interfaces/operations';
 import { catchError } from '../utils/catch-error';
 
 class OperationsService {
@@ -31,7 +28,7 @@ class OperationsService {
 
     elem.identifierType = elem.identifier === accountInfoData.data.phoneNumber ? 'phoneNumber' : 'token';
     if (elem.identifierType === 'token' && !accountInfoData.data.active) {
-      throw new UserFacingError(`Doesn't exist any user with this phone number or token.`);
+      throw new NotFoundError(`Doesn't exist any user with this phone number or token.`);
     }
     elem.customerInfo = { ...accountInfoData.data };
 
@@ -48,7 +45,7 @@ class OperationsService {
       const operation = this.findOperationById(operationId);
 
       if (!operation) {
-        throw new UserFacingError("Operation doesn't exist");
+        throw new NotFoundError(`The peration with id ${operationId} doesn't exist.`);
       }
 
       const response = await axios.post(`${process.env.ENGINE_API_URL}/operations/${action}`, { ...operation });
@@ -60,13 +57,7 @@ class OperationsService {
 
       return response.data;
     } catch (err: any | AxiosError) {
-      if (axios.isAxiosError(err) && err.response) {
-        logService.log(LogLevels.ERROR, err.response?.data?.error);
-        throw new UserFacingError(err.response?.data?.error);
-      } else {
-        logService.log(LogLevels.ERROR, err.message);
-        throw new UserFacingError(err.message);
-      }
+      catchError(err);
     }
   }
 
@@ -78,14 +69,24 @@ class OperationsService {
   }
 
   async createNotification(elem: OperationNotification) {
+    if (!elem.message) {
+      throw new UserFacingError('INVALID_REQUEST - Missing property message');
+    }
+
     elem.id = uuidv4();
     this.notifications.push({
       ...elem,
     });
+
+    return { message: 'Notification created successfully' }
   }
 
   async registerOperation(elem: CreateOperationBody) {
+    this.validateCreateOperationBody(elem);
+
     this.setOperation(elem);
+
+    return { message: 'Operation registered successfully' };
   }
 
   async deleteNotification(id: string) {

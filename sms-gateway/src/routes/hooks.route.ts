@@ -24,7 +24,6 @@ class HooksRoute {
    *      content:
    *        application/json:
    *          schema:
-   *            type: object
    *            $ref: "#/components/schemas/TwilioHookBody"
    *          example: {
    *            From: "+447360264774",
@@ -35,6 +34,35 @@ class HooksRoute {
    *     responses:
    *        '200':
    *           description: OK
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  message:
+   *                    type: string
+   *                    example: "Thanks for using Engine API"
+   * 
+   *        '400':
+   *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
+   * 
+   *        '404':
+   *           description: Doesn't exist any user with this phone number or merchant available with that code.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist any user with this phone number."
    * 
    * components:
    *  schemas:
@@ -81,8 +109,6 @@ class HooksRoute {
    *          type: string
    *        ApiVersion:
    *          type: string
-   * 
-   *
    */
   @Post("/twilio")
   public hooks(request: Request) {

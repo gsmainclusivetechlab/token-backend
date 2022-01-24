@@ -48,17 +48,17 @@ class OperationsRoute {
    *                      [
    *                        {
    *                          id: "408a6a77-2dc4-463e-8cca-02055c83a293",
-   *                          token: "233207212676",
-   *                          amount: "100",
+   *                          identifier: "233207212676",
+   *                          identifierType: "token",
+   *                          amount: 100,
    *                          type: "cash-in",
-   *                          name: {
-   *                            title: "Dr.",
-   *                            firstName: "Jorge",
-   *                            middleName: "Fernando",
-   *                            lastName: "Jesus",
-   *                            fullName: "Jorge Jesus",
+   *                          customerInfo: {
+   *                            nickName: "Teste",
+   *                            phoneNumber: "+441632960067",
+   *                            indicative: "+44",
+   *                            active: true,
    *                          },
-   *                          lei: "AAAA0012345678901299"
+   *                          system: "mock"
    *                         }
    *                      ]
    *
@@ -69,25 +69,33 @@ class OperationsRoute {
    *      properties:
    *        id:
    *          type: string
+   *          description: "Notification id"
    *        message:
    *          type: string
+   *          description: "Message"
    *    Operation:
+   *      allOf:
+   *        - $ref: "#/components/schemas/CreateOperationBody"
+   *        - type: object
+   *          properties:
+   *            id:
+   *              type: string
+   *              description: "Operation id"
+   *    CustomerInformation:
    *      type: object
    *      properties:
-   *        id:
+   *        nickName:
    *          type: string
-   *        token:
+   *          description: "Customer nick name"
+   *        phoneNumber:
    *          type: string
-   *        amount:
+   *          description: "Customer phone number"
+   *        indicative:
    *          type: string
-   *        type:
-   *          type: string
-   *        name:
-   *          $ref: "#/components/schemas/CustomerNameInformation"
-   *        lei:
-   *          type: string
-   *        system:
-   *          type: string
+   *          description: "Contry code"
+   *        active:
+   *          type: boolean
+   *          description: "Flag that indicate if the user have a token active or not"
    *
    */
   @Get("/")
@@ -97,99 +105,99 @@ class OperationsRoute {
 
   /**
    * @openapi
-   * /operations/account-info:
-   *   get:
+   * /operations:
+   *   post:
    *     tags:
    *        - "Operations"
-   *     summary: Get user's account info
+   *     summary: Create an operation
    *     description: Makes a request to the Engine API in order to get the user's account info,
    *                  and if the user's account exist, the system create the operation in memory
-   *     parameters:
-   *       - in: query
-   *         name: token
-   *         required: true
-   *         description: Customer's token.
-   *         schema:
-   *           type: string
-   *           example: "233120046954"
-   *       - in: query
-   *         name: amount
-   *         required: true
-   *         description: Operation amount.
-   *         schema:
-   *           type: string
-   *           example: "200"
-   *       - in: query
-   *         name: type
-   *         required: true
-   *         description: Operation type.
-   *         schema:
-   *           type: string
-   *           example: "cash-in"
-   *       - in: query
-   *         name: system
-   *         required: true
-   *         description: System type.
-   *         schema:
-   *           type: string
-   *           example: "mock"
+   *     requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            $ref: "#/components/schemas/Operation"
+   *          example:
+   *              {
+   *                identifier: "233207212676",
+   *                amount: 100,
+   *                type: "cash-in",
+   *                system: "mock"
+   *              }
+   *
    *     responses:
-   *       '200':
-   *         description: OK
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 name:
-   *                   type: object
-   *                   schema:
-   *                     $ref: "#/components/schemas/CustomerNameInformation"
-   *                   example:
-   *                     {
-   *                       title: "Dr.",
-   *                       firstName: "Jorge",
-   *                       middleName: "Fernando",
-   *                       lastName: "Jesus",
-   *                       fullName: "Jorge Jesus",
-   *                     }
-   *                 lei:
+   *        '200':
+   *           description: OK
+   *           content:
+   *             application/json:
+   *                schema:
+   *                  type: object
+   *                  schema:
+   *                    $ref: "#/components/schemas/CreateOperationBody"
+   *                  example:
+   *                    { 
+   *                      identifier: "233207212676",
+   *                      identifierType: "token",
+   *                      amount: 100,
+   *                      type: "cash-in",
+   *                      customerInfo: {
+   *                        nickName: "Teste",
+   *                        phoneNumber: "+441632960067",
+   *                        indicative: "+44",
+   *                        active: true,
+   *                      },
+   *                      system: "mock"
+   *                    }
+   * 
+   *        '404':
+   *           description: Doesn't exist any user with this phone number or merchant available with that code.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
    *                    type: string
-   *                    example: "AAAA0012345678901299"
-   *                 amount:
-   *                    type: string
-   *                    example: "100"
-   *
+   *                    example: "Doesn't exist any user with this phone number."
+   * 
+   *        '400':
+   *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
+   * 
    * components:
-   *  schemas:
-   *    CustomerNameInformation:
-   *      type: object
-   *      properties:
-   *        title:
-   *          type: string
-   *        firstName:
-   *          type: string
-   *        middleName:
-   *          type: string
-   *        lastName:
-   *          type: string
-   *        fullName:
-   *          type: string
-   *
+   *   schemas:
+   *     CreateOperationBody:
+   *       type: object
+   *       properties:
+   *         identifier:
+   *           type: string
+   *           description: "Token or Phone Number value"
+   *         identifierType:
+   *           type: string
+   *           description: "Identify what is the identifier. Value can be 'token' or 'phoneNumber'"
+   *         amount:
+   *           type: number
+   *           description: "Value associated with the operation"
+   *         type:
+   *           type: string
+   *           description: "Type of operation. Value can be 'cash-in', 'cash-out' or 'merchant-payment'"
+   *         system:
+   *           type: string
+   *           description: "System that is used. Value can be 'live' or 'mock'"
+   *         merchantCode:
+   *           type: string
+   *           description: "Merchant identifier code"
+   *         customerInfo:
+   *           $ref: "#/components/schemas/CustomerInformation"
+   *             
    */
-  // @Get("/account-info")
-  // public getAccountInfo(
-  //   request: Request<
-  //     {},
-  //     {},
-  //     {},
-  //     { token: string; amount: string; type: Operation; system: System }
-  //   >
-  // ) {
-  //   const { token, amount, type, system } = request.query;
-  //   return OperationsService.getAccountInfo(amount, token, type, system);
-  // }
-
   @Post("/")
   public createOperation(
     request: Request<
@@ -215,27 +223,32 @@ class OperationsRoute {
    *      content:
    *        application/json:
    *          schema:
-   *            type: object
-   *            schema:
-   *              $ref: "#/components/schemas/Operation"
-   *            example:
-   *              {
-   *                token: "233207212676",
-   *                amount: "100",
-   *                type: "cash-in",
-   *                name: {
-   *                  title: "Dr.",
-   *                  firstName: "Jorge",
-   *                  middleName: "Fernando",
-   *                  lastName: "Jesus",
-   *                  fullName: "Jorge Jesus",
-   *                },
-   *                lei: "AAAA0012345678901299",
-   *                system: "mock"
+   *            $ref: "#/components/schemas/Operation"
+   *          example:
+   *              { 
+   *                 identifier: "233207212676",
+   *                 identifierType: "token",
+   *                 amount: 100,
+   *                 type: "cash-in",
+   *                 customerInfo: {
+   *                   nickName: "Teste",
+   *                   phoneNumber: "+441632960067",
+   *                   indicative: "+44",
+   *                   active: true,
+   *                 },
+   *                 system: "mock"
    *               }
    *     responses:
    *        '200':
    *           description: OK
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  message:
+   *                    type: string
+   *                    example: "Operation registered successfully"
    *
    */
   @Post("/register")
@@ -245,7 +258,7 @@ class OperationsRoute {
 
   /**
    * @openapi
-   * /operations/{action}/{id}:
+   * /operations/:action/:id:
    *   post:
    *     tags:
    *      - "Operations"
@@ -277,6 +290,27 @@ class OperationsRoute {
    *                  status:
    *                    type: string
    *                    example: "pending"
+   * 
+   *        '404':
+   *           description: Doesn't exist any user with this phone number or merchant available with that code.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist any user with this phone number."
+   * 
+   *        '400':
+   *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
    */
   @Post("/:action/:id")
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
@@ -294,22 +328,28 @@ class OperationsRoute {
    *     tags:
    *        - "Operations"
    *     summary: Create a notification
-   *     description: Create a notification for the agent and the customer in memory
+   *     description: Create a notification for the agent in memory
    *     requestBody:
    *      required: true
    *      content:
    *        application/json:
    *          schema:
-   *            type: object
-   *            properties:
-   *              notification:
-   *                type: string
-   *                description: Message to send to agent.
-   *                example: "Make your test"
+   *            $ref: "#/components/schemas/Notification"
+   *          example: 
+   *              {
+   *                message: "Test OpenAPI"
+   *              }
    *     responses:
    *        '200':
    *           description: OK
-   *
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
+   *                      example: "Notification created successfully"
    */
    @Post("/notify")
    public createNotification(
@@ -320,7 +360,7 @@ class OperationsRoute {
 
   /**
    * @openapi
-   * /operations/notification/{id}:
+   * /operations/notification/:id:
    *   delete:
    *     tags:
    *      - "Operations"
@@ -345,6 +385,17 @@ class OperationsRoute {
    *               message:
    *                 type: string
    *                 example: "The notification with id 408a6a77-2dc4-463e-8cca-02055c83a293 was deleted"
+   * 
+   *      '404':
+   *        description: Notification not found
+   *        content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               message:
+   *                 type: string
+   *                 example: "The notification with id 408a6a77-2dc4-463e-8cca-02055c83a293 doesn't exist."
    */
   @Delete("/notification/:id")
   public deleteNotification(request: Request<{ id: string }, {}>) {

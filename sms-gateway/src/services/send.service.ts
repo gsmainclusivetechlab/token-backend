@@ -1,8 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { Request } from 'express';
-import { NotFoundError, UserFacingError } from '../classes/errors';
+import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
-import { LogLevels, logService } from './log.service';
 
 class SendService {
   async processSend(request: Request) {

@@ -18,12 +18,20 @@ class MmoService {
       throw new UserFacingError("INVALID_REQUEST - Property nickName can't be empty");
     }
 
+    if (nickName.length > 50) {
+      throw new UserFacingError("INVALID_REQUEST - Property nickName exceeded max length");
+    }
+
     if (!phoneNumber) {
       throw new UserFacingError('INVALID_REQUEST - Missing property phoneNumber');
     }
 
     if (phoneNumber.trim() === '') {
       throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
+    }
+
+    if (phoneNumber.length > 50) {
+      throw new UserFacingError("INVALID_REQUEST - Property phoneNumber exceeded max length");
     }
 
     const phoneResult = phoneLib(phoneNumber);
@@ -42,6 +50,14 @@ class MmoService {
   }
 
   async deleteUserAccount(phoneNumber: string) {
+    if (!phoneNumber) {
+      throw new UserFacingError(`INVALID_REQUEST - Property phoneNumber can't be null`);
+    }
+
+    if (phoneNumber.length > 50) {
+      throw new UserFacingError("INVALID_REQUEST - Property phoneNumber exceeded max length");
+    }
+
     const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(phoneNumber);
     if (!findAccount) {
       throw new NotFoundError(`Doesn't exist any user with this phone number.`);
@@ -51,6 +67,14 @@ class MmoService {
   }
 
   async getAccountName(identifier: string): Promise<AccountNameReturn> {
+    if (!identifier) {
+      throw new UserFacingError(`INVALID_REQUEST - Property identifier can't be null`);
+    }
+
+    if (identifier.length > 50) {
+      throw new UserFacingError("INVALID_REQUEST - Property identifier exceeded max length");
+    }
+
     const account = await QueriesService.findAccountByPhoneNumberOrToken(identifier);
     if (!account) {
       throw new NotFoundError("Doesn't exist any user with this phone number or token.");
@@ -125,11 +149,10 @@ class MmoService {
     }
     const transaction = this.findTransactionByStatus('pending', phoneNumber);
     if (!transaction) {
-      throw new UserFacingError(`This transaction doesn't exit`);
+      throw new NotFoundError(`Doesn't exist any pending transaction for this phone number`);
     }
     transaction.status = 'accepted';
     try {
-      //TODO Colocar aqui o Nome do customer?
       await axios.put(transaction.callbackUrl, {
         amount: transaction.amount,
         type: transaction.type,

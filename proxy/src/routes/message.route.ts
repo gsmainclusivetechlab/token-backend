@@ -23,8 +23,12 @@ class MessageRoute {
    *           description: OK
    *           content:
    *             application/json:
-   *               example:
-   *                 message: ""
+   *               schema:
+   *                 type: object
+   *                 properties:
+   *                   message:
+   *                     type: string
+   *                     example: "Example"
    *
    */
   @Get("/sms")

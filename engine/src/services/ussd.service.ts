@@ -2,7 +2,6 @@ import axios, { AxiosError } from 'axios';
 import { UserFacingError } from '../classes/errors';
 import { USSDOperations } from '../enum/ussd-operations.enum';
 import { USSDWebhookBody } from '../interfaces/hook';
-import { LogLevels, logService } from './log.service';
 import { OperationsService } from './operations.service';
 import { phone as phoneLib } from 'phone';
 import { AccountsService } from './accounts.service';

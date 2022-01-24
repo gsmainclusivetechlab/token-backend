@@ -1,9 +1,9 @@
-import { Request, Router } from "express";
-import Server from "../classes/server";
-import { RouteHandler, Post } from "../decorators/router-handler";
-import { SMSGatewayService } from "../services/sms-gateway.service";
+import { Request, Router } from 'express';
+import Server from '../classes/server';
+import { RouteHandler, Post } from '../decorators/router-handler';
+import { SMSGatewayService } from '../services/sms-gateway.service';
 
-@RouteHandler("/sms-gateway")
+@RouteHandler('/sms-gateway')
 class SMSGatewayRoute {
   // Services Injection
   public router: Router;
@@ -41,11 +41,36 @@ class SMSGatewayRoute {
    *        '200':
    *           description: OK
    *           content:
-   *             application/json:
-   *               example: "Thanks for using Engine API"
-   *
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  message:
+   *                    type: string
+   *                    example: "Thanks for using Engine API"
+   * 
+   *        '400':
+   *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
+   * 
+   *        '404':
+   *           description: Doesn't exist any user with this phone number or merchant available with that code.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist any user with this phone number."
    */
-  @Post("/send")
+  @Post('/send')
   public sendSMSGateway(request: Request) {
     return SMSGatewayService.processSend(request);
   }
@@ -72,9 +97,17 @@ class SMSGatewayRoute {
    *     responses:
    *        '200':
    *           description: OK
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  message:
+   *                    type: string
+   *                    example: "Message sent."
    *
    */
-  @Post("/receive")
+  @Post('/receive')
   public receiveSMSGateway(request: Request) {
     return SMSGatewayService.processReceive(request);
   }
