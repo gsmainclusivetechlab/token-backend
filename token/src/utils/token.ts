@@ -1,8 +1,10 @@
+import crypto from 'crypto';
 export class Token {
   static generate(phoneNumber: string, indicative: string) {
     const generateRandom = (multiplierLength: number) => {
       const power = Math.pow(10, multiplierLength);
-      const multiplier = Math.floor(Math.random() * power) + 1 * power;
+      const random = crypto.randomBytes(4).readUInt32LE() / 0x100000000;
+      const multiplier = Math.floor(random * power) + 1 * power;
       const timestamp = new Date().getTime();
       return String(multiplier * timestamp).substring(0, phoneNumber.length);
     };
@@ -22,10 +24,10 @@ export class Token {
   }
 
   static verifyControlDigit(token: string, indicative: string) {
-    const controlDigit = +token[token.length-1]
-    const tokenWithoutControlDigit = token.substring(0, token.length-1)
-    const tokenWithoutIndicative = tokenWithoutControlDigit.split(indicative.split('+')[1])[1]
-    const primeArray = primeNumbers(tokenWithoutIndicative.length)
+    const controlDigit = +token[token.length - 1];
+    const tokenWithoutControlDigit = token.substring(0, token.length - 1);
+    const tokenWithoutIndicative = tokenWithoutControlDigit.split(indicative.split('+')[1])[1];
+    const primeArray = primeNumbers(tokenWithoutIndicative.length);
     const tokenArray = tokenWithoutIndicative.split('');
     const primeMultiply = tokenArray.map((el, i) => +el * primeArray[i]);
     const primeSum = primeMultiply.reduce((acc, el) => el + acc, 0);

@@ -1,11 +1,11 @@
 {
   "name": "mmo",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "pnpm run build && node ./dist/app.js",
-    "serve": "nodemon ./dist/app.js",
+    "serve": "NODE_ENV=development nodemon ./dist/app.js",
     "serve-debug": "NODE_ENV=development nodemon --config nodemon-debug.json",
     "build": "tsc ",
     "test": "echo \"Error: no test specified\" && exit 1"

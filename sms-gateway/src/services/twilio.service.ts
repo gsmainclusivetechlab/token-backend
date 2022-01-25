@@ -1,5 +1,3 @@
-import axios, { AxiosError } from 'axios';
-import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { LogLevels, logService } from './log.service';
 import { Twilio } from 'twilio';

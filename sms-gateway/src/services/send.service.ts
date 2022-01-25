@@ -7,12 +7,12 @@ class SendService {
   async processSend(request: Request) {
     const { body } = request;
 
-    this.requestValidation(body);
-
     //Only for JEST
     if (body.text === 'PING') {
       return 'PONG';
     }
+
+    this.requestValidation(body);
 
     return this.manageRequest(body);
   }

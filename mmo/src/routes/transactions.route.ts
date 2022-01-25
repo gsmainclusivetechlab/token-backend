@@ -5,7 +5,6 @@ import Server from '../classes/server';
 import { RouteHandler, Post } from '../decorators/router-handler';
 import {
   TransactionsBody,
-  TransactionsHeaders,
   TransactionType,
 } from '../interfaces/transaction';
 import { mmoService } from '../services/mmo.service';

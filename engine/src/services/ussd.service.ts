@@ -22,16 +22,17 @@ class USSDService {
 
       //Check if phone number is registry
       const getAccountNameData = await AccountsService.getAccountInfo(phoneNumber);
+      var message: string = "";
 
       var ussdSplitted: string[] = text.split('*');
       if (ussdSplitted.length === 0) {
-        const message = `Please send a valid operation`;
+        message = `Please send a valid operation`;
         SMSService.sendCustomerNotification(phoneNumber, message, system);
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
 
       if(!getAccountNameData.active && ussdSplitted[0] !== USSDOperations.GetToken){
-        const message = `You need to request a new token to make that operation`;
+        message = `You need to request a new token to make that operation`;
         SMSService.sendCustomerNotification(phoneNumber, message, system);
         throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token');
       }
@@ -43,7 +44,7 @@ class USSDService {
           tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
 
           if (tokenApiResponse.data && tokenApiResponse.data.token) {
-            const message = 'Your token is ' + tokenApiResponse.data.token;
+            message = 'Your token is ' + tokenApiResponse.data.token;
             SMSService.sendCustomerNotification(phoneNumber, message, system);
           }
           break;
@@ -51,14 +52,14 @@ class USSDService {
           try {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
 
-            if (tokenApiResponse.data && tokenApiResponse.data) {
-              const message = 'Your token was deleted';
+            if (tokenApiResponse.data) {
+              message = 'Your token was deleted';
               SMSService.sendCustomerNotification(phoneNumber, message, system);
             }
           } catch (err: any | AxiosError) {
             if (axios.isAxiosError(err)) {
               if (err.response?.status === 404) {
-                const message = `You need to have an associated token to delete`;
+                message = `You need to have an associated token to delete`;
                 SMSService.sendCustomerNotification(phoneNumber, message, system);
               }
             }
@@ -68,7 +69,7 @@ class USSDService {
           break;
         case USSDOperations.CashIn:
           if (!ussdSplitted[1]) {
-            const message = `To make a CASH-IN, send the follow message 'CASH_IN <space> {AMOUNT}'`;
+            message = `To make a CASH-IN, send the follow message 'CASH_IN <space> {AMOUNT}'`;
             SMSService.sendCustomerNotification(phoneNumber, message, system);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
@@ -92,7 +93,7 @@ class USSDService {
           break;
         case USSDOperations.CashOut:
           if (!ussdSplitted[1]) {
-            const message = `To make a CASH-OUT, send the follow message 'CASH_OUT <space> {AMOUNT}'`;
+            message = `To make a CASH-OUT, send the follow message 'CASH_OUT <space> {AMOUNT}'`;
             SMSService.sendCustomerNotification(phoneNumber, message, system);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
@@ -116,13 +117,13 @@ class USSDService {
           break;
         case USSDOperations.Payment:
           if (!ussdSplitted[1]) {
-            const message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
+            message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
             SMSService.sendCustomerNotification(phoneNumber, message, system);
             throw new UserFacingError('OPERATION_ERROR - Missing merchant code');
           }
 
           if (!ussdSplitted[2]) {
-            const message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
+            message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
             SMSService.sendCustomerNotification(phoneNumber, message, system);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
@@ -144,8 +145,7 @@ class USSDService {
             await OperationsService.manageOperation('accept', operationMerchantPaymentObj);
           } catch (err: any | AxiosError) {
             if (err.name === 'NotFoundError') {
-              //Perceber se a mensagem é pq o merchant não existe
-              const message = `Doesn't exist any merchant available with that code`;
+              message = `Doesn't exist any merchant available with that code`;
               SMSService.sendCustomerNotification(phoneNumber, message, system);
             }
             catchError(err);
@@ -153,7 +153,7 @@ class USSDService {
 
           break;
         default:
-          const message = `Please send a valid operation`;
+          message = `Please send a valid operation`;
           SMSService.sendCustomerNotification(phoneNumber, message, system);
           throw new UserFacingError('OPERATION_ERROR - Invalid operation');
       }

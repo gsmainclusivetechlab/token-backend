@@ -1,6 +1,6 @@
-import { Request } from "express";
-import { UserFacingError } from "../classes/errors";
-import { UssdMenu } from "./ussd.service";
+import { Request } from 'express';
+import { UserFacingError } from '../classes/errors';
+import { UssdMenu } from './ussd.service';
 
 class SendService {
   async processSend(request: Request) {
@@ -12,19 +12,19 @@ class SendService {
       serviceCode: body.serviceCode, //the USSD code registered with your serviceCode
       //Operator: req.body.networkCode || req.body.Operator, //the end user's network Operator
       text: body.text,
-      system: body.system
+      system: body.system,
     };
-    switch(args.serviceCode) { 
-      case "*165#": { 
-         return await UssdMenu.run(args);
-      } 
-      case "*#0#": {
-         return "ACK"; 
-      } 
-      default: { 
-        throw new UserFacingError("Invalid short code");
-      } 
-   }
+    switch (args.serviceCode) {
+      case '*165#': {
+        return UssdMenu.run(args);
+      }
+      case '*#0#': {
+        return 'ACK';
+      }
+      default: {
+        throw new UserFacingError('Invalid short code');
+      }
+    }
   }
 }
 

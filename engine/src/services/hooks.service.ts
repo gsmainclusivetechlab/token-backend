@@ -10,13 +10,13 @@ class HooksService {
   async processSMSGateway(body: SMSWebhookBody) {
     this.validateBodyPropertiesGateway(body);
 
-    return await SMSService.processSMSMessage(body);
+    return SMSService.processSMSMessage(body);
   }
 
   async processUSSDGateway(body: USSDWebhookBody) {
     this.validateBodyPropertiesGateway(body);
 
-    return await USSDService.processUSSDMessage(body);
+    return USSDService.processUSSDMessage(body);
   }
 
   async processMMO(body: MMOWebhookBody) {
@@ -72,13 +72,11 @@ class HooksService {
     }
 
     if (!body.system) {
-      throw new UserFacingError("INVALID_REQUEST - Missing property system");
+      throw new UserFacingError('INVALID_REQUEST - Missing property system');
     }
 
-    if (!(body.system === "mock" || body.system === "live")) {
-      throw new UserFacingError(
-        "INVALID_REQUEST - Property system with wrong value"
-      );
+    if (!(body.system === 'mock' || body.system === 'live')) {
+      throw new UserFacingError('INVALID_REQUEST - Property system with wrong value');
     }
   }
 
