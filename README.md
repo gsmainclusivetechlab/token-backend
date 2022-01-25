@@ -11,9 +11,9 @@
 docker-compose up -d 
 ```
 
-- Second, open browser on http://localhost:8080
+- Second, open browser on https://token.gsmainclusivetechlab.io/ 
 
-- Third, choose the header option "TryToken" or go directly to http://localhost:8080/trytoken
+- Third, choose the header option "TryToken" or go directly to https://token.gsmainclusivetechlab.io//trytoken
 
 - To teardown everything, run the next command
 
