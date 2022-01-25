@@ -1,17 +1,17 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
-import bodyParser from "body-parser";
-import cors, { CorsOptions } from "cors";
-import http from "http";
-import https from "https";
-import { ConflictError, NotFoundError, UnauthorizedError, UserFacingError } from "../classes/errors";
-import { LogLevels, logService } from "../services/log.service";
+import bodyParser from 'body-parser';
+import cors, { CorsOptions } from 'cors';
+import http from 'http';
+import https from 'https';
+import { ConflictError, NotFoundError, UnauthorizedError, UserFacingError } from '../classes/errors';
+import { LogLevels, logService } from '../services/log.service';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 
 const errorHandler = (err: any, req: any, res: any, next: any) => {
   logService.log(LogLevels.WARNING, `Catch all errors`);
   if (err instanceof UserFacingError) {
-    res.status(400).send({ error: err.message || "Something went wrong" });
+    res.status(400).send({ error: err.message || 'Something went wrong' });
     return;
   }
 
@@ -36,9 +36,9 @@ const errorHandler = (err: any, req: any, res: any, next: any) => {
     return next(err);
   }
   res.status(500);
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === 'development') {
     res.send({
-      error: "Something went wrong",
+      error: 'Something went wrong',
       realErrorDevelopment: {
         message: err.message,
         stack: err.stack,
@@ -46,13 +46,13 @@ const errorHandler = (err: any, req: any, res: any, next: any) => {
     });
   } else {
     // Do not send stack traces or expose code to the client
-    res.send({ error: "Something went wrong" });
+    res.send({ error: 'Something went wrong' });
   }
 };
 
 const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
   logService.log(LogLevels.WARNING, `Bubbled up 404 error`, req.originalUrl);
-  res.status(404).send({ code: 404, msg: "Not Found" });
+  res.status(404).send({ code: 404, msg: 'Not Found' });
 };
 
 class Server {
@@ -65,7 +65,7 @@ class Server {
   constructor(port: number | string = 4400) {
     this.app = express();
     this.port = port;
-    this.app.set("port", port);
+    this.app.set('port', port);
     this.config();
     this.getServerInstance();
   }
@@ -83,8 +83,8 @@ class Server {
         },
       })
     );
-    
-    const whitelist = ['http://localhost:8080', 'https://token.gsmainclusivetechlab.io', 'PostmanRuntime.*'];
+
+    const whitelist = ['http://localhost:8080', 'https://token.gsmainclusivetechlab.io', 'PostmanRuntime.*', 'axios.*', 'Swagger'];
     const corsOptions: CorsOptions = {
       origin: (origin, callback) => {
         if (origin && whitelist.some((el) => new RegExp(el).test(origin))) {
@@ -101,7 +101,16 @@ class Server {
       req.headers.origin = req.headers.origin || req.get('User-Agent');
       next();
     });
-    this.app.use(cors(corsOptions));
+
+    this.app.use(this.verifyPath(cors(corsOptions)));
+  }
+
+  private verifyPath(fn: any) {
+    return (req: Request, res: Response, next: any) => {
+      var regexDocs = /^\/?docs.*$/;
+      if (regexDocs.test(req.path)) return next();
+      else return fn(req, res, next);
+    };
   }
 
   // Routing Methods
@@ -139,7 +148,7 @@ class Server {
 
   // Exposed public routes (service discovery)
   public getRoutes(): string[] {
-    return ["/health"];
+    return ['/health'];
   }
 
   public addErrorHandler() {
@@ -147,25 +156,23 @@ class Server {
   }
 
   public add404Handler() {
-    logService.log(LogLevels.WARNING, "404 Error Handler Attached");
+    logService.log(LogLevels.WARNING, '404 Error Handler Attached');
     this.app.use(notFoundHandler);
   }
 
   public async start(): Promise<void> {
     const logLevel = process.env.LOG_LEVEL as LogLevels;
-    this.getHttpServer().listen(this.app.get("port"), () => {
+    this.getHttpServer().listen(this.app.get('port'), () => {
       logService.log(
         logLevel || LogLevels.DEBUG,
-        `App is running at ${
-          process.env.PROTOCOL || "http"
-        }://localhost:${this.app.get("port")} in ${this.app.get("env")} mode`
+        `App is running at ${process.env.PROTOCOL || 'http'}://localhost:${this.app.get('port')} in ${this.app.get('env')} mode`
       );
       logService.log(LogLevels.DEBUG, `Press CTRL-C to stop`);
     });
   }
 
   private getServerInstance() {
-    if (process.env.PROTOCOL === "https") {
+    if (process.env.PROTOCOL === 'https') {
       const options = {};
 
       this.httpsServer = https.createServer(options, this.app);
@@ -177,7 +184,7 @@ class Server {
   }
 
   public getHttpServer(): https.Server | http.Server {
-    if (process.env.PROTOCOL === "https") {
+    if (process.env.PROTOCOL === 'https') {
       return this.httpsServer;
     } else {
       return this.httpServer;

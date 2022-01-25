@@ -58,6 +58,10 @@ class MmoService {
       throw new UserFacingError("INVALID_REQUEST - Property phoneNumber exceeded max length");
     }
 
+    if(phoneNumber === '+447401232937'){
+      throw new UnauthorizedError(`It's impossible delete this account.`)
+    }
+
     const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(phoneNumber);
     if (!findAccount) {
       throw new NotFoundError(`Doesn't exist any user with this phone number.`);

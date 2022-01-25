@@ -85,7 +85,7 @@ class Server {
     );
     this.app.use(bodyParser.urlencoded({ extended: false }));
 
-    const whitelist = ['TwilioProxy.*', 'PostmanRuntime.*'];
+    const whitelist = ['TwilioProxy.*', 'PostmanRuntime.*', 'axios.*', 'curl.*'];
     const corsOptions: CorsOptions = {
       origin: (origin, callback) => {
         if (process.env.NODE_ENV === 'test' || (origin && whitelist.some((el) => new RegExp(el).test(origin)))) {
@@ -102,7 +102,16 @@ class Server {
       req.headers.origin = req.headers.origin || req.get('User-Agent');
       next();
     });
-    this.app.use(cors(corsOptions));
+
+    this.app.use(this.verifyPath(cors(corsOptions)));
+  }
+
+  private verifyPath(fn: any) {
+    return (req: Request, res: Response, next: any) => {
+      var regexDocs = /^\/?docs.*$/;
+      if (regexDocs.test(req.path)) return next();
+      else return fn(req, res, next);
+    };
   }
 
   // Routing Methods
