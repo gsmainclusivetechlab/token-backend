@@ -63,7 +63,7 @@ class MmoService {
       throw new NotFoundError(`Doesn't exist any user with this phone number.`);
     }
 
-    return await QueriesService.deleteUserAccount(phoneNumber);
+    return QueriesService.deleteUserAccount(phoneNumber);
   }
 
   async getAccountName(identifier: string): Promise<AccountNameReturn> {

@@ -63,10 +63,8 @@ class LogService {
   ): void {
     if (Object.keys(obj).length > 0) {
       this.localLogs.log({ level, message, obj });
-      // this.sendToLogEntries(level, message, obj);
     } else {
       this.localLogs.log({ level, message });
-      // this.sendToLogEntries(level, message);
     }
   }
 }

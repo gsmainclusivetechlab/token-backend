@@ -9,7 +9,7 @@ class UserFacingError extends BaseError {
     super(msg);
   }
   get statusCode() {
-    return 409;
+    return 400;
   }
 }
 

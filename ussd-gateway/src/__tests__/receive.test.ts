@@ -7,7 +7,7 @@ let apptest: supertest.SuperTest<supertest.Test>;
 
 beforeAll(() =>{
   const app = new Server(4100);
-  new SendRoute(app);
+  const sendRoute = new SendRoute(app);
   const index = new IndexRoute(app.getRoutes());
   app.addRoute("/", index.router);
   

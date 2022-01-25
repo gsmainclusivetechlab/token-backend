@@ -23,16 +23,17 @@ class SMSService {
 
       //Check if phone number is registry
       const getAccountNameData: AccountNameReturn = await AccountsService.getAccountInfo(phoneNumber);
+      var message: string = "";
 
       var smsSplitted: string[] = text.split(' ');
       if (smsSplitted.length === 0 ) {
-        const message = `Please send a valid operation`;
+        message = `Please send a valid operation`;
         this.sendCustomerNotification(phoneNumber, message, system);
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
 
       if(!getAccountNameData.active && smsSplitted[0] !== SMSOperations.GetToken){
-        const message = `You need to request a new token to make that operation`;
+        message = `You need to request a new token to make that operation`;
         this.sendCustomerNotification(phoneNumber, message, system);
         throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token');
       }
@@ -44,7 +45,7 @@ class SMSService {
           tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
 
           if (tokenApiResponse.data && tokenApiResponse.data.token) {
-            const message = 'Your token is ' + tokenApiResponse.data.token;
+            message = 'Your token is ' + tokenApiResponse.data.token;
             this.sendCustomerNotification(phoneNumber, message, system);
           }
           break;
@@ -52,14 +53,14 @@ class SMSService {
           try {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
 
-          if (tokenApiResponse.data && tokenApiResponse.data) {
-            const message = 'Your token was deleted';
+          if (tokenApiResponse.data) {
+            message = 'Your token was deleted';
             this.sendCustomerNotification(phoneNumber, message, system);
           }
           } catch (err: any | AxiosError) {
             if (axios.isAxiosError(err)) {
               if (err.response?.status === 404) {
-                const message = `You need to have an associated token to delete`;
+                message = `You need to have an associated token to delete`;
                 this.sendCustomerNotification(phoneNumber, message, system);
               }
             }
@@ -69,7 +70,7 @@ class SMSService {
           break;
         case SMSOperations.CashIn:
           if (!smsSplitted[1]) {
-            const message = `To make a CASH-IN, send the follow message 'CASH_IN <space> {AMOUNT}'`;
+            message = `To make a CASH-IN, send the follow message 'CASH_IN <space> {AMOUNT}'`;
             this.sendCustomerNotification(phoneNumber, message, system);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
@@ -93,7 +94,7 @@ class SMSService {
           break;
         case SMSOperations.CashOut:
           if (!smsSplitted[1]) {
-            const message = `To make a CASH-OUT, send the follow message 'CASH_OUT <space> {AMOUNT}'`;
+            message = `To make a CASH-OUT, send the follow message 'CASH_OUT <space> {AMOUNT}'`;
             this.sendCustomerNotification(phoneNumber, message, system);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
@@ -117,7 +118,7 @@ class SMSService {
           break;
         case SMSOperations.Pin:
           if (!smsSplitted[1]) {
-            const message = `To send the pin, send the follow message 'PIN <space> {VALUE}'`;
+            message = `To send the pin, send the follow message 'PIN <space> {VALUE}'`;
             this.sendCustomerNotification(phoneNumber, message, system);
             throw new UserFacingError('OPERATION_ERROR - Missing pin value');
           }
@@ -130,8 +131,7 @@ class SMSService {
           } catch (err: any | AxiosError) {
             if (axios.isAxiosError(err)) {
               if (err.response?.status === 401) {
-                //TODO Perceber se dá para melhor a mensagem
-                const message = `Operation Rejected - Wrong Pin`;
+                message = `Operation Rejected - Wrong Pin`;
                 HooksService.sendAgentMerchantNotification(message);
                 this.sendCustomerNotification(phoneNumber, message, system);
               }
@@ -141,13 +141,13 @@ class SMSService {
           break;
         case SMSOperations.Payment:
           if (!smsSplitted[1]) {
-            const message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
+            message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
             this.sendCustomerNotification(phoneNumber, message, system);
             throw new UserFacingError('OPERATION_ERROR - Missing merchant code');
           }
 
           if (!smsSplitted[2]) {
-            const message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
+            message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
             this.sendCustomerNotification(phoneNumber, message, system);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
@@ -169,8 +169,7 @@ class SMSService {
             await OperationsService.manageOperation('accept', operationMerchantPaymentObj);
           } catch (err: any | AxiosError) {
             if (err.name === 'NotFoundError') {
-              //Perceber se a mensagem é pq o merchant não existe
-              const message = `Doesn't exist any merchant available with that code`;
+              message = `Doesn't exist any merchant available with that code`;
               this.sendCustomerNotification(phoneNumber, message, system);
             }
             catchError(err);
@@ -178,7 +177,7 @@ class SMSService {
 
           break;
         default:
-          const message = `Please send a valid operation`;
+          message = `Please send a valid operation`;
           this.sendCustomerNotification(phoneNumber, message, system);
           throw new UserFacingError('OPERATION_ERROR - Invalid operation');
       }
@@ -198,15 +197,16 @@ class SMSService {
 
   validateAmount(amount: string, phoneNumber: string, system: SystemType) {
     var amountParsed = Number(amount);
+    var message: string = "";
 
     if (isNaN(amountParsed)) {
-      const message = `The amount needs to be a number`;
+      message = `The amount needs to be a number`;
       this.sendCustomerNotification(phoneNumber, message, system);
       throw new UserFacingError('OPERATION_ERROR - The amount needs to be a number');
     }
 
     if (amountParsed > 500) {
-      const message = `The amount can't be greater than 500`;
+      message = `The amount can't be greater than 500`;
       this.sendCustomerNotification(phoneNumber, message, system);
       throw new UserFacingError(`OPERATION_ERROR - The amount can't be greater than 500`);
     }

@@ -1,7 +1,7 @@
 import { Request, Router } from 'express';
 
 import Server from '../classes/server';
-import { RouteHandler, Get, Put, Post, Delete } from '../decorators/router-handler';
+import { RouteHandler, Get, Post, Delete } from '../decorators/router-handler';
 import { AccountNameQueryParams } from '../interfaces/account-name';
 import { mmoService } from '../services/mmo.service';
 

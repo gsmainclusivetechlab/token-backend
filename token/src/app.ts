@@ -1,29 +1,30 @@
 import * as dotenv from 'dotenv';
 
-import IndexRoute from "./routes/index.route";
-import LivenessProbeRoute from "./routes/liveness-probe.route";
-import Server from "./classes/server";
-import TokensRoute from "./routes/token.route";
+import IndexRoute from './routes/index.route';
+import LivenessProbeRoute from './routes/liveness-probe.route';
+import Server from './classes/server';
+import TokensRoute from './routes/token.route';
 
-if (process.env.NODE_ENV === 'development') {
-  dotenv.config({ path: '.env' });
-} else if (process.env.NODE_ENV === 'staging') {
-  dotenv.config({ path: '.env' });
-} else if (process.env.NODE_ENV === 'production') {
-  dotenv.config({ path: '.env' });
-} else {
-  dotenv.config({ path: '.env' });
+switch (process.env.NODE_ENV) {
+  case 'development':
+    dotenv.config({ path: '.env' });
+    break;
+  case 'staging':
+  case 'production':
+    break;
+  default:
+    break;
 }
 
 // App Initialization
 const app = new Server(process.env.PORT || 3700);
 
 // Register routes on express
-new LivenessProbeRoute(app);
-new TokensRoute(app);
+const livenessProbeRoute = new LivenessProbeRoute(app);
+const tokensRoute = new TokensRoute(app);
 
 const index = new IndexRoute(app.getRoutes());
-app.addRoute("/", index.router);
+app.addRoute('/', index.router);
 app.addDocsRoute();
 
 app.addErrorHandler();

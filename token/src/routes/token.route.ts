@@ -1,7 +1,7 @@
 import { Request, Router } from "express";
 
 import Server from "../classes/server";
-import { RouteHandler, Get, Put } from "../decorators/router-handler";
+import { RouteHandler, Get } from "../decorators/router-handler";
 import { tokenService } from "../services/token.service";
 
 @RouteHandler("/tokens")

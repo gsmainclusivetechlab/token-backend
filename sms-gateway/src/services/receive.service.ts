@@ -2,7 +2,6 @@ import axios, { AxiosError } from 'axios';
 import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
-import { LogLevels, logService } from './log.service';
 import { TwilioService } from './twilio.service';
 
 class ReceiveService {

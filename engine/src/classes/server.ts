@@ -1,8 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
-
+import express, { Application, NextFunction, Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors';
-import express from 'express';
 import http from 'http';
 import https from 'https';
 import { ConflictError, NotFoundError, UnauthorizedError, UserFacingError } from './errors';
@@ -58,7 +55,7 @@ const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
 };
 
 class Server {
-  protected app: express.Application;
+  protected app: Application;
   protected httpServer: http.Server;
   protected httpsServer: https.Server;
   private routes: string[] = [];
@@ -85,20 +82,6 @@ class Server {
         },
       })
     );
-    // this.app.use((req, res, next) => {
-    //   req.headers.origin = req.headers.origin || req.headers.host;
-    //   next();
-    // });
-
-    this.app.use(cors());
-
-    // Options HTTP Method (catch all)
-    this.app.options('/*', (req, res, next) => {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-      res.send(200);
-    });
   }
 
   // Routing Methods
@@ -161,13 +144,6 @@ class Server {
 
   private getServerInstance() {
     if (process.env.PROTOCOL === 'https') {
-      //   const cert = readFileSync(join(__dirname, '../../certs/selfsigned.crt'));
-      //   const key = readFileSync(join(__dirname, '../../certs/selfsigned.key'));
-      //   const options = {
-      //     key: key,
-      //     cert: cert,
-      //   };
-
       const options = {};
 
       this.httpsServer = https.createServer(options, this.app);
