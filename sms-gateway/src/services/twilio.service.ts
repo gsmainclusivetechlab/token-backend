@@ -7,10 +7,15 @@ class TwilioService {
   twilio: Twilio;
 
   init() {
-    this.twilio = new Twilio(
-      <string>process.env.TWILIO_SID,
-      <string>process.env.TWILIO_TOKEN
-    );
+    const twilioSid = process.env.TWILIO_SID;
+    const twilioToken = process.env.TWILIO_TOKEN;
+    const twilioMessageSid = process.env.TWILIO_MESSAGE_SID;
+    if(twilioSid && twilioToken && twilioMessageSid){
+      this.twilio = new Twilio(
+        twilioSid,
+        twilioToken
+      );
+    }
   }
 
   async sendMessage(phoneNumber: string, message: string) {
