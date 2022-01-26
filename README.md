@@ -20,3 +20,5 @@ docker-compose up -d
 ```
 docker-compose down
 ```
+
+- NOTE: If you want to use Live mode with Twilio you will need to fill the properties on the .env file with your Twilio credentials and config the receive webhook (A MESSAGE COMES IN option on Messaging section) for the path '{url}:4100/hooks/twilio'
