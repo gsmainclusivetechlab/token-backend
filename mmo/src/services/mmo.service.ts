@@ -59,7 +59,7 @@ class MmoService {
     }
 
     if(phoneNumber === '+447401232937'){
-      throw new UnauthorizedError(`It's impossible delete this account.`)
+      throw new UnauthorizedError(`It's impossible to delete this account.`)
     }
 
     const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(phoneNumber);
