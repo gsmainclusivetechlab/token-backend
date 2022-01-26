@@ -1,5 +1,9 @@
 # token-backend - How to run on release branch
 
+- The live version is available on -> https://token.gsmainclusivetechlab.io/
+
+- If you want to run the project locally:
+
 - Requirements:
 
   - Docker Compose Version: +1.29
@@ -11,11 +15,11 @@
 docker-compose up -d 
 ```
 
-- If you want to see the client, you will need to build the client (token-frontend) on your own and update the docker-compose with the client image and update the docker-compose
+- Second, open browser on http://localhost:8080
 
-- The client will run on port 8080 (http://localhost:8080) and for try this showcase you will need to choose the header option "Try Token" or go directly to http://localhost:8080/trytoken
+- Third, choose the header option "Try Token" or go directly to http://localhost:8080/trytoken
 
-- To teardown everything
+- To teardown everything, run the next command
 
 ```
 docker-compose down
