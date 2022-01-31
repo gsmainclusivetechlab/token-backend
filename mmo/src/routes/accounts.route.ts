@@ -1,9 +1,9 @@
 import { Request, Router } from 'express';
-
 import Server from '../classes/server';
 import { RouteHandler, Get, Post, Delete } from '../decorators/router-handler';
 import { AccountNameQueryParams } from '../interfaces/account-name';
-import { mmoService } from '../services/mmo.service';
+import { AccountsService } from '../services/accounts.service';
+import { MmoService } from '../services/mmo.service';
 
 @RouteHandler('/accounts')
 class AccountsRoute {
@@ -49,7 +49,7 @@ class AccountsRoute {
    *                    phoneNumber:
    *                      type: string
    *                      example: "+441632960067"
-   * 
+   *
    *        '409':
    *           description: This mobile phone is already registered to another user.
    *           content:
@@ -65,7 +65,7 @@ class AccountsRoute {
   @Post('/')
   public createUserAccount(request: Request<{}, {}, { nickName: string; phoneNumber: string }, {}>) {
     const { nickName, phoneNumber } = request.body;
-    return mmoService.createUserAccount(nickName, phoneNumber);
+    return AccountsService.createUserAccount(nickName, phoneNumber);
   }
 
   /**
@@ -74,7 +74,7 @@ class AccountsRoute {
    *   delete:
    *     tags:
    *      - "Accounts"
-   *     summary: Delete customer account 
+   *     summary: Delete customer account
    *     description: Delete the customer account from database
    *     parameters:
    *      - in: path
@@ -95,7 +95,7 @@ class AccountsRoute {
    *                  message:
    *                    type: string
    *                    example: "User deleted"
-   * 
+   *
    *        '404':
    *           description: Doesn't exist any user with this phone number.
    *           content:
@@ -106,7 +106,7 @@ class AccountsRoute {
    *                  error:
    *                    type: string
    *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -117,10 +117,9 @@ class AccountsRoute {
    *                    message:
    *                      type: string
    */
-  @Delete('/:phoneNumber')
-  public deleteUserAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {
-    const { phoneNumber } = request.params;
-    return mmoService.deleteUserAccount(phoneNumber);
+  @Delete('/')
+  public deleteUserAccount(request: Request<{}, {}, {}, {}>) {
+    return AccountsService.deleteUserAccount(request);
   }
 
   /**
@@ -153,7 +152,7 @@ class AccountsRoute {
    *                      indicative: "+44",
    *                      active: true,
    *                  }
-   * 
+   *
    *        '404':
    *           description: Doesn't exist any user with this phone number.
    *           content:
@@ -164,7 +163,7 @@ class AccountsRoute {
    *                  error:
    *                    type: string
    *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *
    * components:
    *  schemas:
    *    CustomerInformation:
@@ -186,7 +185,7 @@ class AccountsRoute {
   @Get('/:identifier/accountname')
   public getAccountName(request: Request<{ identifier: string }, {}, {}, AccountNameQueryParams>) {
     const { identifier } = request.params;
-    return mmoService.getAccountName(identifier);
+    return AccountsService.getAccountName(identifier);
   }
 
   /**
@@ -212,7 +211,7 @@ class AccountsRoute {
    *           application/json:
    *              schema:
    *                $ref: "#/components/schemas/Transaction"
-   *              example: 
+   *              example:
    *                {
    *                    type: "cash-in",
    *                    system: "mock",
@@ -220,7 +219,7 @@ class AccountsRoute {
    *                    amount: 100,
    *                    identifierType: "phoneNumber"
    *                }
-   * 
+   *
    *       '401':
    *          description: Wrong PIN
    *          content:
@@ -242,7 +241,7 @@ class AccountsRoute {
    *                 error:
    *                   type: string
    *                   example: "Doesn't exist any pending transaction for this phone number"
-   * 
+   *
    * components:
    *  schemas:
    *    Transaction:
@@ -274,7 +273,7 @@ class AccountsRoute {
    *          description: "Identify what is the identifier. Value can be 'token' or 'phoneNumber'"
    *        merchant:
    *          $ref: "#/components/schemas/Merchant"
-   * 
+   *
    *    Merchant:
    *      type: object
    *      properties:
@@ -289,8 +288,8 @@ class AccountsRoute {
    *          description: "Flag that indicate if the merchant is available or not"
    */
   @Post('/authorize')
-  public authorizeUser(request: Request<{}, {}, { pin: string; phoneNumber: string }>) {
-    return mmoService.authorizeUser(request.body.pin, request.body.phoneNumber);
+  public authorizeUser(request: Request<{}, {}, { pin: string; phoneNumber: string; otp: number }>) {
+    return MmoService.authorizeUser(request.body.pin, request.body.phoneNumber, request.body.otp);
   }
 
   /**
@@ -299,8 +298,8 @@ class AccountsRoute {
    *   get:
    *     tags:
    *        - "Accounts"
-   *     summary: Gets merchant's info 
-   *     description: Gets merchant's info 
+   *     summary: Gets merchant's info
+   *     description: Gets merchant's info
    *     parameters:
    *       - in: query
    *         name: code
@@ -322,7 +321,7 @@ class AccountsRoute {
    *                    name: "XPTO Lda",
    *                    available: true
    *                 }
-   * 
+   *
    *        '404':
    *           description: Doesn't exist a merchant available with this code
    *           content:
@@ -337,7 +336,12 @@ class AccountsRoute {
   @Get('/:code/merchant')
   public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
     const { code } = request.params;
-    return mmoService.getMerchant(code);
+    return AccountsService.getMerchant(code);
+  }
+
+  @Post('/createMockAccount')
+  public createMockAccount(request: Request<{}, {}, {}, {}>) {
+    return AccountsService.createMockAccount();
   }
 }
 

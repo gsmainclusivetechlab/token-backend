@@ -7,7 +7,7 @@ import {
   TransactionsBody,
   TransactionType,
 } from '../interfaces/transaction';
-import { mmoService } from '../services/mmo.service';
+import { MmoService } from '../services/mmo.service';
 
 @RouteHandler('/transactions')
 class TransactionsRoute {
@@ -146,7 +146,7 @@ class TransactionsRoute {
     if(!callbackUrl) {
       throw new UserFacingError('callbackUrl is mandatory')
     }
-    return mmoService.startTransaction(
+    return MmoService.startTransaction(
       request.params.type,
       callbackUrl,
       request.body
