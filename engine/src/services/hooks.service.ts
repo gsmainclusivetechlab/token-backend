@@ -7,10 +7,23 @@ import { SMSService } from './sms.service';
 import { USSDService } from './ussd.service';
 
 class HooksService {
-  async processSMSGateway(body: SMSWebhookBody) {
+  async processSMSGateway(body: SMSWebhookBody, sessionId: string) {
     this.validateBodyPropertiesGateway(body);
 
-    return SMSService.processSMSMessage(body);
+    let otp: number | undefined = undefined;
+
+    if (body.system === 'mock') {
+      if (!sessionId) {
+        throw new UserFacingError('Header sessionId is mandatory!');
+      }
+
+      otp = parseInt(sessionId);
+      if (isNaN(otp) || otp % 1 != 0) {
+        throw new UserFacingError('Header sessionId needs to be a number without decimals!');
+      }
+    }
+
+    return SMSService.processSMSMessage(body, otp);
   }
 
   async processUSSDGateway(body: USSDWebhookBody) {
@@ -20,7 +33,7 @@ class HooksService {
   }
 
   async processMMO(body: MMOWebhookBody) {
-    const { type, system, phoneNumber, amount, identifierType } = body;
+    const { type, system, phoneNumber, amount, identifierType, otp } = body;
 
     const operationType: OperationType = GetOperationFromType(type);
 
@@ -40,8 +53,8 @@ class HooksService {
     }
 
     const message = `The ${operationType} operation with the value of ${amount} for the customer with the identifier ${identifier} was successful`;
-    this.sendAgentMerchantNotification(message);
-    SMSService.sendCustomerNotification(phoneNumber, message, system);
+    this.sendAgentMerchantNotification(message, otp);
+    SMSService.sendCustomerNotification(phoneNumber, message, system, otp);
 
     return { message: 'Thanks for using Engine API' };
   }
@@ -102,11 +115,14 @@ class HooksService {
     if (!amount) {
       throw new UserFacingError('INVALID_REQUEST - Missing property amount');
     }
+
+    //TODO OTP
   }
 
-  sendAgentMerchantNotification(message: string) {
+  sendAgentMerchantNotification(message: string, otp: number) {
     axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
       message,
+      otp
     });
   }
 }

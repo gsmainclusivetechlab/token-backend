@@ -82,7 +82,9 @@ class HooksRoute {
    */
   @Post("/sms-gateway")
   public smsGatewayWebhooks(request: Request<{}, {}, SMSWebhookBody, {}>) {
-    return HooksService.processSMSGateway(request.body);
+    //TODO Passar o request para o metodo e arranjar o session id
+    const sessionId = request.headers['sessionid'] as string;
+    return HooksService.processSMSGateway(request.body, sessionId);
   }
 
   /**

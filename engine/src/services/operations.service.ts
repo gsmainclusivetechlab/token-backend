@@ -43,18 +43,19 @@ class OperationsService {
           system: operation.system,
           merchantCode: operation.merchantCode,
           identifierType: operation.identifierType,
+          otp: operation.customerInfo.otp
         };
 
         await axios.post(`${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(operation.type)}`, body, { headers });
 
         const message = `Please, to continue the operation send the following message 'PIN <space> {VALUE}'`;
-        SMSService.sendCustomerNotification(phoneNumber, message, operation.system);
+        SMSService.sendCustomerNotification(phoneNumber, message, operation.system, operation.customerInfo.otp);
 
         return { status: 'pending' };
       } else {
         const message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was rejected`;
-        HooksService.sendAgentMerchantNotification(message);
-        SMSService.sendCustomerNotification(phoneNumber, message, operation.system);
+        HooksService.sendAgentMerchantNotification(message, operation.customerInfo.otp);
+        SMSService.sendCustomerNotification(phoneNumber, message, operation.system, operation.customerInfo.otp);
 
         return { status: 'reject' };
       }
@@ -101,6 +102,9 @@ class OperationsService {
         throw new UserFacingError("INVALID_REQUEST - Property merchantCode can't be empty");
       }
     }
+
+    //TODO Validação do OTP
+
   }
 }
 

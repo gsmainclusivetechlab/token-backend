@@ -116,10 +116,9 @@ class AccountsRoute {
    *                    message:
    *                      type: string
    */
-  @Delete('/:phoneNumber')
-  public deleteAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {
-    const { phoneNumber } = request.params;
-    return AccountsService.deleteAccount(phoneNumber);
+  @Delete('/')
+  public deleteAccount(request: Request<{}, {}, {}, {}>) {
+    return AccountsService.deleteAccount(request);
   }
 
   /**
@@ -240,6 +239,11 @@ class AccountsRoute {
   public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
     const { code } = request.params;
     return AccountsService.getMerchant(code);
+  }
+
+  @Post('/createMockAccount')
+  public createMockAccount(request: Request<{}, {}, {}, {}>) {
+    return AccountsService.createMockAccount();
   }
 }
 
