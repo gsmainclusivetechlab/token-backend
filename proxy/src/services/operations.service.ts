@@ -4,6 +4,7 @@ import SafeAwait from '../lib/safe-await';
 import { v4 as uuidv4 } from 'uuid';
 import { Action, CreateOperationBody, CreateOperation, OperationNotification } from '../interfaces/operations';
 import { catchError } from '../utils/catch-error';
+import { AccountsService } from './accounts.service';
 
 class OperationsService {
   operations: CreateOperation[] = [];
@@ -30,6 +31,9 @@ class OperationsService {
     if (elem.identifierType === 'token' && !accountInfoData.data.active) {
       throw new NotFoundError(`Doesn't exist any user with this phone number or token.`);
     }
+
+    //TODO Validar se o sessionId que recebemos é o mesmo que está associado ao phoneNumber/Token
+
     elem.customerInfo = { ...accountInfoData.data };
 
     this.setOperation(elem);
@@ -37,16 +41,18 @@ class OperationsService {
     return elem;
   }
 
-  async manageOperation(action: Action, operationId: string) {
+  async manageOperation(action: Action, operationId: string, otp: number) {
     try {
       if (!(action === 'accept' || action === 'reject')) {
         throw new UserFacingError('Invalid action');
       }
-      const operation = this.findOperationById(operationId);
+      const operation = this.findOperationByIdAndOTP(operationId, otp);
 
       if (!operation) {
-        throw new NotFoundError(`The peration with id ${operationId} doesn't exist.`);
+        throw new NotFoundError(`The operation with id ${operationId} doesn't exist for this session id.`);
       }
+
+      //TODO Validar se o sessionId que recebemos é o mesmo que está associado a operação
 
       const response = await axios.post(`${process.env.ENGINE_API_URL}/operations/${action}`, { ...operation });
 
@@ -61,10 +67,16 @@ class OperationsService {
     }
   }
 
-  async getOperationsAndNotifications() {
+  //TODO Passar para aqui o request e fazer as validacoes
+  async getOperationsAndNotifications(otp: number) {
+    AccountsService.updateSessionLastCall(otp);
+
+    const operationsList = this.findOperationByOTP(otp);
+    const notificationsList = this.findNotificationByOTP(otp);
+
     return {
-      operations: this.operations,
-      notifications: this.notifications,
+      operations: operationsList ? operationsList : [],
+      notifications: notificationsList ? notificationsList : [],
     };
   }
 
@@ -78,7 +90,7 @@ class OperationsService {
       ...elem,
     });
 
-    return { message: 'Notification created successfully' }
+    return { message: 'Notification created successfully' };
   }
 
   async registerOperation(elem: CreateOperationBody) {
@@ -106,8 +118,8 @@ class OperationsService {
     });
   }
 
-  private findOperationById(id: string) {
-    return this.operations.find((el: CreateOperation) => el.id === id);
+  private findOperationByIdAndOTP(id: string, otp: number) {
+    return this.operations.find((el: CreateOperation) => el.id === id && el.customerInfo.otp === otp);
   }
 
   private findIndexNotificationById(id: string) {
@@ -148,6 +160,14 @@ class OperationsService {
         throw new UserFacingError("INVALID_REQUEST - Property merchantCode can't be empty");
       }
     }
+  }
+
+  private findOperationByOTP(otp: number) {
+    return this.operations.find((el: CreateOperation) => el.customerInfo.otp === otp);
+  }
+
+  private findNotificationByOTP(otp: number) {
+    return this.notifications.find((el: OperationNotification) => el.otp === otp);
   }
 }
 

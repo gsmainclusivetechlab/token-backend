@@ -121,6 +121,11 @@ class AccountsRoute {
     const { phoneNumber } = request.params;
     return AccountsService.deleteAccount(phoneNumber);
   }
+
+  @Post('/createMockAccount')
+  public createMockAccount(request: Request<{}, {}, {}, {}>) {
+    return AccountsService.createMockAccount();
+  }
 }
 
 export default AccountsRoute;

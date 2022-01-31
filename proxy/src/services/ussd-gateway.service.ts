@@ -8,7 +8,8 @@ class USSDGatewayService {
     try {
       const { body } = request;
 
-      MessageService.setSMSMessage("");
+      //TODO
+      //MessageService.setSMSMessage("");
 
       const response = await axios.post(
         process.env.USSD_GATEWAY_API_URL + "/send",

@@ -1,10 +1,11 @@
-import { Request, Router } from "express";
-import Server from "../classes/server";
-import { RouteHandler, Post, Get, Delete } from "../decorators/router-handler";
-import { Action, CreateOperationBody, OperationNotification } from "../interfaces/operations";
-import { OperationsService } from "../services/operations.service";
+import { Request, Router } from 'express';
+import { UserFacingError } from '../classes/errors';
+import Server from '../classes/server';
+import { RouteHandler, Post, Get, Delete } from '../decorators/router-handler';
+import { Action, CreateOperationBody, OperationNotification } from '../interfaces/operations';
+import { OperationsService } from '../services/operations.service';
 
-@RouteHandler("/operations")
+@RouteHandler('/operations')
 class OperationsRoute {
   // Services Injection
   public router: Router;
@@ -98,9 +99,19 @@ class OperationsRoute {
    *          description: "Flag that indicate if the user have a token active or not"
    *
    */
-  @Get("/")
+  @Get('/')
   public getOperationsAndNotifications(request: Request<{}, {}, {}, {}>) {
-    return OperationsService.getOperationsAndNotifications();
+    const sessionId = request.headers['sessionid'] as string;
+    if (!sessionId) {
+      throw new UserFacingError('Header sessionId is mandatory!');
+    }
+    const parsedSessionId = parseInt(sessionId);
+
+    if (isNaN(parsedSessionId) || parsedSessionId % 1 != 0) {
+      throw new UserFacingError('Header sessionId needs to be a number without decimals!');
+    }
+
+    return OperationsService.getOperationsAndNotifications(parsedSessionId);
   }
 
   /**
@@ -136,7 +147,7 @@ class OperationsRoute {
    *                  schema:
    *                    $ref: "#/components/schemas/CreateOperationBody"
    *                  example:
-   *                    { 
+   *                    {
    *                      identifier: "233207212676",
    *                      identifierType: "token",
    *                      amount: 100,
@@ -149,7 +160,7 @@ class OperationsRoute {
    *                      },
    *                      system: "mock"
    *                    }
-   * 
+   *
    *        '404':
    *           description: Doesn't exist any user with this phone number or merchant available with that code.
    *           content:
@@ -160,7 +171,7 @@ class OperationsRoute {
    *                  error:
    *                    type: string
    *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -170,7 +181,7 @@ class OperationsRoute {
    *                  properties:
    *                    message:
    *                      type: string
-   * 
+   *
    * components:
    *   schemas:
    *     CreateOperationBody:
@@ -196,17 +207,11 @@ class OperationsRoute {
    *           description: "Merchant identifier code"
    *         customerInfo:
    *           $ref: "#/components/schemas/CustomerInformation"
-   *             
+   *
    */
-  @Post("/")
-  public createOperation(
-    request: Request<
-      {},
-      {},
-      CreateOperationBody,
-      {}
-    >
-  ) {
+  @Post('/')
+  public createOperation(request: Request<{}, {}, CreateOperationBody, {}>) {
+    //TODO Passar o request para o metodo e arranjar o session id
     return OperationsService.createOperation(request.body);
   }
 
@@ -225,7 +230,7 @@ class OperationsRoute {
    *          schema:
    *            $ref: "#/components/schemas/Operation"
    *          example:
-   *              { 
+   *              {
    *                 identifier: "233207212676",
    *                 identifierType: "token",
    *                 amount: 100,
@@ -251,7 +256,7 @@ class OperationsRoute {
    *                    example: "Operation registered successfully"
    *
    */
-  @Post("/register")
+  @Post('/register')
   public registerOperation(request: Request<{}, {}, CreateOperationBody>) {
     return OperationsService.registerOperation(request.body);
   }
@@ -290,7 +295,7 @@ class OperationsRoute {
    *                  status:
    *                    type: string
    *                    example: "pending"
-   * 
+   *
    *        '404':
    *           description: Doesn't exist any user with this phone number or merchant available with that code.
    *           content:
@@ -301,7 +306,7 @@ class OperationsRoute {
    *                  error:
    *                    type: string
    *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -312,13 +317,22 @@ class OperationsRoute {
    *                    message:
    *                      type: string
    */
-  @Post("/:action/:id")
+  @Post('/:action/:id')
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
+    //TODO Passar o request para o metodo e arranjar o session id
     const { action, id } = request.params;
-    return OperationsService.manageOperation(
-      action,
-      id
-    );
+
+    const sessionId = request.headers['sessionid'] as string;
+    if (!sessionId) {
+      throw new UserFacingError('Header sessionId is mandatory!');
+    }
+    const parsedSessionId = parseInt(sessionId);
+
+    if (isNaN(parsedSessionId) || parsedSessionId % 1 != 0) {
+      throw new UserFacingError('Header sessionId needs to be a number without decimals!');
+    }
+
+    return OperationsService.manageOperation(action, id, parsedSessionId);
   }
 
   /**
@@ -335,7 +349,7 @@ class OperationsRoute {
    *        application/json:
    *          schema:
    *            $ref: "#/components/schemas/Notification"
-   *          example: 
+   *          example:
    *              {
    *                message: "Test OpenAPI"
    *              }
@@ -351,12 +365,10 @@ class OperationsRoute {
    *                      type: string
    *                      example: "Notification created successfully"
    */
-   @Post("/notify")
-   public createNotification(
-     request: Request<{}, {}, OperationNotification, {}>
-   ) {
-     return OperationsService.createNotification(request.body);
-   }
+  @Post('/notify')
+  public createNotification(request: Request<{}, {}, OperationNotification, {}>) {
+    return OperationsService.createNotification(request.body);
+  }
 
   /**
    * @openapi
@@ -385,7 +397,7 @@ class OperationsRoute {
    *               message:
    *                 type: string
    *                 example: "The notification with id 408a6a77-2dc4-463e-8cca-02055c83a293 was deleted"
-   * 
+   *
    *      '404':
    *        description: Notification not found
    *        content:
@@ -397,7 +409,7 @@ class OperationsRoute {
    *                 type: string
    *                 example: "The notification with id 408a6a77-2dc4-463e-8cca-02055c83a293 doesn't exist."
    */
-  @Delete("/notification/:id")
+  @Delete('/notification/:id')
   public deleteNotification(request: Request<{ id: string }, {}>) {
     return OperationsService.deleteNotification(request.params.id);
   }

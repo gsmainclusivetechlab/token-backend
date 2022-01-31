@@ -1,9 +1,9 @@
-import { AxiosError } from "axios";
-import { Request } from "express";
-import { catchError } from "../utils/catch-error";
+import { AxiosError } from 'axios';
+import { Request } from 'express';
+import { catchError } from '../utils/catch-error';
 
 class MessageService {
-  sms_message: string = "";
+  sms_message: { otp: number; message: string }[] = [];
 
   async processGetSMSMessage(request: Request) {
     try {
@@ -13,8 +13,15 @@ class MessageService {
     }
   }
 
-  setSMSMessage(message: string) {
-    this.sms_message = message;
+  setSMSMessage(otp: number, message: string) {
+    this.sms_message.push({ otp, message });
+  }
+
+  deleteSMSMessage(otp: number){
+    const index = this.sms_message.findIndex(el => el.otp === otp);
+    if(index != -1){
+      this.sms_message.splice(index,1);
+    }
   }
 }
 
