@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
+import { headersValidation } from '../utils/request-validation';
 
 class SendService {
   async processSend(request: Request) {
@@ -12,12 +13,13 @@ class SendService {
       return 'PONG';
     }
 
-    this.requestValidation(body);
+    headersValidation(headers);
+    this.requestBodyValidation(body);
 
     return this.manageRequest(body, headers);
   }
 
-  private requestValidation(body: any) {
+  private requestBodyValidation(body: any) {
     //Text
     if (!body.text) {
       throw new UserFacingError('INVALID_REQUEST - Missing property text');
