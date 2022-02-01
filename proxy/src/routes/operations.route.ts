@@ -101,17 +101,7 @@ class OperationsRoute {
    */
   @Get('/')
   public getOperationsAndNotifications(request: Request<{}, {}, {}, {}>) {
-    const sessionId = request.headers['sessionid'] as string;
-    if (!sessionId) {
-      throw new UserFacingError('Header sessionId is mandatory!');
-    }
-    const parsedSessionId = parseInt(sessionId);
-
-    if (isNaN(parsedSessionId) || parsedSessionId % 1 != 0) {
-      throw new UserFacingError('Header sessionId needs to be a number without decimals!');
-    }
-
-    return OperationsService.getOperationsAndNotifications(parsedSessionId);
+    return OperationsService.getOperationsAndNotifications(request);
   }
 
   /**
@@ -211,8 +201,7 @@ class OperationsRoute {
    */
   @Post('/')
   public createOperation(request: Request<{}, {}, CreateOperationBody, {}>) {
-    //TODO Passar o request para o metodo e arranjar o session id
-    return OperationsService.createOperation(request.body);
+    return OperationsService.createOperation(request);
   }
 
   /**
@@ -258,6 +247,7 @@ class OperationsRoute {
    */
   @Post('/register')
   public registerOperation(request: Request<{}, {}, CreateOperationBody>) {
+    //TODO
     return OperationsService.registerOperation(request.body);
   }
 
@@ -319,20 +309,7 @@ class OperationsRoute {
    */
   @Post('/:action/:id')
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
-    //TODO Passar o request para o metodo e arranjar o session id
-    const { action, id } = request.params;
-
-    const sessionId = request.headers['sessionid'] as string;
-    if (!sessionId) {
-      throw new UserFacingError('Header sessionId is mandatory!');
-    }
-    const parsedSessionId = parseInt(sessionId);
-
-    if (isNaN(parsedSessionId) || parsedSessionId % 1 != 0) {
-      throw new UserFacingError('Header sessionId needs to be a number without decimals!');
-    }
-
-    return OperationsService.manageOperation(action, id, parsedSessionId);
+    return OperationsService.manageOperation(request);
   }
 
   /**
@@ -367,6 +344,7 @@ class OperationsRoute {
    */
   @Post('/notify')
   public createNotification(request: Request<{}, {}, OperationNotification, {}>) {
+    //TODO
     return OperationsService.createNotification(request.body);
   }
 
@@ -411,7 +389,7 @@ class OperationsRoute {
    */
   @Delete('/notification/:id')
   public deleteNotification(request: Request<{ id: string }, {}>) {
-    return OperationsService.deleteNotification(request.params.id);
+    return OperationsService.deleteNotification(request);
   }
 }
 

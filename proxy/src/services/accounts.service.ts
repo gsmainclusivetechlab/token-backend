@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
+import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
+import { LogLevels, logService } from './log.service';
 
 class AccountsService {
   map = new Map<number, number>();
@@ -35,26 +37,37 @@ class AccountsService {
     }
   }
 
-  async deleteAccount(phoneNumber: string) {
+  // async deleteAccount(phoneNumber: string) {
+  //   try {
+  //     if (!phoneNumber) {
+  //       throw new UserFacingError('INVALID_REQUEST - Missing property phoneNumber');
+  //     }
+
+  //     if (phoneNumber.trim() === '') {
+  //       throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
+  //     }
+
+  //     const response = await axios.delete(`${process.env.ENGINE_API_URL}/accounts/${phoneNumber}`);
+  //     return { ...response.data };
+  //   } catch (err: any | AxiosError) {
+  //     catchError(err);
+  //   }
+  // }
+
+  async createMockAccount() {
     try {
-      if (!phoneNumber) {
-        throw new UserFacingError('INVALID_REQUEST - Missing property phoneNumber');
-      }
-
-      if (phoneNumber.trim() === '') {
-        throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
-      }
-
-      const response = await axios.delete(`${process.env.ENGINE_API_URL}/accounts/${phoneNumber}`);
+      const response = await axios.post(`${process.env.ENGINE_API_URL}/accounts/createMockAccount`);
       return { ...response.data };
     } catch (err: any | AxiosError) {
       catchError(err);
     }
   }
 
-  async createMockAccount() {
+  async verifyOTP(request: Request) {
     try {
-      const response = await axios.post(`${process.env.ENGINE_API_URL}/accounts/createMockAccount`);
+      const { otp } = request.params;
+
+      const response = await axios.get(`${process.env.ENGINE_API_URL}/accounts/${otp}/valid`);
       return { ...response.data };
     } catch (err: any | AxiosError) {
       catchError(err);
@@ -73,23 +86,28 @@ class AccountsService {
   }
 
   manageSessions() {
-    this.map.forEach((value: number, key: number) => {
+    this.map.forEach(async (value: number, key: number) => {
       const now = new Date().getTime();
       const dif = value - now;
       const secondsFromT1toT2 = dif / 1000;
       const secondsBetweenDates = Math.abs(secondsFromT1toT2);
       if (secondsBetweenDates >= 5) {
-        //Delete Session
         this.map.delete(key);
 
         try {
-          axios.delete(`${process.env.ENGINE_API_URL}/accounts`, { headers: { sessionId: String(key) } });
+          await axios.delete(`${process.env.ENGINE_API_URL}/accounts`, { headers: { sessionId: String(key) } });
         } catch (err: any | AxiosError) {
-          catchError(err);
+          if (axios.isAxiosError(err) && err.response) {
+            logService.log(LogLevels.ERROR, err.response?.data?.error);
+          } else {
+            logService.log(LogLevels.ERROR, err.message);
+          }
         }
       }
     });
   }
+
+
 }
 
 const accountsService = new AccountsService();

@@ -5,12 +5,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { Action, CreateOperationBody, CreateOperation, OperationNotification } from '../interfaces/operations';
 import { catchError } from '../utils/catch-error';
 import { AccountsService } from './accounts.service';
+import { Request } from 'express';
+import { headersValidation } from '../utils/request-validation';
 
 class OperationsService {
   operations: CreateOperation[] = [];
   notifications: OperationNotification[] = [];
 
-  async createOperation(elem: CreateOperationBody) {
+  async createOperation(request: Request) {
+    headersValidation(request);
+    let elem: CreateOperationBody = request.body;
     this.validateCreateOperationBody(elem);
 
     const [accountInfoError, accountInfoData] = await SafeAwait(axios.get(`${process.env.ENGINE_API_URL}/accounts/${elem.identifier}`));
@@ -41,23 +45,26 @@ class OperationsService {
     return elem;
   }
 
-  async manageOperation(action: Action, operationId: string, otp: number) {
+  async manageOperation(request: Request) {
     try {
+      headersValidation(request);
+      const { action, id } = request.params;
+      const otp = parseInt(request.headers['sessionid'] as string);
+
       if (!(action === 'accept' || action === 'reject')) {
         throw new UserFacingError('Invalid action');
       }
-      const operation = this.findOperationByIdAndOTP(operationId, otp);
+
+      const operation = this.findOperationByIdAndOTP(id, otp);
 
       if (!operation) {
-        throw new NotFoundError(`The operation with id ${operationId} doesn't exist for this session id.`);
+        throw new NotFoundError(`Doesn't exist the operation with id ${id} for this session.`);
       }
-
-      //TODO Validar se o sessionId que recebemos é o mesmo que está associado a operação
 
       const response = await axios.post(`${process.env.ENGINE_API_URL}/operations/${action}`, { ...operation });
 
       this.operations.splice(
-        this.operations.findIndex((el: CreateOperation) => el.id === operationId),
+        this.operations.findIndex((el: CreateOperation) => el.id === id),
         1
       );
 
@@ -67,16 +74,14 @@ class OperationsService {
     }
   }
 
-  //TODO Passar para aqui o request e fazer as validacoes
-  async getOperationsAndNotifications(otp: number) {
+  async getOperationsAndNotifications(request: Request) {
+    headersValidation(request);
+    const otp = parseInt(request.headers['sessionid'] as string);
     AccountsService.updateSessionLastCall(otp);
 
-    const operationsList = this.findOperationByOTP(otp);
-    const notificationsList = this.findNotificationByOTP(otp);
-
     return {
-      operations: operationsList ? operationsList : [],
-      notifications: notificationsList ? notificationsList : [],
+      operations: this.filterOperationByOTP(otp),
+      notifications: this.filterNotificationByOTP(otp),
     };
   }
 
@@ -101,10 +106,14 @@ class OperationsService {
     return { message: 'Operation registered successfully' };
   }
 
-  async deleteNotification(id: string) {
-    const index = this.findIndexNotificationById(id);
+  async deleteNotification(request: Request) {
+    headersValidation(request);
+    const { id } = request.params;
+    const otp = parseInt(request.headers['sessionid'] as string);
+
+    const index = this.findIndexNotificationByIdAndOTP(id, otp);
     if (index === -1) {
-      throw new NotFoundError(`The notification with id ${id} doesn't exist.`);
+      throw new NotFoundError(`Doesn't exist the notification with id ${id} for this session.`);
     } else {
       this.notifications.splice(index, 1);
       return { message: `The notification with id ${id} was deleted` };
@@ -122,8 +131,8 @@ class OperationsService {
     return this.operations.find((el: CreateOperation) => el.id === id && el.customerInfo.otp === otp);
   }
 
-  private findIndexNotificationById(id: string) {
-    return this.notifications.findIndex((el: OperationNotification) => el.id === id);
+  private findIndexNotificationByIdAndOTP(id: string, otp: number) {
+    return this.notifications.findIndex((el: OperationNotification) => el.id === id && el.otp === otp);
   }
 
   private validateCreateOperationBody(elem: CreateOperationBody) {
@@ -162,12 +171,12 @@ class OperationsService {
     }
   }
 
-  private findOperationByOTP(otp: number) {
-    return this.operations.find((el: CreateOperation) => el.customerInfo.otp === otp);
+  private filterOperationByOTP(otp: number) {
+    return this.operations.filter((el: CreateOperation) => el.customerInfo.otp === otp);
   }
 
-  private findNotificationByOTP(otp: number) {
-    return this.notifications.find((el: OperationNotification) => el.otp === otp);
+  private filterNotificationByOTP(otp: number) {
+    return this.notifications.filter((el: OperationNotification) => el.otp === otp);
   }
 }
 

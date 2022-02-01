@@ -2,26 +2,19 @@ import axios, { AxiosError } from 'axios';
 import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
+import { headersValidation } from '../utils/request-validation';
 import { MessageService } from './message.service';
 
 class SMSGatewayService {
   async processSend(request: Request) {
     try {
-      const { body, headers } = request;
+      headersValidation(request);
+      const otp = request.headers['sessionid'] as string;
+      const { body } = request;
 
-      const sessionId = headers['sessionid'] as string;
-      if (!sessionId) {
-        throw new UserFacingError('Header sessionId is mandatory!');
-      }
-      const parsedSessionId = parseInt(sessionId);
+      MessageService.deleteSMSMessage(parseInt(otp));
 
-      if (isNaN(parsedSessionId) || parsedSessionId % 1 != 0) {
-        throw new UserFacingError('Header sessionId needs to be a number without decimals!');
-      }
-
-      MessageService.deleteSMSMessage(parsedSessionId);
-
-      const response = await axios.post(process.env.SMS_GATEWAY_API_URL + '/send', body, { headers: { sessionId } });
+      const response = await axios.post(process.env.SMS_GATEWAY_API_URL + '/send', body, { headers: { sessionId: otp } });
 
       return response.data;
     } catch (err: any | AxiosError) {

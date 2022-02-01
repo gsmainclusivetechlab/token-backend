@@ -93,7 +93,7 @@ class Server {
           callback(new Error('Not allowed by CORS'));
         }
       },
-      allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept', 'Access-Control-Allow-Origin'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept', 'Access-Control-Allow-Origin', 'sessionId'],
       credentials: true,
       methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
     };

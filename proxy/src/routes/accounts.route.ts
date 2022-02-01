@@ -1,6 +1,6 @@
 import { Request, Router } from "express";
 import Server from "../classes/server";
-import { RouteHandler, Post, Delete } from "../decorators/router-handler";
+import { RouteHandler, Post, Delete, Get } from "../decorators/router-handler";
 import { AccountsService } from "../services/accounts.service";
 
 @RouteHandler("/accounts")
@@ -63,6 +63,7 @@ class AccountsRoute {
    */
   @Post("/")
   public createAccount(request: Request<{}, {}, { nickName: string; phoneNumber: string }, {}>) {
+    //TODO
     const { nickName, phoneNumber } = request.body;
     return AccountsService.createAccount(nickName, phoneNumber);
   }
@@ -116,15 +117,20 @@ class AccountsRoute {
    *                    message:
    *                      type: string
    */
-  @Delete("/:phoneNumber")
-  public deleteUserAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {
-    const { phoneNumber } = request.params;
-    return AccountsService.deleteAccount(phoneNumber);
-  }
+  // @Delete("/:phoneNumber")
+  // public deleteUserAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {
+  //   const { phoneNumber } = request.params;
+  //   return AccountsService.deleteAccount(phoneNumber);
+  // }
 
   @Post('/createMockAccount')
   public createMockAccount(request: Request<{}, {}, {}, {}>) {
     return AccountsService.createMockAccount();
+  }
+
+  @Get('/:otp/valid')
+  public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {
+    return AccountsService.verifyOTP(request);
   }
 }
 
