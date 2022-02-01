@@ -135,7 +135,7 @@ class TransactionsRoute {
    *          description: "Identify what is the identifier. Value can be 'token' or 'phoneNumber'"
   */
   @Post('/type/:type')
-  public getAccountName(
+  public startTransaction(
     request: Request<
       { type: TransactionType },
       {},

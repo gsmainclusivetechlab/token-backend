@@ -3,6 +3,8 @@ import { NotFoundError, UnauthorizedError, UserFacingError } from '../classes/er
 import { TransactionsRes, TransactionsBody, TransactionType, Transaction, TransactionStatus } from '../interfaces/transaction';
 import { v4 as uuidv4 } from 'uuid';
 import { AccountsService } from './accounts.service';
+import { Request } from 'express';
+import { headersValidation } from '../utils/request-validation';
 class MmoService {
   transactions: Transaction[] = [];
 
@@ -58,7 +60,12 @@ class MmoService {
     };
   }
 
-  async authorizeUser(pin: string, phoneNumber: string, otp: number) {
+  async authorizeUser(request: Request) {
+    const { body, headers } = request;
+    headersValidation(headers);
+    const { phoneNumber, pin } = body;
+    const otp = parseInt(request.headers['sessionid'] as string); 
+
     const transactionIndex = this.findTransactionByStatusIndex('pending', phoneNumber, otp);
 
     if (pin !== '1234') {

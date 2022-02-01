@@ -289,7 +289,7 @@ class AccountsRoute {
    */
   @Post('/authorize')
   public authorizeUser(request: Request<{}, {}, { pin: string; phoneNumber: string; otp: number }>) {
-    return MmoService.authorizeUser(request.body.pin, request.body.phoneNumber, request.body.otp);
+    return MmoService.authorizeUser(request);
   }
 
   /**

@@ -6,6 +6,7 @@ import { QueriesService } from './queries.service';
 import { getRandom } from '../utils/random';
 import { MmoService } from './mmo.service';
 import { Request } from 'express';
+import { headersValidation } from '../utils/request-validation';
 
 class AccountsService {
   merchants: Merchant[] = [{ code: '4321', name: 'XPTO Lda', available: true }];
@@ -53,24 +54,19 @@ class AccountsService {
   }
 
   async deleteUserAccount(request: Request) {
-    const sessionId = request.headers['sessionid'] as string;
-    if (!sessionId) {
-      throw new UserFacingError('Header sessionId is mandatory!');
-    }
-    const parsedSessionId = parseInt(sessionId);
+    const { headers } = request;
+    headersValidation(headers);
 
-    if (isNaN(parsedSessionId) || parsedSessionId % 1 != 0) {
-      throw new UserFacingError('Header sessionId needs to be a number without decimals!');
-    }
+    const otp = parseInt(request.headers['sessionid'] as string);
 
-    const findAccount = await QueriesService.findAccountByOTP(parsedSessionId);
+    const findAccount = await QueriesService.findAccountByOTP(otp);
     if (!findAccount) {
       throw new NotFoundError(`Doesn't exist any user with this phone number.`);
     }
 
-    await QueriesService.deleteUserAccountByOTP(parsedSessionId);
+    await QueriesService.deleteUserAccountByOTP(otp);
 
-    MmoService.deleteTransactionsByOTP(parsedSessionId);
+    MmoService.deleteTransactionsByOTP(otp);
 
     return { message: 'User deleted' };
   }
