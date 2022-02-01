@@ -10,23 +10,23 @@ import { USSDService } from './ussd.service';
 
 class HooksService {
   async processSMSGateway(request: Request) {
-    const { body } = request;
+    const { body, headers } = request;
     this.validateBodyPropertiesGateway(body);
 
     if (body.system === 'mock') {
-      headersValidation(request);
+      headersValidation(headers);
     }
 
     return SMSService.processSMSMessage(body);
   }
 
   async processUSSDGateway(request: Request) {
-    const { body } = request;
+    const { body, headers } = request;
 
     this.validateBodyPropertiesGateway(body);
 
     if (body.system === 'mock') {
-      headersValidation(request);
+      headersValidation(headers);
     }
 
     return USSDService.processUSSDMessage(body);
@@ -94,7 +94,7 @@ class HooksService {
   }
 
   private validateBodyPropertiesMMO(body: MMOWebhookBody) {
-    const { system, phoneNumber, amount, identifierType } = body;
+    const { system, phoneNumber, amount, identifierType, otp } = body;
 
     if (!(system === 'mock' || system === 'live')) {
       throw new UserFacingError('INVALID_REQUEST - Invalid System');
@@ -116,14 +116,19 @@ class HooksService {
       throw new UserFacingError('INVALID_REQUEST - Missing property amount');
     }
 
-    //TODO OTP
+    if (!otp) {
+      throw new UserFacingError('INVALID_REQUEST - Missing property otp');
+    }
   }
 
   sendAgentMerchantNotification(message: string, otp: number) {
-    axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
-      message,
-      otp
-    });
+    axios.post(
+      `${process.env.PROXY_API_URL}/operations/notify`,
+      {
+        message,
+      },
+      { headers: { sessionId: String(otp) } }
+    );
   }
 }
 

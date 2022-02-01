@@ -23,7 +23,7 @@ class OperationsService {
 
       if (action === 'accept') {
         const headers = {
-          'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`,
+          'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`
         };
         const body = {
           amount: operation.amount,

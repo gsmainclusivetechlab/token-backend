@@ -2,6 +2,7 @@ import { Request, Router } from 'express';
 import Server from '../classes/server';
 import { RouteHandler, Post, Get, Delete } from '../decorators/router-handler';
 import { AccountsService } from '../services/accounts.service';
+import { headersValidation } from '../utils/request-validation';
 
 @RouteHandler('/accounts')
 class AccountsRoute {
@@ -183,7 +184,6 @@ class AccountsRoute {
    */
   @Get('/:identifier')
   public getAccountInfo(request: Request<{ identifier: string }, {}, {}, {}>) {
-    //TODO
     const { identifier } = request.params;
     return AccountsService.getAccountInfo(identifier);
   }
@@ -238,9 +238,7 @@ class AccountsRoute {
    */
   @Get('/merchant/:code')
   public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
-    //TODO
-    const { code } = request.params;
-    return AccountsService.getMerchant(code);
+    return AccountsService.getMerchant(request);
   }
 
   @Post('/createMockAccount')

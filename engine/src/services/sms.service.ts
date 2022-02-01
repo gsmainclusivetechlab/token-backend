@@ -24,16 +24,16 @@ class SMSService {
       //Check if phone number is registry
       const getAccountNameData: AccountNameReturn = await AccountsService.getAccountInfo(phoneNumber);
 
-      var message: string = "";
+      var message: string = '';
 
       var smsSplitted: string[] = text.split(' ');
-      if (smsSplitted.length === 0 ) {
+      if (smsSplitted.length === 0) {
         message = `Please send a valid operation`;
         this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
 
-      if(!getAccountNameData.active && smsSplitted[0] !== SMSOperations.GetToken){
+      if (!getAccountNameData.active && smsSplitted[0] !== SMSOperations.GetToken) {
         message = `You need to request a new token to make that operation`;
         this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
         throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token');
@@ -54,10 +54,10 @@ class SMSService {
           try {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
 
-          if (tokenApiResponse.data) {
-            message = 'Your token was deleted';
-            this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-          }
+            if (tokenApiResponse.data) {
+              message = 'Your token was deleted';
+              this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+            }
           } catch (err: any | AxiosError) {
             if (axios.isAxiosError(err)) {
               if (err.response?.status === 404) {
@@ -67,7 +67,7 @@ class SMSService {
             }
             catchError(err);
           }
-          
+
           break;
         case SMSOperations.CashIn:
           if (!smsSplitted[1]) {
@@ -125,11 +125,14 @@ class SMSService {
           }
 
           try {
-            await axios.post(`${process.env.MMO_API_URL}/accounts/authorize`, {
-              pin: smsSplitted[1],
-              phoneNumber,
-              otp: getAccountNameData.otp
-            });
+            await axios.post(
+              `${process.env.MMO_API_URL}/accounts/authorize`,
+              {
+                pin: smsSplitted[1],
+                phoneNumber,
+              },
+              { headers: { sessionId: String(getAccountNameData.otp) } }
+            );
           } catch (err: any | AxiosError) {
             if (axios.isAxiosError(err)) {
               if (err.response?.status === 401) {
@@ -190,17 +193,20 @@ class SMSService {
   }
 
   sendCustomerNotification(phoneNumber: string, message: string, system: SystemType, otp: number) {
-    axios.post(process.env.SMS_GATEWAY_API_URL + '/receive', {
-      phoneNumber,
-      message,
-      system,
-      otp
-    });
+    axios.post(
+      process.env.SMS_GATEWAY_API_URL + '/receive',
+      {
+        phoneNumber,
+        message,
+        system,
+      },
+      { headers: { sessionId: String(otp) } }
+    );
   }
 
   validateAmount(amount: string, phoneNumber: string, system: SystemType, otp: number) {
     var amountParsed = Number(amount);
-    var message: string = "";
+    var message: string = '';
 
     if (isNaN(amountParsed)) {
       message = `The amount needs to be a number`;

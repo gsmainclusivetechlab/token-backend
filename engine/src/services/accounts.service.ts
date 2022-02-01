@@ -42,7 +42,8 @@ class AccountsService {
 
   async deleteAccount(request: Request) {
     try {
-      headersValidation(request);
+      const { headers } = request;
+      headersValidation(headers);
       const otp = request.headers['sessionid'] as string;
 
       const response = await axios.delete(`${process.env.MMO_API_URL}/accounts`, { headers: { sessionId: otp } });
@@ -61,8 +62,11 @@ class AccountsService {
     }
   }
 
-  async getMerchant(code: string) {
+  async getMerchant(request: Request) {
     try {
+      const { headers, params } = request;
+      headersValidation(headers);
+      const { code } = params;
       const response = await axios.get(`${process.env.MMO_API_URL}/accounts/${code}/merchant`);
       return { ...response.data };
     } catch (err: any | AxiosError) {
