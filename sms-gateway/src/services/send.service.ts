@@ -13,8 +13,10 @@ class SendService {
       return 'PONG';
     }
 
-    headersValidation(headers);
     this.requestBodyValidation(body);
+    if (body.system === 'mock') {
+      headersValidation(headers);
+    }
 
     return this.manageRequest(body, headers);
   }
