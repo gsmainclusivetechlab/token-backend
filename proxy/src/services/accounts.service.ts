@@ -8,8 +8,10 @@ class AccountsService {
   map = new Map<number, number>();
   pollInterval: any;
 
-  async createAccount(nickName: string, phoneNumber: string) {
+  async createAccount(request: Request) {
     try {
+      const { nickName, phoneNumber } = request.body;
+
       if (!nickName) {
         throw new UserFacingError('INVALID_REQUEST - Missing property nickName');
       }

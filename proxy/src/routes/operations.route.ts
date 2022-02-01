@@ -344,8 +344,7 @@ class OperationsRoute {
    */
   @Post('/notify')
   public createNotification(request: Request<{}, {}, OperationNotification, {}>) {
-    //TODO
-    return OperationsService.createNotification(request.body);
+    return OperationsService.createNotification(request);
   }
 
   /**

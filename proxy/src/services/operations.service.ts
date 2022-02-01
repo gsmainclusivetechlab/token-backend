@@ -13,22 +13,16 @@ class OperationsService {
   notifications: OperationNotification[] = [];
 
   async createOperation(request: Request) {
-    headersValidation(request);
-    let elem: CreateOperationBody = request.body;
+    const { body, headers } = request;
+
+    headersValidation(headers);
+    let elem: CreateOperationBody = body;
     this.validateCreateOperationBody(elem);
+    const otp = request.headers['sessionid'] as string;
 
     const [accountInfoError, accountInfoData] = await SafeAwait(axios.get(`${process.env.ENGINE_API_URL}/accounts/${elem.identifier}`));
     if (accountInfoError) {
       catchError(accountInfoError);
-    }
-
-    if (elem.type === 'merchant-payment') {
-      const [merchantInfoError, merchantInfoData] = await SafeAwait(
-        axios.get(`${process.env.ENGINE_API_URL}/accounts/merchant/${elem.merchantCode}`)
-      );
-      if (merchantInfoError) {
-        catchError(merchantInfoError);
-      }
     }
 
     elem.identifierType = elem.identifier === accountInfoData.data.phoneNumber ? 'phoneNumber' : 'token';
@@ -36,7 +30,18 @@ class OperationsService {
       throw new NotFoundError(`Doesn't exist any user with this phone number or token.`);
     }
 
-    //TODO Validar se o sessionId que recebemos é o mesmo que está associado ao phoneNumber/Token
+    if (parseInt(otp) !== accountInfoData.data.otp) {
+      throw new NotFoundError(`You only can create new operations for you.`);
+    }
+
+    if (elem.type === 'merchant-payment') {
+      const [merchantInfoError, merchantInfoData] = await SafeAwait(
+        axios.get(`${process.env.ENGINE_API_URL}/accounts/merchant/${elem.merchantCode}`, { headers: { sessionId: otp } })
+      );
+      if (merchantInfoError) {
+        catchError(merchantInfoError);
+      }
+    }
 
     elem.customerInfo = { ...accountInfoData.data };
 
@@ -47,8 +52,9 @@ class OperationsService {
 
   async manageOperation(request: Request) {
     try {
-      headersValidation(request);
-      const { action, id } = request.params;
+      const { headers, params } = request;
+      headersValidation(headers);
+      const { action, id } = params;
       const otp = parseInt(request.headers['sessionid'] as string);
 
       if (!(action === 'accept' || action === 'reject')) {
@@ -75,7 +81,8 @@ class OperationsService {
   }
 
   async getOperationsAndNotifications(request: Request) {
-    headersValidation(request);
+    const { headers } = request;
+    headersValidation(headers);
     const otp = parseInt(request.headers['sessionid'] as string);
     AccountsService.updateSessionLastCall(otp);
 
@@ -85,12 +92,20 @@ class OperationsService {
     };
   }
 
-  async createNotification(elem: OperationNotification) {
+  async createNotification(request: Request) {
+    const { body, headers } = request;
+    headersValidation(headers);
+
+    const elem: OperationNotification = body;
+
     if (!elem.message) {
       throw new UserFacingError('INVALID_REQUEST - Missing property message');
     }
 
+    const otp = parseInt(request.headers['sessionid'] as string);
+
     elem.id = uuidv4();
+    elem.otp = otp;
     this.notifications.push({
       ...elem,
     });
@@ -107,8 +122,9 @@ class OperationsService {
   }
 
   async deleteNotification(request: Request) {
-    headersValidation(request);
-    const { id } = request.params;
+    const { headers, params } = request;
+    headersValidation(headers);
+    const { id } = params;
     const otp = parseInt(request.headers['sessionid'] as string);
 
     const index = this.findIndexNotificationByIdAndOTP(id, otp);

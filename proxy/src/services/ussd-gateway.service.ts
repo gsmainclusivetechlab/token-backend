@@ -7,9 +7,9 @@ import { MessageService } from './message.service';
 class USSDGatewayService {
   async processSend(request: Request) {
     try {
-      headersValidation(request);
+      const { body, headers } = request;
+      headersValidation(headers);
       const otp = request.headers['sessionid'] as string;
-      const { body } = request;
 
       MessageService.deleteSMSMessage(parseInt(otp));
 

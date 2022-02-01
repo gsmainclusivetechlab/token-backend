@@ -1,8 +1,8 @@
-import { Request } from 'express';
+import { IncomingHttpHeaders } from 'http';
 import { UserFacingError } from '../classes/errors';
 
-export function headersValidation(request: Request) {
-  const sessionId = request.headers['sessionid'] as string;
+export function headersValidation(headers: IncomingHttpHeaders) {
+  const sessionId = headers['sessionid'] as string;
   if (!sessionId) {
     throw new UserFacingError('Header sessionId is mandatory!');
   }

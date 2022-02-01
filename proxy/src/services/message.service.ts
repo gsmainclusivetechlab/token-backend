@@ -2,23 +2,18 @@ import { AxiosError } from 'axios';
 import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
+import { headersValidation } from '../utils/request-validation';
 
 class MessageService {
   sms_message: { otp: number; message: string }[] = [];
 
   async processGetSMSMessage(request: Request) {
     try {
-      const sessionId = request.headers['sessionid'] as string;
-      if (!sessionId) {
-        throw new UserFacingError('Header sessionId is mandatory!');
-      }
-      const parsedSessionId = parseInt(sessionId);
+      const { headers } = request;
+      headersValidation(headers);
+      const otp = parseInt(request.headers['sessionid'] as string);
 
-      if (isNaN(parsedSessionId) || parsedSessionId % 1 != 0) {
-        throw new UserFacingError('Header sessionId needs to be a number without decimals!');
-      }
-
-      return { message: this.findSMSMessageByOTP(parsedSessionId) };
+      return { message: this.findSMSMessageByOTP(otp) };
     } catch (err: any | AxiosError) {
       catchError(err);
     }

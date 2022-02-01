@@ -63,9 +63,7 @@ class AccountsRoute {
    */
   @Post("/")
   public createAccount(request: Request<{}, {}, { nickName: string; phoneNumber: string }, {}>) {
-    //TODO
-    const { nickName, phoneNumber } = request.body;
-    return AccountsService.createAccount(nickName, phoneNumber);
+    return AccountsService.createAccount(request);
   }
 
   /**

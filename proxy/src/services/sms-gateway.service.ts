@@ -8,9 +8,9 @@ import { MessageService } from './message.service';
 class SMSGatewayService {
   async processSend(request: Request) {
     try {
-      headersValidation(request);
+      const { body, headers } = request;
+      headersValidation(headers);
       const otp = request.headers['sessionid'] as string;
-      const { body } = request;
 
       MessageService.deleteSMSMessage(parseInt(otp));
 
@@ -24,8 +24,10 @@ class SMSGatewayService {
 
   async processReceive(request: Request) {
     try {
-      const { body } = request;
-      MessageService.setSMSMessage(body.otp, body.message);
+      const { body, headers } = request;
+      headersValidation(headers);
+      const otp = parseInt(request.headers['sessionid'] as string);
+      MessageService.setSMSMessage(otp, body.message);
       return { message: 'Message sent.' };
     } catch (err: any | AxiosError) {
       catchError(err);
