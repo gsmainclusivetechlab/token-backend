@@ -343,6 +343,11 @@ class AccountsRoute {
   public createMockAccount(request: Request<{}, {}, {}, {}>) {
     return AccountsService.createMockAccount();
   }
+
+  @Get('/:otp/valid')
+  public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {
+    return AccountsService.verifyOTP(request);
+  }
 }
 
 export default AccountsRoute;

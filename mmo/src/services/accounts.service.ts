@@ -92,6 +92,27 @@ class AccountsService {
     return account;
   }
 
+  async verifyOTP(request: Request): Promise<AccountNameReturn> {
+    const { otp } = request.params;
+
+    if (!otp) {
+      throw new UserFacingError(`INVALID_REQUEST - Property otp can't be null`);
+    }
+
+    const parsedOtp = parseInt(otp);
+
+    if (isNaN(parsedOtp) || parsedOtp % 1 != 0) {
+      throw new UserFacingError('INVALID_REQUEST - Property otp needs to be a number without decimals!');
+    }
+
+    const account = await QueriesService.findAccountByOTP(parsedOtp);
+    if (!account) {
+      throw new NotFoundError("Doesn't exist any user with this otp.");
+    }
+
+    return account;
+  }
+
   async getMerchant(code: string): Promise<any> {
     const merchant = this.findMerchantByCode(code);
     if (!merchant) {
