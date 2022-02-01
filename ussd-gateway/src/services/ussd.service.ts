@@ -1,15 +1,13 @@
-import axios, { AxiosError } from "axios";
-import UssdMenu = require("ussd-builder");
-import { LogLevels, logService } from "./log.service";
+import axios, { AxiosError } from 'axios';
+import UssdMenu = require('ussd-builder');
+import { LogLevels, logService } from './log.service';
 
 const menu = new UssdMenu();
 
 menu.startState({
   run: () => {
     // use menu.con() to send response without terminating session
-    menu.con(
-      "Welcome. Choose option: \n1. Get Token \n2. Delete Token \n3. Cash In \n4. Cash Out \n5. Payment"
-    );
+    menu.con('Welcome. Choose option: \n1. Get Token \n2. Delete Token \n3. Cash In \n4. Cash Out \n5. Payment');
   },
   // next object links to next state based on user input
   next: {
@@ -17,86 +15,86 @@ menu.startState({
     '2': 'deleteToken',
     '3': 'cashIn',
     '4': 'cashOut',
-    '5': 'payment'
+    '5': 'payment',
   },
-  defaultNext: "invalidOption",
+  defaultNext: 'invalidOption',
 });
 
-menu.state("invalidOption", {
+menu.state('invalidOption', {
   run: () => {
-    menu.end("Invalid Option");
+    menu.end('Invalid Option');
   },
 });
 
-menu.state("getToken", {
+menu.state('getToken', {
   run: async () => {
     await ussdGatewayRequest();
   },
 });
 
-menu.state("deleteToken", {
+menu.state('deleteToken', {
   run: async () => {
     await ussdGatewayRequest();
   },
 });
 
-menu.state("cashIn", {
+menu.state('cashIn', {
   run: () => {
-    menu.con("Enter amount:");
+    menu.con('Enter amount:');
   },
   next: {
     // using regex to match user input to next state
-    "*\\d+": "cashIn.amount",
+    '*\\d+': 'cashIn.amount',
   },
-  defaultNext: "invalidOption",
+  defaultNext: 'invalidOption',
 });
 
-menu.state("cashIn.amount", {
+menu.state('cashIn.amount', {
   run: async () => {
     await ussdGatewayRequest();
   },
 });
 
-menu.state("cashOut", {
+menu.state('cashOut', {
   run: () => {
-    menu.con("Enter amount:");
+    menu.con('Enter amount:');
   },
   next: {
     // using regex to match user input to next state
-    "*\\d+": "cashOut.amount",
+    '*\\d+': 'cashOut.amount',
   },
-  defaultNext: "invalidOption",
+  defaultNext: 'invalidOption',
 });
 
-menu.state("cashOut.amount", {
+menu.state('cashOut.amount', {
   run: async () => {
     await ussdGatewayRequest();
   },
 });
 
-menu.state("payment", {
+menu.state('payment', {
   run: () => {
-    menu.con("Enter Merchant Code:");
+    menu.con('Enter Merchant Code:');
   },
   next: {
     // using regex to match user input to next state
-    "*\\d+": "payment.merchantCode",
+    '*\\d+': 'payment.merchantCode',
   },
-  defaultNext: "invalidOption",
+  defaultNext: 'invalidOption',
 });
 
-menu.state("payment.merchantCode", {
+menu.state('payment.merchantCode', {
   run: () => {
-    menu.con("Enter Amount:");
+    menu.con('Enter Amount:');
   },
   next: {
     // using regex to match user input to next state
-    "*\\d+": "payment.merchantCode.amount",
+    '*\\d+': 'payment.merchantCode.amount',
   },
-  defaultNext: "invalidOption",
+  defaultNext: 'invalidOption',
 });
 
-menu.state("payment.merchantCode.amount", {
+menu.state('payment.merchantCode.amount', {
   run: async () => {
     await ussdGatewayRequest();
   },
@@ -104,10 +102,9 @@ menu.state("payment.merchantCode.amount", {
 
 async function ussdGatewayRequest() {
   try {
-    var response = await axios.post(
-      process.env.ENGINE_API_URL + "/hooks/ussd-gateway",
-      menu.args
-    );
+    const object: any = menu.args;
+
+    var response = await axios.post(process.env.ENGINE_API_URL + '/hooks/ussd-gateway', object, { headers: { sessionId: object.otp } });
 
     menu.end(response.data);
   } catch (err: any | AxiosError) {
