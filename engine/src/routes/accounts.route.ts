@@ -183,6 +183,7 @@ class AccountsRoute {
    */
   @Get('/:identifier')
   public getAccountInfo(request: Request<{ identifier: string }, {}, {}, {}>) {
+    //TODO
     const { identifier } = request.params;
     return AccountsService.getAccountInfo(identifier);
   }
@@ -237,6 +238,7 @@ class AccountsRoute {
    */
   @Get('/merchant/:code')
   public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
+    //TODO
     const { code } = request.params;
     return AccountsService.getMerchant(code);
   }
@@ -244,6 +246,11 @@ class AccountsRoute {
   @Post('/createMockAccount')
   public createMockAccount(request: Request<{}, {}, {}, {}>) {
     return AccountsService.createMockAccount();
+  }
+
+  @Get('/:otp/valid')
+  public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {
+    return AccountsService.verifyOTP(request);
   }
 }
 

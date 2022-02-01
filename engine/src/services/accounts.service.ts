@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
+import { headersValidation } from '../utils/request-validation';
 import { SMSService } from './sms.service';
 
 class AccountsService {
@@ -30,8 +31,8 @@ class AccountsService {
 
       await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
 
-      const message = ``;
-      //SMSService.sendCustomerNotification(phoneNumber, message, 'live');
+      const message = `Welcome ${createAccountResponse.data.nickName}, your OTP is ${createAccountResponse.data.otp}`;
+      SMSService.sendCustomerNotification(phoneNumber, message, 'live', createAccountResponse.data.otp);
 
       return { nickName, phoneNumber, otp: createAccountResponse.data.otp };
     } catch (err: any | AxiosError) {
@@ -41,19 +42,10 @@ class AccountsService {
 
   async deleteAccount(request: Request) {
     try {
-      const { headers } = request;
+      headersValidation(request);
+      const otp = request.headers['sessionid'] as string;
 
-      const sessionId = headers['sessionid'] as string;
-      if (!sessionId) {
-        throw new UserFacingError('Header sessionId is mandatory!');
-      }
-      const parsedSessionId = parseInt(sessionId);
-
-      if (isNaN(parsedSessionId) || parsedSessionId % 1 != 0) {
-        throw new UserFacingError('Header sessionId needs to be a number without decimals!');
-      }
-
-      const response = await axios.delete(`${process.env.MMO_API_URL}/accounts`, { headers: { sessionId } });
+      const response = await axios.delete(`${process.env.MMO_API_URL}/accounts`, { headers: { sessionId: otp } });
       return { ...response.data };
     } catch (err: any | AxiosError) {
       catchError(err);
@@ -84,6 +76,17 @@ class AccountsService {
 
       await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${response.data.phoneNumber}`);
 
+      return { ...response.data };
+    } catch (err: any | AxiosError) {
+      catchError(err);
+    }
+  }
+
+  async verifyOTP(request: Request) {
+    try {
+      const { otp } = request.params;
+
+      const response = await axios.get(`${process.env.MMO_API_URL}/accounts/${otp}/valid`);
       return { ...response.data };
     } catch (err: any | AxiosError) {
       catchError(err);

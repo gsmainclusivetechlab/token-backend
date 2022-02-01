@@ -102,9 +102,6 @@ class OperationsService {
         throw new UserFacingError("INVALID_REQUEST - Property merchantCode can't be empty");
       }
     }
-
-    //TODO Validação do OTP
-
   }
 }
 

@@ -11,7 +11,7 @@ import { SMSWebhookBody } from '../interfaces/hook';
 import { AccountNameReturn } from '../interfaces/mmo';
 
 class SMSService {
-  async processSMSMessage(obj: SMSWebhookBody, otp: number | undefined) {
+  async processSMSMessage(obj: SMSWebhookBody) {
     try {
       const { phoneNumber, text, system } = obj;
 

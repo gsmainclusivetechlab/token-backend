@@ -1,33 +1,33 @@
 import axios from 'axios';
+import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { MMOWebhookBody, SMSWebhookBody, USSDWebhookBody } from '../interfaces/hook';
 import { OperationType } from '../interfaces/operation';
 import { GetOperationFromType } from '../lib/operations';
+import { headersValidation } from '../utils/request-validation';
 import { SMSService } from './sms.service';
 import { USSDService } from './ussd.service';
 
 class HooksService {
-  async processSMSGateway(body: SMSWebhookBody, sessionId: string) {
+  async processSMSGateway(request: Request) {
+    const { body } = request;
     this.validateBodyPropertiesGateway(body);
-
-    let otp: number | undefined = undefined;
 
     if (body.system === 'mock') {
-      if (!sessionId) {
-        throw new UserFacingError('Header sessionId is mandatory!');
-      }
-
-      otp = parseInt(sessionId);
-      if (isNaN(otp) || otp % 1 != 0) {
-        throw new UserFacingError('Header sessionId needs to be a number without decimals!');
-      }
+      headersValidation(request);
     }
 
-    return SMSService.processSMSMessage(body, otp);
+    return SMSService.processSMSMessage(body);
   }
 
-  async processUSSDGateway(body: USSDWebhookBody) {
+  async processUSSDGateway(request: Request) {
+    const { body } = request;
+
     this.validateBodyPropertiesGateway(body);
+
+    if (body.system === 'mock') {
+      headersValidation(request);
+    }
 
     return USSDService.processUSSDMessage(body);
   }

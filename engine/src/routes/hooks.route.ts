@@ -82,9 +82,7 @@ class HooksRoute {
    */
   @Post("/sms-gateway")
   public smsGatewayWebhooks(request: Request<{}, {}, SMSWebhookBody, {}>) {
-    //TODO Passar o request para o metodo e arranjar o session id
-    const sessionId = request.headers['sessionid'] as string;
-    return HooksService.processSMSGateway(request.body, sessionId);
+    return HooksService.processSMSGateway(request);
   }
 
   /**
@@ -158,7 +156,7 @@ class HooksRoute {
    */
   @Post("/ussd-gateway")
   public ussdGatewayWebhooks(request: Request<{}, {}, USSDWebhookBody, {}>) {
-    return HooksService.processUSSDGateway(request.body);
+    return HooksService.processUSSDGateway(request);
   }
 
   /**
