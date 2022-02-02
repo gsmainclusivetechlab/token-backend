@@ -71,6 +71,18 @@ class QueriesService {
       });
     });
   }
+
+  deleteAllUsers() {
+    const deleteQuery = `DELETE FROM users`;
+    return new Promise((resolve, reject) => {
+      App.getDBInstance().query(deleteQuery, (err, rows) => {
+        if (err) {
+          return reject('Error deleting user');
+        }
+        return resolve({ message: 'All users deleted' });
+      });
+    });
+  }
 }
 
 const queriesService = new QueriesService();

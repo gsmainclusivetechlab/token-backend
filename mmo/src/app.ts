@@ -4,6 +4,7 @@ import LivenessProbeRoute from './routes/liveness-probe.route';
 import Server from './classes/server';
 import AccountsRoute from './routes/accounts.route';
 import TransactionsRoute from './routes/transactions.route';
+import { CronJobService } from './services/cronjob.service';
 
 switch (process.env.NODE_ENV) {
   case 'development':
@@ -30,7 +31,8 @@ app.addDocsRoute();
 
 app.addErrorHandler();
 app.add404Handler();
-
+CronJobService.init();
 app.start();
+
 
 export { app as App };
