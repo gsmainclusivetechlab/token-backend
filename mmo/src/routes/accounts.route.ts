@@ -70,20 +70,20 @@ class AccountsRoute {
 
   /**
    * @openapi
-   * /accounts/:phoneNumber:
+   * /accounts/:
    *   delete:
    *     tags:
    *      - "Accounts"
    *     summary: Delete customer account
    *     description: Delete the customer account from database
    *     parameters:
-   *      - in: path
-   *        name: phoneNumber
-   *        required: true
-   *        description: Customer Phone Number.
-   *        schema:
-   *          type: string
-   *          example: "+441632960067"
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     responses:
    *        '200':
    *           description: OK
@@ -124,7 +124,7 @@ class AccountsRoute {
 
   /**
    * @openapi
-   * /accounts/:identifier/accountname:
+   * /accounts/{identifier}/accountname:
    *   get:
    *     tags:
    *        - "Accounts"
@@ -132,9 +132,9 @@ class AccountsRoute {
    *     description: Gets user's account info
    *     parameters:
    *       - in: path
-   *         name: phoneNumber
+   *         name: phoneNumber or token
    *         required: true
-   *         description: Customer's phone number.
+   *         description: Customer's phone number or token.
    *         schema:
    *           type: string
    *           example: "+233207212676"
@@ -151,6 +151,7 @@ class AccountsRoute {
    *                      phoneNumber: "+441632960067",
    *                      indicative: "+44",
    *                      active: true,
+   *                      otp: 1234
    *                  }
    *
    *        '404':
@@ -181,6 +182,9 @@ class AccountsRoute {
    *        active:
    *          type: boolean
    *          description: "Flag that indicate if the user have a token active or not"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
    */
   @Get('/:identifier/accountname')
   public getAccountName(request: Request<{ identifier: string }, {}, {}, AccountNameQueryParams>) {
@@ -217,7 +221,8 @@ class AccountsRoute {
    *                    system: "mock",
    *                    phoneNumber: "+233207212676",
    *                    amount: 100,
-   *                    identifierType: "phoneNumber"
+   *                    identifierType: "phoneNumber",
+   *                    otp: 1234
    *                }
    *
    *       '401':
@@ -273,6 +278,9 @@ class AccountsRoute {
    *          description: "Identify what is the identifier. Value can be 'token' or 'phoneNumber'"
    *        merchant:
    *          $ref: "#/components/schemas/Merchant"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
    *
    *    Merchant:
    *      type: object
@@ -294,7 +302,7 @@ class AccountsRoute {
 
   /**
    * @openapi
-   * /accounts/:code/merchant:
+   * /accounts/{code}/merchant:
    *   get:
    *     tags:
    *        - "Accounts"
@@ -339,11 +347,86 @@ class AccountsRoute {
     return AccountsService.getMerchant(code);
   }
 
+  /**
+   * @openapi
+   * /accounts/createMockAccount:
+   *   post:
+   *     tags:
+   *        - "Accounts"
+   *     summary: Create a mock account
+   *     description: Create a mock account
+   *     responses:
+   *        '200':
+   *           description: OK
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: "#/components/schemas/CustomerInformation"
+   *               example:
+   *                  {
+   *                      nickName: "MockUser",
+   *                      phoneNumber: "+351922774207",
+   *                      indicative: "+351",
+   *                      otp: 1801
+   *                  }
+   */
   @Post('/createMockAccount')
   public createMockAccount(request: Request<{}, {}, {}, {}>) {
     return AccountsService.createMockAccount();
   }
 
+  /**
+   * @openapi
+   * /accounts/{otp}/valid:
+   *   get:
+   *     tags:
+   *        - "Accounts"
+   *     summary: Verify if the OTP is valid and return customer information
+   *     description: Verify if the OTP is valid and return customer information
+   *     parameters:
+   *       - in: path
+   *         name: otp
+   *         required: true
+   *         description: Customer One Time Password.
+   *         schema:
+   *           type: number
+   *           example: 1234
+   *     responses:
+   *        '200':
+   *           description: OK
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: "#/components/schemas/CustomerInformation"
+   *               example:
+   *                  {
+   *                      nickName: "MockUser",
+   *                      phoneNumber: "+351922774207",
+   *                      indicative: "+351",
+   *                      otp: 1801
+   *                  }
+   * 
+   *        '400':
+   *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
+   * 
+   *        '404':
+   *           description: Doesn't exist any user with this otp.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist a merchant available with this code"
+   */
   @Get('/:otp/valid')
   public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {
     return AccountsService.verifyOTP(request);

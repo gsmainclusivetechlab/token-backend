@@ -50,7 +50,8 @@ class TransactionsRoute {
    *                creditParty: [{key: "msisdn", value: "+233207212676"}],
    *                currency: "RWF",
    *                system: "mock",
-   *                identifierType: "phoneNumber"
+   *                identifierType: "phoneNumber",
+   *                otp: 1234
    *              }
    * 
    *     responses:
@@ -133,6 +134,9 @@ class TransactionsRoute {
    *        identifierType:
    *          type: string
    *          description: "Identify what is the identifier. Value can be 'token' or 'phoneNumber'"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
   */
   @Post('/type/:type')
   public startTransaction(
