@@ -196,7 +196,8 @@ class HooksRoute {
    *              system: "mock",
    *              phoneNumber: "+233207212676",
    *              amount: 100,
-   *              identifierType: "phoneNumber"
+   *              identifierType: "phoneNumber",
+   *              otp: 1234
    *            }
    * 
    *     responses:
@@ -241,6 +242,9 @@ class HooksRoute {
    *        identifierType:
    *          type: string
    *          description: "Identify what is the identifier. Value can be 'token' or 'phoneNumber'"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
    */
   @Put("/mmo")
   public mmoWebhooks(request: Request<{}, {}, MMOWebhookBody, {}>) {
