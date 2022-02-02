@@ -31,7 +31,7 @@ class AccountsService {
 
       await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
 
-      const message = `Welcome ${createAccountResponse.data.nickName}, your OTP is ${createAccountResponse.data.otp}`;
+      const message = `Hi ${createAccountResponse.data.nickName},\nWelcome to the Token Project from the Inclusive Tech Lab.\nYour Access Code is: ${createAccountResponse.data.otp}`;
       SMSService.sendCustomerNotification(phoneNumber, message, 'live', createAccountResponse.data.otp);
 
       return { nickName, phoneNumber, otp: createAccountResponse.data.otp };
