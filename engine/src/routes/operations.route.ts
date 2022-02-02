@@ -13,7 +13,7 @@ class OperationsRoute {
 
   /**
    * @openapi
-   * /operations/:action:
+   * /operations/{action}:
    *   post:
    *     tags:
    *        - "Operations"
@@ -100,22 +100,6 @@ class OperationsRoute {
    *           description: "Merchant identifier code"
    *         customerInfo:
    *           $ref: "#/components/schemas/CustomerInformation"
-   * 
-   *     CustomerInformation:
-   *       type: object
-   *       properties:
-   *         nickName:
-   *           type: string
-   *           description: "Customer nick name"
-   *         phoneNumber:
-   *           type: string
-   *           description: "Customer phone number"
-   *         indicative:
-   *           type: string
-   *           description: "Contry code"
-   *         active:
-   *           type: boolean
-   *           description: "Flag that indicate if the user have a token active or not"
    */
   @Post('/:action')
   public manageOperation(request: Request<{ action: Action }, {}, Operation, {}>) {

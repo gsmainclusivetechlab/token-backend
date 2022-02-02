@@ -2,18 +2,21 @@ import axios, { AxiosError } from 'axios';
 import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
+import { headersValidation } from '../utils/request-validation';
 import { TwilioService } from './twilio.service';
 
 class ReceiveService {
   async processReceive(request: Request) {
     try {
-      const { body } = request;
+      const { body, headers } = request;
 
       this.requestValidation(body);
 
       switch (body.system) {
         case 'mock':
-          axios.post(process.env.PROXY_API_URL + '/sms-gateway/receive', body);
+          headersValidation(headers);
+          const sessionId = headers['sessionid'] as string;
+          axios.post(`${process.env.PROXY_API_URL}/sms-gateway/receive`, body, { headers: { sessionId } });
           return;
         case 'live':
           TwilioService.sendMessage(body.phoneNumber, body.message);

@@ -1,10 +1,11 @@
 import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
+import { headersValidation } from '../utils/request-validation';
 import { UssdMenu } from './ussd.service';
 
 class SendService {
   async processSend(request: Request) {
-    const { body } = request;
+    const { body, headers } = request;
 
     const args = {
       phoneNumber: body.phoneNumber, //the end user's phone Number
@@ -13,9 +14,12 @@ class SendService {
       //Operator: req.body.networkCode || req.body.Operator, //the end user's network Operator
       text: body.text,
       system: body.system,
+      otp: ''
     };
     switch (args.serviceCode) {
       case '*165#': {
+        headersValidation(headers);
+        args.otp = request.headers['sessionid'] as string;
         return UssdMenu.run(args);
       }
       case '*#0#': {

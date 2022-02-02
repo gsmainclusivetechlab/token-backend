@@ -1,10 +1,11 @@
-import { Request, Router } from "express";
-import Server from "../classes/server";
-import { RouteHandler, Post, Get, Delete } from "../decorators/router-handler";
-import { Action, CreateOperationBody, OperationNotification } from "../interfaces/operations";
-import { OperationsService } from "../services/operations.service";
+import { Request, Router } from 'express';
+import { UserFacingError } from '../classes/errors';
+import Server from '../classes/server';
+import { RouteHandler, Post, Get, Delete } from '../decorators/router-handler';
+import { Action, CreateOperationBody, OperationNotification } from '../interfaces/operations';
+import { OperationsService } from '../services/operations.service';
 
-@RouteHandler("/operations")
+@RouteHandler('/operations')
 class OperationsRoute {
   // Services Injection
   public router: Router;
@@ -20,6 +21,14 @@ class OperationsRoute {
    *          - "Operations"
    *      summary: Return all operations and notifications
    *      description: Return all operations and notifications in memory
+   *      parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *      responses:
    *        '200':
    *          description: OK
@@ -36,8 +45,9 @@ class OperationsRoute {
    *                      [
    *                        {
    *                          id: "408a6a77-2dc4-463e-8cca-02055c83a293",
-   *                          message: "Test"
-   *                         }
+   *                          message: "Test",
+   *                          otp: 1234
+   *                        }
    *                      ]
    *
    *                  operations:
@@ -57,6 +67,7 @@ class OperationsRoute {
    *                            phoneNumber: "+441632960067",
    *                            indicative: "+44",
    *                            active: true,
+   *                            otp: 1234
    *                          },
    *                          system: "mock"
    *                         }
@@ -73,6 +84,10 @@ class OperationsRoute {
    *        message:
    *          type: string
    *          description: "Message"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
+   * 
    *    Operation:
    *      allOf:
    *        - $ref: "#/components/schemas/CreateOperationBody"
@@ -96,11 +111,14 @@ class OperationsRoute {
    *        active:
    *          type: boolean
    *          description: "Flag that indicate if the user have a token active or not"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
    *
    */
-  @Get("/")
+  @Get('/')
   public getOperationsAndNotifications(request: Request<{}, {}, {}, {}>) {
-    return OperationsService.getOperationsAndNotifications();
+    return OperationsService.getOperationsAndNotifications(request);
   }
 
   /**
@@ -112,6 +130,14 @@ class OperationsRoute {
    *     summary: Create an operation
    *     description: Makes a request to the Engine API in order to get the user's account info,
    *                  and if the user's account exist, the system create the operation in memory
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:
@@ -136,7 +162,7 @@ class OperationsRoute {
    *                  schema:
    *                    $ref: "#/components/schemas/CreateOperationBody"
    *                  example:
-   *                    { 
+   *                    {
    *                      identifier: "233207212676",
    *                      identifierType: "token",
    *                      amount: 100,
@@ -146,10 +172,11 @@ class OperationsRoute {
    *                        phoneNumber: "+441632960067",
    *                        indicative: "+44",
    *                        active: true,
+   *                        otp: 1234
    *                      },
    *                      system: "mock"
    *                    }
-   * 
+   *
    *        '404':
    *           description: Doesn't exist any user with this phone number or merchant available with that code.
    *           content:
@@ -160,7 +187,7 @@ class OperationsRoute {
    *                  error:
    *                    type: string
    *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -170,7 +197,7 @@ class OperationsRoute {
    *                  properties:
    *                    message:
    *                      type: string
-   * 
+   *
    * components:
    *   schemas:
    *     CreateOperationBody:
@@ -196,18 +223,11 @@ class OperationsRoute {
    *           description: "Merchant identifier code"
    *         customerInfo:
    *           $ref: "#/components/schemas/CustomerInformation"
-   *             
+   *
    */
-  @Post("/")
-  public createOperation(
-    request: Request<
-      {},
-      {},
-      CreateOperationBody,
-      {}
-    >
-  ) {
-    return OperationsService.createOperation(request.body);
+  @Post('/')
+  public createOperation(request: Request<{}, {}, CreateOperationBody, {}>) {
+    return OperationsService.createOperation(request);
   }
 
   /**
@@ -218,6 +238,14 @@ class OperationsRoute {
    *        - "Operations"
    *     summary: Create an operation
    *     description: Create an operation in memory
+   *     parameters:
+   *      - in: header
+   *        name: sessionId
+   *        description: Customer session id (OTP)
+   *        required: true
+   *        schema:
+   *          type: number
+   *          example: 1234
    *     requestBody:
    *      required: true
    *      content:
@@ -225,7 +253,7 @@ class OperationsRoute {
    *          schema:
    *            $ref: "#/components/schemas/Operation"
    *          example:
-   *              { 
+   *              {
    *                 identifier: "233207212676",
    *                 identifierType: "token",
    *                 amount: 100,
@@ -235,6 +263,7 @@ class OperationsRoute {
    *                   phoneNumber: "+441632960067",
    *                   indicative: "+44",
    *                   active: true,
+   *                   otp: 1234
    *                 },
    *                 system: "mock"
    *               }
@@ -251,20 +280,27 @@ class OperationsRoute {
    *                    example: "Operation registered successfully"
    *
    */
-  @Post("/register")
+  @Post('/register')
   public registerOperation(request: Request<{}, {}, CreateOperationBody>) {
-    return OperationsService.registerOperation(request.body);
+    return OperationsService.registerOperation(request);
   }
 
   /**
    * @openapi
-   * /operations/:action/:id:
+   * /operations/{action}/{id}:
    *   post:
    *     tags:
    *      - "Operations"
    *     summary: Manage operations
    *     description: Makes a request to the Engine API to process the action selected in the operation
    *     parameters:
+   *      - in: header
+   *        name: sessionId
+   *        description: Customer session id (OTP)
+   *        required: true
+   *        schema:
+   *          type: number
+   *          example: 1234
    *      - in: path
    *        name: action
    *        required: true
@@ -290,7 +326,7 @@ class OperationsRoute {
    *                  status:
    *                    type: string
    *                    example: "pending"
-   * 
+   *
    *        '404':
    *           description: Doesn't exist any user with this phone number or merchant available with that code.
    *           content:
@@ -301,7 +337,7 @@ class OperationsRoute {
    *                  error:
    *                    type: string
    *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -312,13 +348,9 @@ class OperationsRoute {
    *                    message:
    *                      type: string
    */
-  @Post("/:action/:id")
+  @Post('/:action/:id')
   public manageOperation(request: Request<{ action: Action; id: string }, {}>) {
-    const { action, id } = request.params;
-    return OperationsService.manageOperation(
-      action,
-      id
-    );
+    return OperationsService.manageOperation(request);
   }
 
   /**
@@ -329,13 +361,21 @@ class OperationsRoute {
    *        - "Operations"
    *     summary: Create a notification
    *     description: Create a notification for the agent in memory
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:
    *        application/json:
    *          schema:
    *            $ref: "#/components/schemas/Notification"
-   *          example: 
+   *          example:
    *              {
    *                message: "Test OpenAPI"
    *              }
@@ -351,22 +391,27 @@ class OperationsRoute {
    *                      type: string
    *                      example: "Notification created successfully"
    */
-   @Post("/notify")
-   public createNotification(
-     request: Request<{}, {}, OperationNotification, {}>
-   ) {
-     return OperationsService.createNotification(request.body);
-   }
+  @Post('/notify')
+  public createNotification(request: Request<{}, {}, OperationNotification, {}>) {
+    return OperationsService.createNotification(request);
+  }
 
   /**
    * @openapi
-   * /operations/notification/:id:
+   * /operations/notification/{id}:
    *   delete:
    *     tags:
    *      - "Operations"
    *     summary: Remove notification
    *     description: Remove the specific notification from memory
    *     parameters:
+   *      - in: header
+   *        name: sessionId
+   *        description: Customer session id (OTP)
+   *        required: true
+   *        schema:
+   *          type: number
+   *          example: 1234
    *      - in: path
    *        name: id
    *        required: true
@@ -385,7 +430,7 @@ class OperationsRoute {
    *               message:
    *                 type: string
    *                 example: "The notification with id 408a6a77-2dc4-463e-8cca-02055c83a293 was deleted"
-   * 
+   *
    *      '404':
    *        description: Notification not found
    *        content:
@@ -397,9 +442,9 @@ class OperationsRoute {
    *                 type: string
    *                 example: "The notification with id 408a6a77-2dc4-463e-8cca-02055c83a293 doesn't exist."
    */
-  @Delete("/notification/:id")
+  @Delete('/notification/:id')
   public deleteNotification(request: Request<{ id: string }, {}>) {
-    return OperationsService.deleteNotification(request.params.id);
+    return OperationsService.deleteNotification(request);
   }
 }
 

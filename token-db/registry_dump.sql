@@ -31,7 +31,7 @@ CREATE TABLE `tokens` (
   UNIQUE KEY `id` (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,6 @@ CREATE TABLE `tokens` (
 
 LOCK TABLES `tokens` WRITE;
 /*!40000 ALTER TABLE `tokens` DISABLE KEYS */;
-INSERT INTO `tokens` VALUES (1,'442172976342',1,1);
 /*!40000 ALTER TABLE `tokens` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -75,9 +74,10 @@ CREATE TABLE `users` (
   `nickName` varchar(100) NOT NULL,
   `phoneNumber` varchar(50) NOT NULL,
   `indicative` varchar(50) NOT NULL,
+  `otp` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -86,7 +86,6 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Twilio','+447401232937','+44');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -101,7 +100,7 @@ DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `checkRepeatedPhoneNumber` BEFORE INSERT ON `users` FOR EACH ROW BEGIN
     IF EXISTS (SELECT 1 FROM users WHERE phoneNumber=NEW.phoneNumber) THEN
         SIGNAL SQLSTATE '50002' SET MESSAGE_TEXT = 'Already exist one User with that Phone Number';
-    END IF;
+    END IF; 
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -124,25 +123,26 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAccount`(IN identifier VARCHAR(50))
 BEGIN
-    CREATE TEMPORARY TABLE temp_user
+    CREATE TEMPORARY TABLE temp_user 
     (
         nickName VARCHAR(100) NULL,
         phoneNumber VARCHAR(50) NULL,
         indicative VARCHAR(50) NULL,
+        otp INT NULL,
         active BOOLEAN DEFAULT false
     );
 
     INSERT INTO temp_user
-    SELECT DISTINCT U.nickName, U.phoneNumber, U.indicative, false
-    FROM tokens T,
-        users U
+    SELECT DISTINCT U.nickName, U.phoneNumber, U.indicative, U.otp, false
+    FROM tokens T, 
+        users U 
     WHERE T.user_id=U.id
     AND (U.phoneNumber = identifier OR T.token = identifier);
 
-    IF (SELECT 1 FROM temp_user) IS NOT NULL
+    IF (SELECT 1 FROM temp_user) IS NOT NULL 
     AND (SELECT T.active
-         FROM tokens T,
-              users U
+         FROM tokens T, 
+              users U 
          WHERE T.user_id=U.id
          AND T.active=true
          AND (U.phoneNumber = identifier OR T.token = identifier)) IS NOT NULL
@@ -171,4 +171,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-18 14:38:22
+-- Dump completed on 2022-01-31 16:54:06

@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@types/axios': ^0.14.0
   '@types/cors': ^2.8.12
+  '@types/cron': ^1.7.3
   '@types/express': ^4.17.13
   '@types/mysql': ^2.15.19
   '@types/node': ^17.0.7
@@ -13,6 +14,7 @@ specifiers:
   axios: ^0.24.0
   body-parser: ^1.19.1
   cors: ^2.8.5
+  cron: ^1.8.2
   dotenv: ^10.0.0
   express: ^4.17.2
   moment: ^2.29.1
@@ -32,6 +34,7 @@ dependencies:
   axios: 0.24.0
   body-parser: 1.19.1
   cors: 2.8.5
+  cron: 1.8.2
   dotenv: 10.0.0
   express: 4.17.2
   moment: 2.29.1
@@ -46,6 +49,7 @@ dependencies:
 devDependencies:
   '@types/axios': 0.14.0
   '@types/cors': 2.8.12
+  '@types/cron': 1.7.3
   '@types/express': 4.17.13
   '@types/mysql': 2.15.20
   '@types/node': 17.0.7
@@ -168,6 +172,13 @@ packages:
 
   /@types/cors/2.8.12:
     resolution: {integrity: sha512-vt+kDhq/M2ayberEtJcIN/hxXy1Pk+59g2FV/ZQceeaTyCtCucjL2Q7FXlFjtWn4n15KCr1NE2lNNFhp0lEThw==}
+    dev: true
+
+  /@types/cron/1.7.3:
+    resolution: {integrity: sha512-iPmUXyIJG1Js+ldPYhOQcYU3kCAQ2FWrSkm1FJPoii2eYSn6wEW6onPukNTT0bfiflexNSRPl6KWmAIqS+36YA==}
+    dependencies:
+      '@types/node': 17.0.7
+      moment: 2.29.1
     dev: true
 
   /@types/express-serve-static-core/4.17.27:
@@ -541,6 +552,12 @@ packages:
 
   /create-require/1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+    dev: false
+
+  /cron/1.8.2:
+    resolution: {integrity: sha512-Gk2c4y6xKEO8FSAUTklqtfSr7oTq0CiPQeLBG5Fl0qoXpZyMcj1SG59YL+hqq04bu6/IuEA7lMkYDAplQNKkyg==}
+    dependencies:
+      moment-timezone: 0.5.34
     dev: false
 
   /crypto-random-string/2.0.0:
@@ -1090,9 +1107,14 @@ packages:
     resolution: {integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==}
     dev: true
 
+  /moment-timezone/0.5.34:
+    resolution: {integrity: sha512-3zAEHh2hKUs3EXLESx/wsgw6IQdusOT8Bxm3D9UrHPQR7zlMmzwybC8zHEM1tQ4LJwP7fcxrWr8tuBg05fFCbg==}
+    dependencies:
+      moment: 2.29.1
+    dev: false
+
   /moment/2.29.1:
     resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
-    dev: false
 
   /ms/2.0.0:
     resolution: {integrity: sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=}

@@ -1,6 +1,9 @@
 import axios, { AxiosError } from 'axios';
+import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
+import { headersValidation } from '../utils/request-validation';
+import { SMSService } from './sms.service';
 
 class AccountsService {
   async createAccount(nickName: string, phoneNumber: string) {
@@ -21,22 +24,29 @@ class AccountsService {
         throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
       }
 
-      await axios.post(`${process.env.MMO_API_URL}/accounts/`, {
+      const createAccountResponse = await axios.post(`${process.env.MMO_API_URL}/accounts/`, {
         nickName,
         phoneNumber,
       });
 
       await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
 
-      return { nickName, phoneNumber };
+      const message = `Welcome ${createAccountResponse.data.nickName}, your OTP is ${createAccountResponse.data.otp}`;
+      SMSService.sendCustomerNotification(phoneNumber, message, 'live', createAccountResponse.data.otp);
+
+      return { nickName, phoneNumber, otp: createAccountResponse.data.otp };
     } catch (err: any | AxiosError) {
       catchError(err);
     }
   }
 
-  async deleteAccount(phoneNumber: string) {
+  async deleteAccount(request: Request) {
     try {
-      const response = await axios.delete(`${process.env.MMO_API_URL}/accounts/${phoneNumber}`);
+      const { headers } = request;
+      headersValidation(headers);
+      const otp = request.headers['sessionid'] as string;
+
+      const response = await axios.delete(`${process.env.MMO_API_URL}/accounts`, { headers: { sessionId: otp } });
       return { ...response.data };
     } catch (err: any | AxiosError) {
       catchError(err);
@@ -52,9 +62,33 @@ class AccountsService {
     }
   }
 
-  async getMerchant(code: string) {
+  async getMerchant(request: Request) {
     try {
+      const { code } = request.params;
       const response = await axios.get(`${process.env.MMO_API_URL}/accounts/${code}/merchant`);
+      return { ...response.data };
+    } catch (err: any | AxiosError) {
+      catchError(err);
+    }
+  }
+
+  async createMockAccount() {
+    try {
+      const response = await axios.post(`${process.env.MMO_API_URL}/accounts/createMockAccount`);
+
+      await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${response.data.phoneNumber}`);
+
+      return { ...response.data };
+    } catch (err: any | AxiosError) {
+      catchError(err);
+    }
+  }
+
+  async verifyOTP(request: Request) {
+    try {
+      const { otp } = request.params;
+
+      const response = await axios.get(`${process.env.MMO_API_URL}/accounts/${otp}/valid`);
       return { ...response.data };
     } catch (err: any | AxiosError) {
       catchError(err);

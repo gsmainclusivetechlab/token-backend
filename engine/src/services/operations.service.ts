@@ -23,7 +23,7 @@ class OperationsService {
 
       if (action === 'accept') {
         const headers = {
-          'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`,
+          'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`
         };
         const body = {
           amount: operation.amount,
@@ -43,18 +43,19 @@ class OperationsService {
           system: operation.system,
           merchantCode: operation.merchantCode,
           identifierType: operation.identifierType,
+          otp: operation.customerInfo.otp
         };
 
         await axios.post(`${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(operation.type)}`, body, { headers });
 
         const message = `Please, to continue the operation send the following message 'PIN <space> {VALUE}'`;
-        SMSService.sendCustomerNotification(phoneNumber, message, operation.system);
+        SMSService.sendCustomerNotification(phoneNumber, message, operation.system, operation.customerInfo.otp);
 
         return { status: 'pending' };
       } else {
         const message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was rejected`;
-        HooksService.sendAgentMerchantNotification(message);
-        SMSService.sendCustomerNotification(phoneNumber, message, operation.system);
+        HooksService.sendAgentMerchantNotification(message, operation.customerInfo.otp);
+        SMSService.sendCustomerNotification(phoneNumber, message, operation.system, operation.customerInfo.otp);
 
         return { status: 'reject' };
       }
