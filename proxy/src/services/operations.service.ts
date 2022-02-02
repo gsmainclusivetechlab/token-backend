@@ -36,7 +36,7 @@ class OperationsService {
 
     if (elem.type === 'merchant-payment') {
       const [merchantInfoError, merchantInfoData] = await SafeAwait(
-        axios.get(`${process.env.ENGINE_API_URL}/accounts/merchant/${elem.merchantCode}`, { headers: { sessionId: otp } })
+        axios.get(`${process.env.ENGINE_API_URL}/accounts/merchant/${elem.merchantCode}`)
       );
       if (merchantInfoError) {
         catchError(merchantInfoError);

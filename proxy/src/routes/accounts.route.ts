@@ -74,7 +74,6 @@ class AccountsRoute {
    *        - "Accounts"
    *     summary: Create a mock account
    *     description: Makes a request to the Engine API to create a mock account
-   *
    *     responses:
    *        '200':
    *           description: OK
@@ -89,8 +88,6 @@ class AccountsRoute {
    *                      indicative: "+351",
    *                      otp: 1801
    *                  }
-   * 
-   *
    */
   @Post('/createMockAccount')
   public createMockAccount(request: Request<{}, {}, {}, {}>) {
