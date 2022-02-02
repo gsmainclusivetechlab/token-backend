@@ -18,6 +18,14 @@ class USSDGatewayRoute {
    *        - "USSD-Gateway"
    *     summary: Send an action
    *     description: Makes a request to the USSD Gateway API to process the action present in body
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:

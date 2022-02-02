@@ -18,6 +18,14 @@ class SMSGatewayRoute {
    *        - "SMS-Gateway"
    *     summary: Send an action
    *     description: Makes a request to the SMS Gateway API to process the action present in body
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:
@@ -83,6 +91,14 @@ class SMSGatewayRoute {
    *        - "SMS-Gateway"
    *     summary: Receive messages
    *     description: Receive a message from SMS Gateway API and store it in memory
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:

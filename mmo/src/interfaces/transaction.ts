@@ -42,7 +42,8 @@ export interface TransactionsBody {
   currency: string; // RWF
   system: 'mock' | 'live'; //mock or live
   merchantCode: string,
-  identifierType: IndentifierType;
+  identifierType: IdentifierType;
+  otp: number;
 }
 
 export interface TransactionsRes {
@@ -62,7 +63,8 @@ export interface Transaction {
   system: 'mock' | 'live',
   amount: number;
   merchant?: Merchant;
-  identifierType: IndentifierType;
+  identifierType: IdentifierType;
+  otp: number;
 }
 
 export interface Merchant {
@@ -71,4 +73,4 @@ export interface Merchant {
   available: boolean;
 }
 
-export type IndentifierType = "phoneNumber" | "token";
+export type IdentifierType = "phoneNumber" | "token";

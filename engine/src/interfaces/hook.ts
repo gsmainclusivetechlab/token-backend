@@ -18,4 +18,5 @@ export interface MMOWebhookBody {
   phoneNumber: string;
   amount: number;
   identifierType: IdentifierType;
+  otp: number;
 }

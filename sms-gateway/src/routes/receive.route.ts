@@ -18,6 +18,14 @@ class ReceiveRoute {
    *        - "Receive"
    *     summary: Receive messages
    *     description: Receive a message from the Engine API and send it to Proxy API
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:

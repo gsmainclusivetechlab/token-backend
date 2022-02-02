@@ -1,26 +1,39 @@
 import axios from 'axios';
+import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { MMOWebhookBody, SMSWebhookBody, USSDWebhookBody } from '../interfaces/hook';
 import { OperationType } from '../interfaces/operation';
 import { GetOperationFromType } from '../lib/operations';
+import { headersValidation } from '../utils/request-validation';
 import { SMSService } from './sms.service';
 import { USSDService } from './ussd.service';
 
 class HooksService {
-  async processSMSGateway(body: SMSWebhookBody) {
+  async processSMSGateway(request: Request) {
+    const { body, headers } = request;
     this.validateBodyPropertiesGateway(body);
+
+    if (body.system === 'mock') {
+      headersValidation(headers);
+    }
 
     return SMSService.processSMSMessage(body);
   }
 
-  async processUSSDGateway(body: USSDWebhookBody) {
+  async processUSSDGateway(request: Request) {
+    const { body, headers } = request;
+
     this.validateBodyPropertiesGateway(body);
+
+    if (body.system === 'mock') {
+      headersValidation(headers);
+    }
 
     return USSDService.processUSSDMessage(body);
   }
 
   async processMMO(body: MMOWebhookBody) {
-    const { type, system, phoneNumber, amount, identifierType } = body;
+    const { type, system, phoneNumber, amount, identifierType, otp } = body;
 
     const operationType: OperationType = GetOperationFromType(type);
 
@@ -40,8 +53,8 @@ class HooksService {
     }
 
     const message = `The ${operationType} operation with the value of ${amount} for the customer with the identifier ${identifier} was successful`;
-    this.sendAgentMerchantNotification(message);
-    SMSService.sendCustomerNotification(phoneNumber, message, system);
+    this.sendAgentMerchantNotification(message, otp);
+    SMSService.sendCustomerNotification(phoneNumber, message, system, otp);
 
     return { message: 'Thanks for using Engine API' };
   }
@@ -81,7 +94,7 @@ class HooksService {
   }
 
   private validateBodyPropertiesMMO(body: MMOWebhookBody) {
-    const { system, phoneNumber, amount, identifierType } = body;
+    const { system, phoneNumber, amount, identifierType, otp } = body;
 
     if (!(system === 'mock' || system === 'live')) {
       throw new UserFacingError('INVALID_REQUEST - Invalid System');
@@ -102,12 +115,20 @@ class HooksService {
     if (!amount) {
       throw new UserFacingError('INVALID_REQUEST - Missing property amount');
     }
+
+    if (!otp) {
+      throw new UserFacingError('INVALID_REQUEST - Missing property otp');
+    }
   }
 
-  sendAgentMerchantNotification(message: string) {
-    axios.post(`${process.env.PROXY_API_URL}/operations/notify`, {
-      message,
-    });
+  sendAgentMerchantNotification(message: string, otp: number) {
+    axios.post(
+      `${process.env.PROXY_API_URL}/operations/notify`,
+      {
+        message,
+      },
+      { headers: { sessionId: String(otp) } }
+    );
   }
 }
 

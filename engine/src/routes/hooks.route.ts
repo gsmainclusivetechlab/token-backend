@@ -19,6 +19,14 @@ class HooksRoute {
    *        - "Hooks"
    *     summary: SMS gateway Webhook
    *     description: Webhook for the SMS gateway. Process the content of the SMS and takes action accordingly.
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: false
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:
@@ -82,7 +90,7 @@ class HooksRoute {
    */
   @Post("/sms-gateway")
   public smsGatewayWebhooks(request: Request<{}, {}, SMSWebhookBody, {}>) {
-    return HooksService.processSMSGateway(request.body);
+    return HooksService.processSMSGateway(request);
   }
 
   /**
@@ -93,6 +101,14 @@ class HooksRoute {
    *        - "Hooks"
    *     summary: USSD gateway Webhook
    *     description: Webhook for the USSD gateway. Process the content of the USSD and takes action accordingly.
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: false
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:
@@ -156,7 +172,7 @@ class HooksRoute {
    */
   @Post("/ussd-gateway")
   public ussdGatewayWebhooks(request: Request<{}, {}, USSDWebhookBody, {}>) {
-    return HooksService.processUSSDGateway(request.body);
+    return HooksService.processUSSDGateway(request);
   }
 
   /**
@@ -180,7 +196,8 @@ class HooksRoute {
    *              system: "mock",
    *              phoneNumber: "+233207212676",
    *              amount: 100,
-   *              identifierType: "phoneNumber"
+   *              identifierType: "phoneNumber",
+   *              otp: 1234
    *            }
    * 
    *     responses:
@@ -225,6 +242,9 @@ class HooksRoute {
    *        identifierType:
    *          type: string
    *          description: "Identify what is the identifier. Value can be 'token' or 'phoneNumber'"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
    */
   @Put("/mmo")
   public mmoWebhooks(request: Request<{}, {}, MMOWebhookBody, {}>) {

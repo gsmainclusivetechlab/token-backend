@@ -3,4 +3,5 @@ export interface AccountNameReturn {
   phoneNumber: string;
   indicative: string;
   active: boolean;
+  otp: number;
 }

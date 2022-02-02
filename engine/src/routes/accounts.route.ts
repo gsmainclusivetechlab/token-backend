@@ -2,6 +2,7 @@ import { Request, Router } from 'express';
 import Server from '../classes/server';
 import { RouteHandler, Post, Get, Delete } from '../decorators/router-handler';
 import { AccountsService } from '../services/accounts.service';
+import { headersValidation } from '../utils/request-validation';
 
 @RouteHandler('/accounts')
 class AccountsRoute {
@@ -69,20 +70,20 @@ class AccountsRoute {
 
   /**
    * @openapi
-   * /accounts/:phoneNumber:
+   * /accounts/:
    *   delete:
    *     tags:
    *      - "Accounts"
    *     summary: Delete customer account 
    *     description: Makes a request to the MMO API to delete the customer account
    *     parameters:
-   *      - in: path
-   *        name: phoneNumber
-   *        required: true
-   *        description: Customer Phone Number.
-   *        schema:
-   *          type: string
-   *          example: "+441632960067"
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     responses:
    *        '200':
    *           description: OK
@@ -116,15 +117,14 @@ class AccountsRoute {
    *                    message:
    *                      type: string
    */
-  @Delete('/:phoneNumber')
-  public deleteAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {
-    const { phoneNumber } = request.params;
-    return AccountsService.deleteAccount(phoneNumber);
+  @Delete('/')
+  public deleteAccount(request: Request<{}, {}, {}, {}>) {
+    return AccountsService.deleteAccount(request);
   }
 
   /**
    * @openapi
-   * /accounts/:identifier:
+   * /accounts/{identifier}:
    *   get:
    *     tags:
    *        - "Accounts"
@@ -151,6 +151,7 @@ class AccountsRoute {
    *                      phoneNumber: "+441632960067",
    *                      indicative: "+44",
    *                      active: true,
+   *                      otp: 1234
    *                  }
    * 
    *        '404':
@@ -181,6 +182,9 @@ class AccountsRoute {
    *        active:
    *          type: boolean
    *          description: "Flag that indicate if the user have a token active or not"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
    */
   @Get('/:identifier')
   public getAccountInfo(request: Request<{ identifier: string }, {}, {}, {}>) {
@@ -190,7 +194,7 @@ class AccountsRoute {
 
   /**
    * @openapi
-   * /accounts/merchant/:code:
+   * /accounts/merchant/{code}:
    *   get:
    *     tags:
    *        - "Accounts"
@@ -238,8 +242,92 @@ class AccountsRoute {
    */
   @Get('/merchant/:code')
   public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
-    const { code } = request.params;
-    return AccountsService.getMerchant(code);
+    return AccountsService.getMerchant(request);
+  }
+
+  /**
+   * @openapi
+   * /accounts/createMockAccount:
+   *   post:
+   *     tags:
+   *        - "Accounts"
+   *     summary: Create a mock account
+   *     description: Makes a request to the MMO API to create a mock account
+   *     responses:
+   *        '200':
+   *           description: OK
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: "#/components/schemas/CustomerInformation"
+   *               example:
+   *                  {
+   *                      nickName: "MockUser",
+   *                      phoneNumber: "+351922774207",
+   *                      indicative: "+351",
+   *                      otp: 1801
+   *                  }
+   */
+  @Post('/createMockAccount')
+  public createMockAccount(request: Request<{}, {}, {}, {}>) {
+    return AccountsService.createMockAccount();
+  }
+
+  /**
+   * @openapi
+   * /accounts/{otp}/valid:
+   *   get:
+   *     tags:
+   *        - "Accounts"
+   *     summary: Verify if the OTP is valid and return customer information
+   *     description: Makes a request to the MMO API to verify if the OTP is valid
+   *     parameters:
+   *       - in: path
+   *         name: otp
+   *         required: true
+   *         description: Customer One Time Password.
+   *         schema:
+   *           type: number
+   *           example: 1234
+   *     responses:
+   *        '200':
+   *           description: OK
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: "#/components/schemas/CustomerInformation"
+   *               example:
+   *                  {
+   *                      nickName: "MockUser",
+   *                      phoneNumber: "+351922774207",
+   *                      indicative: "+351",
+   *                      otp: 1801
+   *                  }
+   * 
+   *        '400':
+   *           description: Invalid Request.
+   *           content:
+   *              application/json:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    message:
+   *                      type: string
+   * 
+   *        '404':
+   *           description: Doesn't exist any user with this otp.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist a merchant available with this code"
+   */
+  @Get('/:otp/valid')
+  public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {
+    return AccountsService.verifyOTP(request);
   }
 }
 

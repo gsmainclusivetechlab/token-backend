@@ -4,6 +4,7 @@ CREATE TABLE users(
    nickName VARCHAR(100) NOT NULL,
    phoneNumber VARCHAR(50) NOT NULL,
    indicative VARCHAR(50) NOT NULL,
+   otp INT NULL,
    PRIMARY KEY (id)
 );
 
@@ -40,17 +41,6 @@ BEGIN
 END;//
 delimiter ;
 
--- ADD USER RECORD
-INSERT INTO users (nickName, phoneNumber, indicative)
-VALUES ("Twilio","+447401232937", "+44");
-
--- ADD TOKEN RECORD
-INSERT INTO tokens (token, user_id)
-VALUES ("442172976342",
-       (SELECT id FROM users WHERE phoneNumber="+447401232937")
-);
-
-
 -- ADD STORE PROCEDURE
 
 DELIMITER //
@@ -61,11 +51,12 @@ BEGIN
         nickName VARCHAR(100) NULL,
         phoneNumber VARCHAR(50) NULL,
         indicative VARCHAR(50) NULL,
+        otp INT NULL,
         active BOOLEAN DEFAULT false
     );
 
     INSERT INTO temp_user
-    SELECT DISTINCT U.nickName, U.phoneNumber, U.indicative, false
+    SELECT DISTINCT U.nickName, U.phoneNumber, U.indicative, U.otp, false
     FROM tokens T, 
         users U 
     WHERE T.user_id=U.id
@@ -89,24 +80,6 @@ BEGIN
 
 END;//
 DELIMITER ;
-
--- SELECT's
-SELECT u.nickName
-FROM tokens t
-INNER JOIN users u ON t.user_id=u.id 
-WHERE t.active = true
-AND u.phoneNumber = "+447401232937";
-
-SELECT u.nickName
-FROM tokens t,
-     users u 
-WHERE t.user_id=u.id 
-AND t.active = true
-AND u.phoneNumber = "+447401232937";
-
-
-
-
 
 --- Helpers
 

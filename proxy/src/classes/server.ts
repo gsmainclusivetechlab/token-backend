@@ -84,7 +84,7 @@ class Server {
       })
     );
 
-    const whitelist = ['http://localhost:8080', 'https://token.gsmainclusivetechlab.io', 'PostmanRuntime.*', 'axios.*', 'Swagger'];
+    const whitelist = ['http://localhost:8080', 'https://token.gsmainclusivetechlab.io', 'PostmanRuntime.*', 'axios.*', 'Swagger', 'http://localhost:4000'];
     const corsOptions: CorsOptions = {
       origin: (origin, callback) => {
         if (origin && whitelist.some((el) => new RegExp(el).test(origin))) {
@@ -93,7 +93,7 @@ class Server {
           callback(new Error('Not allowed by CORS'));
         }
       },
-      allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept', 'Access-Control-Allow-Origin'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'Accept', 'Access-Control-Allow-Origin', 'sessionId'],
       credentials: true,
       methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
     };

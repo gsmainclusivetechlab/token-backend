@@ -7,7 +7,7 @@ import {
   TransactionsBody,
   TransactionType,
 } from '../interfaces/transaction';
-import { mmoService } from '../services/mmo.service';
+import { MmoService } from '../services/mmo.service';
 
 @RouteHandler('/transactions')
 class TransactionsRoute {
@@ -50,7 +50,8 @@ class TransactionsRoute {
    *                creditParty: [{key: "msisdn", value: "+233207212676"}],
    *                currency: "RWF",
    *                system: "mock",
-   *                identifierType: "phoneNumber"
+   *                identifierType: "phoneNumber",
+   *                otp: 1234
    *              }
    * 
    *     responses:
@@ -133,9 +134,12 @@ class TransactionsRoute {
    *        identifierType:
    *          type: string
    *          description: "Identify what is the identifier. Value can be 'token' or 'phoneNumber'"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
   */
   @Post('/type/:type')
-  public getAccountName(
+  public startTransaction(
     request: Request<
       { type: TransactionType },
       {},
@@ -146,7 +150,7 @@ class TransactionsRoute {
     if(!callbackUrl) {
       throw new UserFacingError('callbackUrl is mandatory')
     }
-    return mmoService.startTransaction(
+    return MmoService.startTransaction(
       request.params.type,
       callbackUrl,
       request.body

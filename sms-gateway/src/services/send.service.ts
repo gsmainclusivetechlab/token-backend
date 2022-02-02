@@ -2,22 +2,26 @@ import axios, { AxiosError } from 'axios';
 import { Request } from 'express';
 import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
+import { headersValidation } from '../utils/request-validation';
 
 class SendService {
   async processSend(request: Request) {
-    const { body } = request;
+    const { body, headers } = request;
 
     //Only for JEST
     if (body.text === 'PING') {
       return 'PONG';
     }
 
-    this.requestValidation(body);
+    this.requestBodyValidation(body);
+    if (body.system === 'mock') {
+      headersValidation(headers);
+    }
 
-    return this.manageRequest(body);
+    return this.manageRequest(body, headers);
   }
 
-  private requestValidation(body: any) {
+  private requestBodyValidation(body: any) {
     //Text
     if (!body.text) {
       throw new UserFacingError('INVALID_REQUEST - Missing property text');
@@ -50,20 +54,27 @@ class SendService {
     }
   }
 
-  private manageRequest(body: any) {
+  private manageRequest(body: any, headers: any) {
     const ussdIdentifier = '*165#*';
+    const sessionId = headers['sessionid'] as string;
 
     if (body.text.startsWith(ussdIdentifier)) {
       body.text = body.text.slice(ussdIdentifier.length);
-      return this.sendAxiosPost(`${process.env.ENGINE_API_URL}/hooks/ussd-gateway`, body);
+      return this.sendAxiosPost(`${process.env.ENGINE_API_URL}/hooks/ussd-gateway`, body, sessionId);
     } else {
-      return this.sendAxiosPost(`${process.env.ENGINE_API_URL}/hooks/sms-gateway`, body);
+      return this.sendAxiosPost(`${process.env.ENGINE_API_URL}/hooks/sms-gateway`, body, sessionId);
     }
   }
 
-  private async sendAxiosPost(path: string, body: any) {
+  private async sendAxiosPost(path: string, body: any, sessionId: string) {
+    let headers = undefined;
+
+    if (sessionId) {
+      headers = { sessionId };
+    }
+
     try {
-      const response = await axios.post(path, body);
+      const response = await axios.post(path, body, { headers });
       return response.data;
     } catch (err: any | AxiosError) {
       catchError(err);

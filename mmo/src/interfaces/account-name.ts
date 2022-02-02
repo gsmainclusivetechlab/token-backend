@@ -17,6 +17,7 @@ export interface CreateAccountReturn {
   nickName: string;
   phoneNumber: string;
   indicative: string;
+  otp: number;
 }
 
 export interface AccountNameReturn {
@@ -24,6 +25,7 @@ export interface AccountNameReturn {
   phoneNumber: string;
   indicative: string;
   active: boolean;
+  otp: number;
 }
 
 export interface AccountNameError {
