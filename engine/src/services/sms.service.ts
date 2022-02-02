@@ -89,9 +89,13 @@ class SMSService {
             customerInfo: getAccountNameData,
           };
 
-          axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
-            ...operationCashInObj,
-          });
+          axios.post(
+            `${process.env.PROXY_API_URL}/operations/register`,
+            {
+              ...operationCashInObj,
+            },
+            { headers: { sessionId: String(getAccountNameData.otp) } }
+          );
           break;
         case SMSOperations.CashOut:
           if (!smsSplitted[1]) {
@@ -113,9 +117,13 @@ class SMSService {
             customerInfo: getAccountNameData,
           };
 
-          axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
-            ...operationCashOutObj,
-          });
+          axios.post(
+            `${process.env.PROXY_API_URL}/operations/register`,
+            {
+              ...operationCashOutObj,
+            },
+            { headers: { sessionId: String(getAccountNameData.otp) } }
+          );
           break;
         case SMSOperations.Pin:
           if (!smsSplitted[1]) {

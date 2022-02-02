@@ -22,7 +22,7 @@ class USSDService {
 
       //Check if phone number is registry
       const getAccountNameData = await AccountsService.getAccountInfo(phoneNumber);
-      var message: string = "";
+      var message: string = '';
 
       var ussdSplitted: string[] = text.split('*');
       if (ussdSplitted.length === 0) {
@@ -31,7 +31,7 @@ class USSDService {
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
 
-      if(!getAccountNameData.active && ussdSplitted[0] !== USSDOperations.GetToken){
+      if (!getAccountNameData.active && ussdSplitted[0] !== USSDOperations.GetToken) {
         message = `You need to request a new token to make that operation`;
         SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
         throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token');
@@ -87,9 +87,13 @@ class USSDService {
             customerInfo: getAccountNameData,
           };
 
-          axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
-            ...operationCashInObj,
-          });
+          axios.post(
+            `${process.env.PROXY_API_URL}/operations/register`,
+            {
+              ...operationCashInObj,
+            },
+            { headers: { sessionId: String(getAccountNameData.otp) } }
+          );
           break;
         case USSDOperations.CashOut:
           if (!ussdSplitted[1]) {
@@ -111,9 +115,13 @@ class USSDService {
             customerInfo: getAccountNameData,
           };
 
-          axios.post(`${process.env.PROXY_API_URL}/operations/register`, {
-            ...operationCashOutObj,
-          });
+          axios.post(
+            `${process.env.PROXY_API_URL}/operations/register`,
+            {
+              ...operationCashOutObj,
+            },
+            { headers: { sessionId: String(getAccountNameData.otp) } }
+          );
           break;
         case USSDOperations.Payment:
           if (!ussdSplitted[1]) {

@@ -181,6 +181,9 @@ class AccountsRoute {
    *        active:
    *          type: boolean
    *          description: "Flag that indicate if the user have a token active or not"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
    */
   @Get('/:identifier')
   public getAccountInfo(request: Request<{ identifier: string }, {}, {}, {}>) {
