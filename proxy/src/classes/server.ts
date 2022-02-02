@@ -84,7 +84,7 @@ class Server {
       })
     );
 
-    const whitelist = ['http://localhost:8080', 'https://token.gsmainclusivetechlab.io', 'PostmanRuntime.*', 'axios.*', 'Swagger'];
+    const whitelist = ['http://localhost:8080', 'https://token.gsmainclusivetechlab.io', 'PostmanRuntime.*', 'axios.*', 'Swagger', 'http://localhost:4000'];
     const corsOptions: CorsOptions = {
       origin: (origin, callback) => {
         if (origin && whitelist.some((el) => new RegExp(el).test(origin))) {
@@ -109,7 +109,6 @@ class Server {
     return (req: Request, res: Response, next: any) => {
       var regexDocs = /^\/?docs.*$/;
       if (regexDocs.test(req.path)) return next();
-      else if(req.headers.host === 'localhost:4000') return next();
       else return fn(req, res, next);
     };
   }
