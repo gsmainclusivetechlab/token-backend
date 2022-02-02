@@ -64,9 +64,7 @@ class AccountsService {
 
   async getMerchant(request: Request) {
     try {
-      const { headers, params } = request;
-      headersValidation(headers);
-      const { code } = params;
+      const { code } = request.params;
       const response = await axios.get(`${process.env.MMO_API_URL}/accounts/${code}/merchant`);
       return { ...response.data };
     } catch (err: any | AxiosError) {

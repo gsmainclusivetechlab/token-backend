@@ -19,6 +19,14 @@ class HooksRoute {
    *        - "Hooks"
    *     summary: SMS gateway Webhook
    *     description: Webhook for the SMS gateway. Process the content of the SMS and takes action accordingly.
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: false
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:
@@ -93,6 +101,14 @@ class HooksRoute {
    *        - "Hooks"
    *     summary: USSD gateway Webhook
    *     description: Webhook for the USSD gateway. Process the content of the USSD and takes action accordingly.
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: false
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:
