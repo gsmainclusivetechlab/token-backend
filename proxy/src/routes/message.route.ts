@@ -18,6 +18,14 @@ class MessageRoute {
    *        - "Message"
    *     summary: Get SMS Message
    *     description: Gets the message about last user operation
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     responses:
    *        '200':
    *           description: OK

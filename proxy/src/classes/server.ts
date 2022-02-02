@@ -109,6 +109,7 @@ class Server {
     return (req: Request, res: Response, next: any) => {
       var regexDocs = /^\/?docs.*$/;
       if (regexDocs.test(req.path)) return next();
+      else if(req.headers.host === 'localhost:4000') return next();
       else return fn(req, res, next);
     };
   }

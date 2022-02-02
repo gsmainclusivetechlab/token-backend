@@ -68,42 +68,65 @@ class AccountsRoute {
 
   /**
    * @openapi
-   * /accounts/:phoneNumber:
-   *   delete:
+   * /accounts/createMockAccount:
+   *   post:
    *     tags:
-   *      - "Accounts"
-   *     summary: Delete customer account 
-   *     description: Makes a request to the Engine API to delete the customer account
-   *     parameters:
-   *      - in: path
-   *        name: phoneNumber
-   *        required: true
-   *        description: Customer Phone Number.
-   *        schema:
-   *          type: string
-   *          example: "+441632960067"
+   *        - "Accounts"
+   *     summary: Create a mock account
+   *     description: Makes a request to the Engine API to create a mock account
+   *
    *     responses:
    *        '200':
    *           description: OK
    *           content:
-   *            application/json:
-   *              schema:
-   *                type: object
-   *                properties:
-   *                  message:
-   *                    type: string
-   *                    example: "User deleted"
+   *             application/json:
+   *               schema:
+   *                 $ref: "#/components/schemas/CustomerInformation"
+   *               example:
+   *                  {
+   *                      nickName: "MockUser",
+   *                      phoneNumber: "+351922774207",
+   *                      indicative: "+351",
+   *                      otp: 1801
+   *                  }
    * 
-   *        '404':
-   *           description: Doesn't exist any user with this phone number.
+   *
+   */
+  @Post('/createMockAccount')
+  public createMockAccount(request: Request<{}, {}, {}, {}>) {
+    return AccountsService.createMockAccount();
+  }
+
+  /**
+   * @openapi
+   * /accounts/{otp}/valid:
+   *   get:
+   *     tags:
+   *        - "Accounts"
+   *     summary: Verify if the OTP is valid and return customer information
+   *     description: Makes a request to the Engine API to verify if the OTP is valid
+   *     parameters:
+   *       - in: path
+   *         name: otp
+   *         required: true
+   *         description: Customer One Time Password.
+   *         schema:
+   *           type: number
+   *           example: 1234
+   *     responses:
+   *        '200':
+   *           description: OK
    *           content:
-   *            application/json:
-   *              schema:
-   *                type: object
-   *                properties:
-   *                  error:
-   *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
+   *             application/json:
+   *               schema:
+   *                 $ref: "#/components/schemas/CustomerInformation"
+   *               example:
+   *                  {
+   *                      nickName: "MockUser",
+   *                      phoneNumber: "+351922774207",
+   *                      indicative: "+351",
+   *                      otp: 1801
+   *                  }
    * 
    *        '400':
    *           description: Invalid Request.
@@ -114,18 +137,18 @@ class AccountsRoute {
    *                  properties:
    *                    message:
    *                      type: string
+   * 
+   *        '404':
+   *           description: Doesn't exist any user with this otp.
+   *           content:
+   *            application/json:
+   *              schema:
+   *                type: object
+   *                properties:
+   *                  error:
+   *                    type: string
+   *                    example: "Doesn't exist a merchant available with this code"
    */
-  // @Delete("/:phoneNumber")
-  // public deleteUserAccount(request: Request<{phoneNumber: string}, {}, {}, {}>) {
-  //   const { phoneNumber } = request.params;
-  //   return AccountsService.deleteAccount(phoneNumber);
-  // }
-
-  @Post('/createMockAccount')
-  public createMockAccount(request: Request<{}, {}, {}, {}>) {
-    return AccountsService.createMockAccount();
-  }
-
   @Get('/:otp/valid')
   public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {
     return AccountsService.verifyOTP(request);

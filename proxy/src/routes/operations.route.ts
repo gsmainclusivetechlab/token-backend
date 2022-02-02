@@ -21,6 +21,14 @@ class OperationsRoute {
    *          - "Operations"
    *      summary: Return all operations and notifications
    *      description: Return all operations and notifications in memory
+   *      parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *      responses:
    *        '200':
    *          description: OK
@@ -37,8 +45,9 @@ class OperationsRoute {
    *                      [
    *                        {
    *                          id: "408a6a77-2dc4-463e-8cca-02055c83a293",
-   *                          message: "Test"
-   *                         }
+   *                          message: "Test",
+   *                          otp: 1234
+   *                        }
    *                      ]
    *
    *                  operations:
@@ -58,6 +67,7 @@ class OperationsRoute {
    *                            phoneNumber: "+441632960067",
    *                            indicative: "+44",
    *                            active: true,
+   *                            otp: 1234
    *                          },
    *                          system: "mock"
    *                         }
@@ -74,6 +84,10 @@ class OperationsRoute {
    *        message:
    *          type: string
    *          description: "Message"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
+   * 
    *    Operation:
    *      allOf:
    *        - $ref: "#/components/schemas/CreateOperationBody"
@@ -97,6 +111,9 @@ class OperationsRoute {
    *        active:
    *          type: boolean
    *          description: "Flag that indicate if the user have a token active or not"
+   *        otp:
+   *          type: number
+   *          description: "Customer one time password"
    *
    */
   @Get('/')
@@ -113,6 +130,14 @@ class OperationsRoute {
    *     summary: Create an operation
    *     description: Makes a request to the Engine API in order to get the user's account info,
    *                  and if the user's account exist, the system create the operation in memory
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:
@@ -147,6 +172,7 @@ class OperationsRoute {
    *                        phoneNumber: "+441632960067",
    *                        indicative: "+44",
    *                        active: true,
+   *                        otp: 1234
    *                      },
    *                      system: "mock"
    *                    }
@@ -212,6 +238,14 @@ class OperationsRoute {
    *        - "Operations"
    *     summary: Create an operation
    *     description: Create an operation in memory
+   *     parameters:
+   *      - in: header
+   *        name: sessionId
+   *        description: Customer session id (OTP)
+   *        required: true
+   *        schema:
+   *          type: number
+   *          example: 1234
    *     requestBody:
    *      required: true
    *      content:
@@ -229,6 +263,7 @@ class OperationsRoute {
    *                   phoneNumber: "+441632960067",
    *                   indicative: "+44",
    *                   active: true,
+   *                   otp: 1234
    *                 },
    *                 system: "mock"
    *               }
@@ -247,19 +282,25 @@ class OperationsRoute {
    */
   @Post('/register')
   public registerOperation(request: Request<{}, {}, CreateOperationBody>) {
-    //TODO
-    return OperationsService.registerOperation(request.body);
+    return OperationsService.registerOperation(request);
   }
 
   /**
    * @openapi
-   * /operations/:action/:id:
+   * /operations/{action}/{id}:
    *   post:
    *     tags:
    *      - "Operations"
    *     summary: Manage operations
    *     description: Makes a request to the Engine API to process the action selected in the operation
    *     parameters:
+   *      - in: header
+   *        name: sessionId
+   *        description: Customer session id (OTP)
+   *        required: true
+   *        schema:
+   *          type: number
+   *          example: 1234
    *      - in: path
    *        name: action
    *        required: true
@@ -320,6 +361,14 @@ class OperationsRoute {
    *        - "Operations"
    *     summary: Create a notification
    *     description: Create a notification for the agent in memory
+   *     parameters:
+   *       - in: header
+   *         name: sessionId
+   *         description: Customer session id (OTP)
+   *         required: true
+   *         schema:
+   *           type: number
+   *           example: 1234
    *     requestBody:
    *      required: true
    *      content:
@@ -349,13 +398,20 @@ class OperationsRoute {
 
   /**
    * @openapi
-   * /operations/notification/:id:
+   * /operations/notification/{id}:
    *   delete:
    *     tags:
    *      - "Operations"
    *     summary: Remove notification
    *     description: Remove the specific notification from memory
    *     parameters:
+   *      - in: header
+   *        name: sessionId
+   *        description: Customer session id (OTP)
+   *        required: true
+   *        schema:
+   *          type: number
+   *          example: 1234
    *      - in: path
    *        name: id
    *        required: true

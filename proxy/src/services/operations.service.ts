@@ -113,7 +113,11 @@ class OperationsService {
     return { message: 'Notification created successfully' };
   }
 
-  async registerOperation(elem: CreateOperationBody) {
+  async registerOperation(request: Request) {
+    const { headers, body } = request;
+    headersValidation(headers);
+    let elem: CreateOperationBody = body;
+
     this.validateCreateOperationBody(elem);
 
     this.setOperation(elem);
