@@ -87,6 +87,7 @@ class Server {
     const whitelist = ['http://localhost:8080', 'https://token.gsmainclusivetechlab.io', 'PostmanRuntime.*', 'axios.*', 'Swagger', 'http://localhost:4000'];
     const corsOptions: CorsOptions = {
       origin: (origin, callback) => {
+        console.log("origin", origin);
         if (origin && whitelist.some((el) => new RegExp(el).test(origin))) {
           callback(null, true);
         } else {
