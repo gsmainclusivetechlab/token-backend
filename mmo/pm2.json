@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "proxy",
+      "name": "mmo",
       "script": "./dist/app.js",
       "kill_timeout": 30000,
       "instances": "0",

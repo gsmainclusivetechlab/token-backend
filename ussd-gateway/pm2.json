@@ -1,8 +1,8 @@
 {
   "apps": [
     {
-      "name": "proxy",
-      "script": "./dist/app.js",
+      "name": "ussd-gateway",
+      "script": "./dist/src/app.js",
       "kill_timeout": 30000,
       "instances": "0",
       "exec_mode": "cluster",
