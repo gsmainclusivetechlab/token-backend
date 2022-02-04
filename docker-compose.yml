@@ -3,7 +3,7 @@
   services:
     nodeproxy:
       container_name: nodeproxy
-      image: gsmainclusivetechlab/token:proxy-v1.4.0
+      image: gsmainclusivetechlab/token:proxy-v1.5.0
 
       ports:
         - "4000:4000"
@@ -21,7 +21,7 @@
 
     nodesmsgateway:
       container_name: nodesmsgateway
-      image: gsmainclusivetechlab/token:sms-gateway-v1.4.0
+      image: gsmainclusivetechlab/token:sms-gateway-v1.5.0
 
       ports:
         - "4100:4100"
@@ -44,7 +44,7 @@
 
     nodeussdgateway:
       container_name: nodeussdgateway
-      image: gsmainclusivetechlab/token:ussd-gateway-v1.4.0
+      image: gsmainclusivetechlab/token:ussd-gateway-v1.5.0
 
       ports:
         - "4200:4200"
@@ -64,7 +64,7 @@
 
     tokenservice:
       container_name: tokenservice
-      image: gsmainclusivetechlab/token:generator-v1.3.2
+      image: gsmainclusivetechlab/token:generator-v1.4.0
 
       ports:
         - "3700:3700"
@@ -86,7 +86,7 @@
 
     tokendbservice:
       container_name: tokendbservice
-      image: gsmainclusivetechlab/token:generator-db-v1.4.0
+      image: gsmainclusivetechlab/token:generator-db-v1.5.0
       command: --default-authentication-plugin=mysql_native_password
 
       ports:
@@ -104,7 +104,7 @@
 
     engineservice:
       container_name: nodeengineservice
-      image: gsmainclusivetechlab/token:engine-v1.4.0
+      image: gsmainclusivetechlab/token:engine-v1.5.0
 
       ports:
         - "4400:4400"
@@ -128,7 +128,7 @@
 
     mmoservice:
       container_name: mmoservice
-      image: gsmainclusivetechlab/token:mmo-v1.3.0
+      image: gsmainclusivetechlab/token:mmo-v1.4.0
       ports:
         - "4300:4300"
       networks:
