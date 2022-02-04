@@ -48,27 +48,25 @@ CREATE PROCEDURE GetAccount(IN identifier VARCHAR(50))
 BEGIN
     CREATE TEMPORARY TABLE temp_user 
     (
-        nickName VARCHAR(100) NULL,
-        phoneNumber VARCHAR(50) NULL,
-        indicative VARCHAR(50) NULL,
-        otp INT NULL,
+        id INT NOT NULL,
+        nickName VARCHAR(100) NOT NULL,
+        phoneNumber VARCHAR(50) NOT NULL,
+        indicative VARCHAR(50) NOT NULL,
+        otp INT NOT NULL,
         active BOOLEAN DEFAULT false
     );
 
     INSERT INTO temp_user
-    SELECT DISTINCT U.nickName, U.phoneNumber, U.indicative, U.otp, false
-    FROM tokens T, 
-        users U 
-    WHERE T.user_id=U.id
-    AND (U.phoneNumber = identifier OR T.token = identifier);
+    SELECT DISTINCT U.id, U.nickName, U.phoneNumber, U.indicative, U.otp, false
+    FROM users U 
+    LEFT JOIN tokens T ON T.user_id = U.id
+    WHERE (U.phoneNumber = identifier OR T.token = identifier);
 
-    IF (SELECT 1 FROM temp_user) IS NOT NULL 
-    AND (SELECT T.active
-         FROM tokens T, 
-              users U 
-         WHERE T.user_id=U.id
-         AND T.active=true
-         AND (U.phoneNumber = identifier OR T.token = identifier)) IS NOT NULL
+    IF (SELECT T.active 
+        FROM tokens T, temp_user U 
+        WHERE T.user_id=U.id 
+        AND T.active=true
+        AND (U.phoneNumber = identifier OR T.token = identifier)) IS NOT NULL
     THEN
         UPDATE temp_user
         SET active = true;

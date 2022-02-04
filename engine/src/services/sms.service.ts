@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { UserFacingError } from '../classes/errors';
 import { SMSOperations } from '../enum/sms-operations.enum';
-import { Operation, SystemType } from '../interfaces/operation';
+import { IdentifierType, Operation, SystemType } from '../interfaces/operation';
 import { OperationsService } from './operations.service';
 import { AccountsService } from './accounts.service';
 import { HooksService } from './hooks.service';
@@ -26,12 +26,6 @@ class SMSService {
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
 
-      if (!getAccountNameData.active && smsSplitted[0] !== SMSOperations.GetToken) {
-        message = `You need to request a new token to make that operation`;
-        this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-        throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token');
-      }
-
       let tokenApiResponse = null;
 
       switch (smsSplitted[0]) {
@@ -45,6 +39,12 @@ class SMSService {
           break;
         case SMSOperations.DeleteToken:
           try {
+            if (!getAccountNameData.active) {
+                message = `You need to request a new token to make that operation`;
+                this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+                throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token to delete him');
+            }
+
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
 
             if (tokenApiResponse.data) {
@@ -71,14 +71,24 @@ class SMSService {
 
           this.validateAmount(smsSplitted[1], phoneNumber, system, getAccountNameData.otp);
 
-          tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
+          var identifier = null;
+          var identifierType: IdentifierType | undefined = undefined;
+
+          if (getAccountNameData.active) {
+            tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
+            identifier = tokenApiResponse.data.token;
+            identifierType = 'token';
+          } else {
+            identifier = phoneNumber;
+            identifierType = 'phoneNumber';
+          }
 
           const operationCashInObj: Operation = {
             type: 'cash-in',
             amount: Number(smsSplitted[1]),
             system,
-            identifier: tokenApiResponse.data.token,
-            identifierType: 'token',
+            identifier,
+            identifierType,
             customerInfo: getAccountNameData,
           };
 
@@ -99,14 +109,24 @@ class SMSService {
 
           this.validateAmount(smsSplitted[1], phoneNumber, system, getAccountNameData.otp);
 
-          tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
+          var identifier = null;
+          var identifierType: IdentifierType | undefined = undefined;
+
+          if (getAccountNameData.active) {
+            tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
+            identifier = tokenApiResponse.data.token;
+            identifierType = 'token';
+          } else {
+            identifier = phoneNumber;
+            identifierType = 'phoneNumber';
+          }
 
           const operationCashOutObj: Operation = {
             type: 'cash-out',
             amount: Number(smsSplitted[1]),
             system,
-            identifier: tokenApiResponse.data.token,
-            identifierType: 'token',
+            identifier,
+            identifierType,
             customerInfo: getAccountNameData,
           };
 
@@ -160,13 +180,24 @@ class SMSService {
 
           this.validateAmount(smsSplitted[2], phoneNumber, system, getAccountNameData.otp);
 
-          tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
+          var identifier = null;
+          var identifierType: IdentifierType | undefined = undefined;
+
+          if (getAccountNameData.active) {
+            tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
+            identifier = tokenApiResponse.data.token;
+            identifierType = 'token';
+          } else {
+            identifier = phoneNumber;
+            identifierType = 'phoneNumber';
+          }
 
           const operationMerchantPaymentObj: Operation = {
             type: 'merchant-payment',
             amount: Number(smsSplitted[2]),
-            identifier: tokenApiResponse.data.token,
             system,
+            identifier,
+            identifierType,
             merchantCode: smsSplitted[1],
             customerInfo: getAccountNameData,
           };
