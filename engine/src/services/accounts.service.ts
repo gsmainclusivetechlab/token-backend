@@ -28,9 +28,7 @@ class AccountsService {
         nickName,
         phoneNumber,
       });
-
-      await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
-
+      
       const message = `Hi ${createAccountResponse.data.nickName},\nWelcome to the Token Project from the Inclusive Tech Lab.\nYour Access Code is: ${createAccountResponse.data.otp}`;
       SMSService.sendCustomerNotification(phoneNumber, message, 'live', createAccountResponse.data.otp);
 
@@ -75,9 +73,6 @@ class AccountsService {
   async createMockAccount() {
     try {
       const response = await axios.post(`${process.env.MMO_API_URL}/accounts/createMockAccount`);
-
-      await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${response.data.phoneNumber}`);
-
       return { ...response.data };
     } catch (err: any | AxiosError) {
       catchError(err);

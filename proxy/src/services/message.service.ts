@@ -1,6 +1,5 @@
 import { AxiosError } from 'axios';
 import { Request } from 'express';
-import { UserFacingError } from '../classes/errors';
 import { catchError } from '../utils/catch-error';
 import { headersValidation } from '../utils/request-validation';
 

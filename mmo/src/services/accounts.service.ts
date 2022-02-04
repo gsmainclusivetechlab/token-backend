@@ -120,8 +120,9 @@ class AccountsService {
 
   async createMockAccount(): Promise<CreateAccountReturn> {
     const mockName = 'MockUser';
-    const seven_digits = getRandom(7);
-    const mockPhoneNumber = '+35192' + seven_digits;
+    const four_digits = getRandom(4);
+    const contryCode = '+44';
+    const mockPhoneNumber = contryCode + '123456' + four_digits;
 
     const findAccount = await QueriesService.findAccountByPhoneNumberOrToken(mockPhoneNumber);
     if (findAccount) {
@@ -130,9 +131,9 @@ class AccountsService {
 
     const newOTP = await this.generateNewOtp();
 
-    await QueriesService.createUserAccount(mockName, mockPhoneNumber, '+351', newOTP);
+    await QueriesService.createUserAccount(mockName, mockPhoneNumber, contryCode, newOTP);
 
-    return { nickName: mockName, phoneNumber: mockPhoneNumber, indicative: '+351', otp: newOTP };
+    return { nickName: mockName, phoneNumber: mockPhoneNumber, indicative: contryCode, otp: newOTP };
   }
 
   findMerchantByCode(code: string) {

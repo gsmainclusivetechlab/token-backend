@@ -63,7 +63,6 @@ class QueriesService {
                 nickName: results[0].nickName,
                 phoneNumber: results[0].phoneNumber,
                 indicative: results[0].indicative,
-                active: true,
                 otp: results[0].otp,
               }
             : undefined
