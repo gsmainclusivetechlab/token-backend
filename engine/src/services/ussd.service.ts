@@ -24,7 +24,9 @@ class USSDService {
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
 
-      let tokenApiResponse = null;
+      var tokenApiResponse = null;
+      var identifier = null;
+      var identifierType: IdentifierType | undefined = undefined;
 
       switch (ussdSplitted[0]) {
         case USSDOperations.GetToken:
@@ -69,9 +71,6 @@ class USSDService {
 
           SMSService.validateAmount(ussdSplitted[1], phoneNumber, system, getAccountNameData.otp);
 
-          var identifier = null;
-          var identifierType: IdentifierType | undefined = undefined;
-
           if (getAccountNameData.active) {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
             identifier = tokenApiResponse.data.token;
@@ -106,9 +105,6 @@ class USSDService {
           }
 
           SMSService.validateAmount(ussdSplitted[1], phoneNumber, system, getAccountNameData.otp);
-
-          var identifier = null;
-          var identifierType: IdentifierType | undefined = undefined;
 
           if (getAccountNameData.active) {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
@@ -150,9 +146,6 @@ class USSDService {
           }
 
           SMSService.validateAmount(ussdSplitted[2], phoneNumber, system, getAccountNameData.otp);
-
-          var identifier = null;
-          var identifierType: IdentifierType | undefined = undefined;
 
           if (getAccountNameData.active) {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);

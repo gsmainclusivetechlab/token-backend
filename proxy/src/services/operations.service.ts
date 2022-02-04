@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { NotFoundError, UserFacingError } from '../classes/errors';
 import SafeAwait from '../lib/safe-await';
 import { v4 as uuidv4 } from 'uuid';
-import { Action, CreateOperationBody, CreateOperation, OperationNotification } from '../interfaces/operations';
+import { CreateOperationBody, CreateOperation, OperationNotification } from '../interfaces/operations';
 import { catchError } from '../utils/catch-error';
 import { AccountsService } from './accounts.service';
 import { Request } from 'express';

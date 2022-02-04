@@ -2,7 +2,6 @@ import { Request, Router } from 'express';
 import Server from '../classes/server';
 import { RouteHandler, Post, Get, Delete } from '../decorators/router-handler';
 import { AccountsService } from '../services/accounts.service';
-import { headersValidation } from '../utils/request-validation';
 
 @RouteHandler('/accounts')
 class AccountsRoute {

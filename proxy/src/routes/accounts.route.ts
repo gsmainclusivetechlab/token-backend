@@ -1,6 +1,6 @@
 import { Request, Router } from "express";
 import Server from "../classes/server";
-import { RouteHandler, Post, Delete, Get } from "../decorators/router-handler";
+import { RouteHandler, Post, Get } from "../decorators/router-handler";
 import { AccountsService } from "../services/accounts.service";
 
 @RouteHandler("/accounts")

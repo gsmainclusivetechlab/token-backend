@@ -26,7 +26,9 @@ class SMSService {
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
 
-      let tokenApiResponse = null;
+      var tokenApiResponse = null;
+      var identifier = null;
+      var identifierType: IdentifierType | undefined = undefined;
 
       switch (smsSplitted[0]) {
         case SMSOperations.GetToken:
@@ -40,9 +42,9 @@ class SMSService {
         case SMSOperations.DeleteToken:
           try {
             if (!getAccountNameData.active) {
-                message = `You need to request a new token to make that operation`;
-                this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-                throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token to delete him');
+              message = `You need to request a new token to make that operation`;
+              this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+              throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token to delete him');
             }
 
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
@@ -70,9 +72,6 @@ class SMSService {
           }
 
           this.validateAmount(smsSplitted[1], phoneNumber, system, getAccountNameData.otp);
-
-          var identifier = null;
-          var identifierType: IdentifierType | undefined = undefined;
 
           if (getAccountNameData.active) {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
@@ -108,9 +107,6 @@ class SMSService {
           }
 
           this.validateAmount(smsSplitted[1], phoneNumber, system, getAccountNameData.otp);
-
-          var identifier = null;
-          var identifierType: IdentifierType | undefined = undefined;
 
           if (getAccountNameData.active) {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
@@ -179,9 +175,6 @@ class SMSService {
           }
 
           this.validateAmount(smsSplitted[2], phoneNumber, system, getAccountNameData.otp);
-
-          var identifier = null;
-          var identifierType: IdentifierType | undefined = undefined;
 
           if (getAccountNameData.active) {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
