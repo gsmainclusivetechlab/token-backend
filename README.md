@@ -31,10 +31,6 @@ If you want to use Live mode with Twilio, you will need to fill the properties o
 
 :::
 
-# token-frontend - how to run dev environment
-
-In this case, the developer need to access the token-frontend repository (https://github.com/gsmainclusivetechlab/token-frontend) and go to main branch to clone the repository, then follow the next steps presents on README.md
-
 # Documentation - OpenAPI
 
 You can see the documentation of each api in the following urls after starting the code locally
