@@ -4,7 +4,7 @@
       "name": "ussd-gateway",
       "script": "./dist/src/app.js",
       "kill_timeout": 30000,
-      "instances": "0",
+      "instances": "1",
       "exec_mode": "cluster",
       "out_file": "/dev/null",
       "error_file": "/dev/null",
