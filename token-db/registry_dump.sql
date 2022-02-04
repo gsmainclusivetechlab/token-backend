@@ -100,7 +100,7 @@ DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `checkRepeatedPhoneNumber` BEFORE INSERT ON `users` FOR EACH ROW BEGIN
     IF EXISTS (SELECT 1 FROM users WHERE phoneNumber=NEW.phoneNumber) THEN
         SIGNAL SQLSTATE '50002' SET MESSAGE_TEXT = 'Already exist one User with that Phone Number';
-    END IF; 
+    END IF;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -123,29 +123,27 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `GetAccount`(IN identifier VARCHAR(50))
 BEGIN
-    CREATE TEMPORARY TABLE temp_user 
+    CREATE TEMPORARY TABLE temp_user
     (
-        nickName VARCHAR(100) NULL,
-        phoneNumber VARCHAR(50) NULL,
-        indicative VARCHAR(50) NULL,
-        otp INT NULL,
+        id INT NOT NULL,
+        nickName VARCHAR(100) NOT NULL,
+        phoneNumber VARCHAR(50) NOT NULL,
+        indicative VARCHAR(50) NOT NULL,
+        otp INT NOT NULL,
         active BOOLEAN DEFAULT false
     );
 
     INSERT INTO temp_user
-    SELECT DISTINCT U.nickName, U.phoneNumber, U.indicative, U.otp, false
-    FROM tokens T, 
-        users U 
-    WHERE T.user_id=U.id
-    AND (U.phoneNumber = identifier OR T.token = identifier);
+    SELECT DISTINCT U.id, U.nickName, U.phoneNumber, U.indicative, U.otp, false
+    FROM users U
+    LEFT JOIN tokens T ON T.user_id = U.id
+    WHERE (U.phoneNumber = identifier OR T.token = identifier);
 
-    IF (SELECT 1 FROM temp_user) IS NOT NULL 
-    AND (SELECT T.active
-         FROM tokens T, 
-              users U 
-         WHERE T.user_id=U.id
-         AND T.active=true
-         AND (U.phoneNumber = identifier OR T.token = identifier)) IS NOT NULL
+    IF (SELECT T.active
+        FROM tokens T, temp_user U
+        WHERE T.user_id=U.id
+        AND T.active=true
+        AND (U.phoneNumber = identifier OR T.token = identifier)) IS NOT NULL
     THEN
         UPDATE temp_user
         SET active = true;
@@ -171,4 +169,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-31 16:54:06
+-- Dump completed on 2022-02-04 14:45:29

@@ -38,24 +38,7 @@ class AccountsService {
       catchError(err);
     }
   }
-
-  // async deleteAccount(phoneNumber: string) {
-  //   try {
-  //     if (!phoneNumber) {
-  //       throw new UserFacingError('INVALID_REQUEST - Missing property phoneNumber');
-  //     }
-
-  //     if (phoneNumber.trim() === '') {
-  //       throw new UserFacingError("INVALID_REQUEST - Property phoneNumber can't be empty");
-  //     }
-
-  //     const response = await axios.delete(`${process.env.ENGINE_API_URL}/accounts/${phoneNumber}`);
-  //     return { ...response.data };
-  //   } catch (err: any | AxiosError) {
-  //     catchError(err);
-  //   }
-  // }
-
+  
   async createMockAccount() {
     try {
       const response = await axios.post(`${process.env.ENGINE_API_URL}/accounts/createMockAccount`);

@@ -1,5 +1,4 @@
 import { Request, Router } from 'express';
-import { UserFacingError } from '../classes/errors';
 import Server from '../classes/server';
 import { RouteHandler, Post, Get, Delete } from '../decorators/router-handler';
 import { Action, CreateOperationBody, OperationNotification } from '../interfaces/operations';
