@@ -3,7 +3,6 @@ import { UserFacingError } from '../classes/errors';
 import { USSDOperations } from '../enum/ussd-operations.enum';
 import { USSDWebhookBody } from '../interfaces/hook';
 import { OperationsService } from './operations.service';
-import { phone as phoneLib } from 'phone';
 import { AccountsService } from './accounts.service';
 import { SMSService } from './sms.service';
 import { catchError } from '../utils/catch-error';
@@ -13,12 +12,6 @@ class USSDService {
   async processUSSDMessage(obj: USSDWebhookBody) {
     try {
       const { phoneNumber, text, system } = obj;
-
-      //Check if phone number is valid
-      const phoneResult = phoneLib(phoneNumber);
-      if (!phoneResult.isValid) {
-        throw new UserFacingError('OPERATION_ERROR - Invalid phone number.');
-      }
 
       //Check if phone number is registry
       const getAccountNameData = await AccountsService.getAccountInfo(phoneNumber);

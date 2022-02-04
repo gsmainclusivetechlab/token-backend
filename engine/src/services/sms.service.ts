@@ -3,7 +3,6 @@ import { UserFacingError } from '../classes/errors';
 import { SMSOperations } from '../enum/sms-operations.enum';
 import { Operation, SystemType } from '../interfaces/operation';
 import { OperationsService } from './operations.service';
-import { phone as phoneLib } from 'phone';
 import { AccountsService } from './accounts.service';
 import { HooksService } from './hooks.service';
 import { catchError } from '../utils/catch-error';
@@ -14,12 +13,6 @@ class SMSService {
   async processSMSMessage(obj: SMSWebhookBody) {
     try {
       const { phoneNumber, text, system } = obj;
-
-      //Check if phone number is valid
-      const phoneResult = phoneLib(phoneNumber);
-      if (!phoneResult.isValid) {
-        throw new UserFacingError('OPERATION_ERROR - Invalid phone number.');
-      }
 
       //Check if phone number is registry
       const getAccountNameData: AccountNameReturn = await AccountsService.getAccountInfo(phoneNumber);

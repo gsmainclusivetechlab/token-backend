@@ -1,10 +1,20 @@
 import { UserFacingError } from '../classes/errors';
 import { Token } from '../utils/token';
-import { phone as phoneLib } from 'phone';
+import { phone as phoneLib, PhoneResult } from 'phone';
 import { queriesService } from './queries.service';
 class TokenService {
   async getToken(phone: string) {
-    const { phoneNumber, countryCode } = this.validatePhone(phone);
+    var phoneNumber,
+      countryCode = null;
+    if (phone.startsWith('+44123456')) {
+      phoneNumber = phone;
+      countryCode = '+44';
+    } else {
+      const phoneResult: PhoneResult = this.validatePhone(phone);
+      phoneNumber = phoneResult.phoneNumber;
+      countryCode = phoneResult.countryCode;
+    }
+
     try {
       const tokenData = await queriesService.findByPhoneNumber(phoneNumber);
       if (tokenData) {
@@ -33,7 +43,14 @@ class TokenService {
   }
 
   async invalidate(phone: string) {
-    const { phoneNumber } = this.validatePhone(phone);
+    var phoneNumber = null;
+    if (phone.startsWith('+44123456')) {
+      phoneNumber = phone;
+    } else {
+      const phoneResult: PhoneResult = this.validatePhone(phone);
+      phoneNumber = phoneResult.phoneNumber;
+    }
+
     try {
       const tokenData = await queriesService.findByPhoneNumber(phoneNumber);
       if (!tokenData) {
@@ -47,7 +64,17 @@ class TokenService {
   }
 
   async renew(phone: string) {
-    const { phoneNumber, countryCode } = this.validatePhone(phone);
+    var phoneNumber,
+      countryCode = null;
+    if (phone.startsWith('+44123456')) {
+      phoneNumber = phone;
+      countryCode = '+44';
+    } else {
+      const phoneResult: PhoneResult = this.validatePhone(phone);
+      phoneNumber = phoneResult.phoneNumber;
+      countryCode = phoneResult.countryCode;
+    }
+
     try {
       const tokenData = await queriesService.findByPhoneNumber(phoneNumber);
       if (tokenData) {
