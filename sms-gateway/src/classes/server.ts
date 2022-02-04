@@ -85,7 +85,15 @@ class Server {
     );
     this.app.use(bodyParser.urlencoded({ extended: false }));
 
-    const whitelist = ['TwilioProxy.*', 'PostmanRuntime.*', 'axios.*', 'curl.*', 'http://localhost:4100'];
+    const whitelist = [
+      'TwilioProxy.*', 
+      'PostmanRuntime.*', 
+      'axios.*', 
+      'curl.*', 
+      'Swagger', 
+      'http://localhost:4100', 
+      'ELB-HealthChecker.*'
+    ];
     const corsOptions: CorsOptions = {
       origin: (origin, callback) => {
         if (process.env.NODE_ENV === 'test' || (origin && whitelist.some((el) => new RegExp(el).test(origin)))) {
