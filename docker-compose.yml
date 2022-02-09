@@ -149,7 +149,7 @@
 
     client:
        container_name: client
-       image: gsmainclusivetechlab/token:client-v1.4.1
+       image: gsmainclusivetechlab/token:client-v1.4.2
        ports:
          - "8080:80"
        networks:
