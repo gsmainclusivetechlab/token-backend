@@ -144,7 +144,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist a merchant available with this code"
+   *                    example: "Doesn't exist any user with this otp."
    */
   @Get('/:otp/valid')
   public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {

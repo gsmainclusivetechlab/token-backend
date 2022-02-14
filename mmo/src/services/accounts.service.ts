@@ -112,7 +112,7 @@ class AccountsService {
   async getMerchant(code: string): Promise<any> {
     const merchant = this.findMerchantByCode(code);
     if (!merchant) {
-      throw new NotFoundError("Doesn't exist a merchant available with this code");
+      throw new NotFoundError("A Merchant with this code does not exist.");
     }
 
     return merchant;

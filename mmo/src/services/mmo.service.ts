@@ -33,7 +33,7 @@ class MmoService {
             otp: body.otp,
           });
         } else {
-          throw new NotFoundError("Doesn't exist a merchant available with this code");
+          throw new NotFoundError("A Merchant with this code does not exist.");
         }
 
         break;

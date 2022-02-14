@@ -331,7 +331,7 @@ class AccountsRoute {
    *                 }
    *
    *        '404':
-   *           description: Doesn't exist a merchant available with this code
+   *           description: A Merchant with this code does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -339,7 +339,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist a merchant available with this code"
+   *                    example: "A Merchant with this code does not exist."
    */
   @Get('/:code/merchant')
   public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
@@ -425,7 +425,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist a merchant available with this code"
+   *                    example: "Doesn't exist any user with this otp."
    */
   @Get('/:otp/valid')
   public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {
