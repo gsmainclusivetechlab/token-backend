@@ -53,7 +53,20 @@ class OperationsService {
 
         return { status: 'pending' };
       } else {
-        const message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was rejected`;
+        var message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was rejected`;
+
+        switch(operation.type){
+          case 'cash-in':
+          case 'cash-out':
+            message += "by Agent";
+            break;
+          case 'merchant-payment': 
+            message += "by Merchant";
+            break;
+          default:
+            break;
+        }
+
         HooksService.sendAgentMerchantNotification(message, operation.customerInfo.otp);
         SMSService.sendCustomerNotification(phoneNumber, message, operation.system, operation.customerInfo.otp);
 
