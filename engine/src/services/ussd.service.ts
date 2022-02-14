@@ -19,7 +19,7 @@ class USSDService {
 
       var ussdSplitted: string[] = text.split('*');
       if (ussdSplitted.length === 0) {
-        message = `Please send a valid operation`;
+        message = `Thank you for using the Tokenisation Solution from Inclusive Tech Lab. Please, send a valid operation code/message.`;
         SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
@@ -178,7 +178,7 @@ class USSDService {
 
           break;
         default:
-          message = `Please send a valid operation`;
+          message = `Thank you for using the Tokenisation Solution from Inclusive Tech Lab. Please, send a valid operation code/message.`;
           SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
           throw new UserFacingError('OPERATION_ERROR - Invalid operation');
       }

@@ -21,7 +21,7 @@ class SMSService {
 
       var smsSplitted: string[] = text.split(' ');
       if (smsSplitted.length === 0) {
-        message = `Please send a valid operation`;
+        message = `Thank you for using the Tokenisation Solution from Inclusive Tech Lab. Please, send a valid operation code/message.`;
         this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
@@ -207,7 +207,7 @@ class SMSService {
 
           break;
         default:
-          message = `Please send a valid operation`;
+          message = `Thank you for using the Tokenisation Solution from Inclusive Tech Lab. Please, send a valid operation code/message.`;
           this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
           throw new UserFacingError('OPERATION_ERROR - Invalid operation');
       }
