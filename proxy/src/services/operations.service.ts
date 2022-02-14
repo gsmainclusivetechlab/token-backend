@@ -21,7 +21,7 @@ class OperationsService {
     const otp = request.headers['sessionid'] as string;
 
     if (elem.identifier.startsWith('#')) {
-      throw new NotFoundError(`The Customer Token or Phone can't start with #`);
+      throw new UserFacingError(`The Customer Token or Phone can't start with #`);
     }
 
     const [accountInfoError, accountInfoData] = await SafeAwait(axios.get(`${process.env.ENGINE_API_URL}/accounts/${elem.identifier}`));
