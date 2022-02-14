@@ -27,7 +27,7 @@ class OperationsService {
 
     elem.identifierType = elem.identifier === accountInfoData.data.phoneNumber ? 'phoneNumber' : 'token';
     if (elem.identifierType === 'token' && !accountInfoData.data.active) {
-      throw new NotFoundError(`Doesn't exist any user with this phone number or token.`);
+      throw new NotFoundError(`A customer with this mobile number or token does not exist.`);
     }
 
     if (parseInt(otp) !== accountInfoData.data.otp) {

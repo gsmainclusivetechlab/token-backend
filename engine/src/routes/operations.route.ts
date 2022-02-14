@@ -65,7 +65,7 @@ class OperationsRoute {
    *                      type: string
    * 
    *        '404':
-   *           description: Doesn't exist any user with this phone number or merchant available with that code.
+   *           description: A customer with this mobile number or token does not exist or a Merchant with this code does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -73,7 +73,7 @@ class OperationsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
+   *                    example: "A customer with this mobile number or token does not exist."
    * 
    * components:
    *  schemas:

@@ -33,7 +33,7 @@ class MmoService {
             otp: body.otp,
           });
         } else {
-          throw new NotFoundError("Doesn't exist a merchant available with this code");
+          throw new NotFoundError("A Merchant with this code does not exist.");
         }
 
         break;
@@ -96,6 +96,22 @@ class MmoService {
     }
     this.transactions.splice(transactionIndex, 1);
     return transaction;
+  }
+
+  async getTransaction(request: Request){
+    const { headers, params } = request;
+    headersValidation(headers);
+
+    const otp = parseInt(request.headers['sessionid'] as string);
+    const { phoneNumber, status } = params;
+
+    const transaction = this.findTransactionByStatus(status as TransactionStatus, phoneNumber, otp);
+
+    if(transaction){
+      return transaction;
+    } else {
+      throw new NotFoundError("There are no transactions in pending state for this customer.");
+    }
   }
 
   deleteTransactionsByOTP(otp: number) {

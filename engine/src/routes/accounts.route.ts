@@ -96,7 +96,7 @@ class AccountsRoute {
    *                    example: "User deleted"
    * 
    *        '404':
-   *           description: Doesn't exist any user with this phone number.
+   *           description: A customer with this sessionId does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -104,7 +104,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
+   *                    example: "A customer with this sessionId does not exist."
    * 
    *        '400':
    *           description: Invalid Request.
@@ -154,7 +154,7 @@ class AccountsRoute {
    *                  }
    * 
    *        '404':
-   *           description: Doesn't exist any user with this phone number.
+   *           description: A customer with this mobile number or token does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -162,7 +162,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
+   *                    example: "A customer with this mobile number or token does not exist."
    * 
    * components:
    *  schemas:
@@ -229,7 +229,7 @@ class AccountsRoute {
    *                     example: true
    * 
    *        '404':
-   *           description: Doesn't exist a merchant available with this code
+   *           description: A Merchant with this code does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -237,7 +237,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist a merchant available with this code"
+   *                    example: "A Merchant with this code does not exist."
    */
   @Get('/merchant/:code')
   public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
@@ -314,7 +314,7 @@ class AccountsRoute {
    *                      type: string
    * 
    *        '404':
-   *           description: Doesn't exist any user with this otp.
+   *           description: A customer with this OTP does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -322,7 +322,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist a merchant available with this code"
+   *                    example: "A customer with this OTP does not exist."
    */
   @Get('/:otp/valid')
   public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {
