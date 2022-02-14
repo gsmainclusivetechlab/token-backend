@@ -98,6 +98,22 @@ class MmoService {
     return transaction;
   }
 
+  async getTransaction(request: Request){
+    const { headers, params } = request;
+    headersValidation(headers);
+
+    const otp = parseInt(request.headers['sessionid'] as string);
+    const { phoneNumber, status } = params;
+
+    const transaction = this.findTransactionByStatus(status as TransactionStatus, phoneNumber, otp);
+
+    if(transaction){
+      return transaction;
+    } else {
+      throw new NotFoundError("There are no transactions in pending state for this customer.");
+    }
+  }
+
   deleteTransactionsByOTP(otp: number) {
     this.transactions.forEach((item, index, object) => {
       if (item.otp === otp) {

@@ -58,10 +58,10 @@ class OperationsService {
         switch(operation.type){
           case 'cash-in':
           case 'cash-out':
-            message += "by Agent";
+            message += " by the Agent";
             break;
           case 'merchant-payment': 
-            message += "by Merchant";
+            message += " by the Merchant";
             break;
           default:
             break;

@@ -1,13 +1,14 @@
 import axios, { AxiosError } from 'axios';
 import { UserFacingError } from '../classes/errors';
 import { SMSOperations } from '../enum/sms-operations.enum';
-import { IdentifierType, Operation, SystemType } from '../interfaces/operation';
+import { IdentifierType, Operation, OperationType, SystemType } from '../interfaces/operation';
 import { OperationsService } from './operations.service';
 import { AccountsService } from './accounts.service';
 import { HooksService } from './hooks.service';
 import { catchError } from '../utils/catch-error';
 import { SMSWebhookBody } from '../interfaces/hook';
 import { AccountNameReturn } from '../interfaces/mmo';
+import { GetOperationFromType } from '../lib/operations';
 
 class SMSService {
   async processSMSMessage(obj: SMSWebhookBody) {
@@ -141,6 +142,10 @@ class SMSService {
             throw new UserFacingError('OPERATION_ERROR - Missing pin value');
           }
 
+          const transaction = await axios.get(`${process.env.MMO_API_URL}/transactions/${phoneNumber}/pending`, {
+            headers: { sessionId: String(getAccountNameData.otp) },
+          });
+
           try {
             await axios.post(
               `${process.env.MMO_API_URL}/accounts/authorize`,
@@ -153,7 +158,8 @@ class SMSService {
           } catch (err: any | AxiosError) {
             if (axios.isAxiosError(err)) {
               if (err.response?.status === 401) {
-                message = `Operation Rejected - Wrong Pin`;
+                const operationType: OperationType = GetOperationFromType(transaction.data.type);
+                message = `Wrong PIN number. The ${operationType} operation with value ${transaction.data.amount} was rejected`;
                 HooksService.sendAgentMerchantNotification(message, getAccountNameData.otp);
                 this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
               }
