@@ -97,7 +97,7 @@ class AccountsRoute {
    *                    example: "User deleted"
    *
    *        '404':
-   *           description: Doesn't exist any user with this phone number.
+   *           description: A customer with this sessionId does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -105,7 +105,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
+   *                    example: A customer with this sessionId does not exist.
    *
    *        '400':
    *           description: Invalid Request.
@@ -155,7 +155,7 @@ class AccountsRoute {
    *                  }
    *
    *        '404':
-   *           description: Doesn't exist any user with this phone number.
+   *           description: A customer with this mobile number or token does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -163,7 +163,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
+   *                    example: "A customer with this mobile number or token does not exist."
    *
    * components:
    *  schemas:
@@ -417,7 +417,7 @@ class AccountsRoute {
    *                      type: string
    * 
    *        '404':
-   *           description: Doesn't exist any user with this otp.
+   *           description: A customer with this OTP does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -425,7 +425,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this otp."
+   *                    example: "A customer with this OTP does not exist."
    */
   @Get('/:otp/valid')
   public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {

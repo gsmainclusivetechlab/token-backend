@@ -16,7 +16,7 @@ class OperationsService {
       operation.identifierType = operation.identifier === getAccountNameData.phoneNumber ? 'phoneNumber' : 'token';
 
       if (operation.identifierType === 'token' && !getAccountNameData.active) {
-        throw new UserFacingError(`Doesn't exist any user with this phone number or token.`);
+        throw new UserFacingError(`A customer with this mobile number or token does not exist.`);
       }
 
       let phoneNumber = getAccountNameData.phoneNumber;
