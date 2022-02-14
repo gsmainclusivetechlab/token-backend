@@ -76,7 +76,7 @@ class AccountsService {
       const dif = value - now;
       const secondsFromT1toT2 = dif / 1000;
       const secondsBetweenDates = Math.abs(secondsFromT1toT2);
-      if (secondsBetweenDates >= 5) {
+      if (secondsBetweenDates >= 60) {
         this.map.delete(key);
 
         try {
