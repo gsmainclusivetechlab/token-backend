@@ -20,8 +20,8 @@ class OperationsService {
     this.validateCreateOperationBody(elem);
     const otp = request.headers['sessionid'] as string;
 
-    if (elem.identifier === '#') {
-      throw new NotFoundError(`A customer with this mobile number or token does not exist.`);
+    if (elem.identifier.startsWith('#')) {
+      throw new NotFoundError(`The Customer Token or Phone can't start with #`);
     }
 
     const [accountInfoError, accountInfoData] = await SafeAwait(axios.get(`${process.env.ENGINE_API_URL}/accounts/${elem.identifier}`));
