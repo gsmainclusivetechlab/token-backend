@@ -145,30 +145,46 @@ class SMSService {
             throw new UserFacingError('OPERATION_ERROR - Missing pin value');
           }
 
-          const transaction = await axios.get(`${process.env.MMO_API_URL}/transactions/${phoneNumber}/pending`, {
-            headers: { sessionId: String(getAccountNameData.otp) },
-          });
+          var transactionResponse = null;
 
-          try {
-            await axios.post(
-              `${process.env.MMO_API_URL}/accounts/authorize`,
-              {
-                pin: smsSplitted[1],
-                phoneNumber,
-              },
-              { headers: { sessionId: String(getAccountNameData.otp) } }
-            );
-          } catch (err: any | AxiosError) {
+          try{
+            transactionResponse = await axios.get(`${process.env.MMO_API_URL}/transactions/${phoneNumber}/pending`, {
+              headers: { sessionId: String(getAccountNameData.otp) },
+            });
+          } catch (err: any | AxiosError) { 
             if (axios.isAxiosError(err)) {
-              if (err.response?.status === 401) {
-                const operationType: OperationType = GetOperationFromType(transaction.data.type);
-                message = `Wrong PIN number. The ${operationType} operation with value ${transaction.data.amount} was rejected`;
-                HooksService.sendAgentMerchantNotification(message, getAccountNameData.otp);
+              if (err.response?.status === 404) {
+                message = `You don't have any transaction awaiting for a pin`;
                 this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
               }
             }
+            
             catchError(err);
           }
+
+          if(transactionResponse?.data){
+            try {
+              await axios.post(
+                `${process.env.MMO_API_URL}/accounts/authorize`,
+                {
+                  pin: smsSplitted[1],
+                  phoneNumber,
+                },
+                { headers: { sessionId: String(getAccountNameData.otp) } }
+              );
+            } catch (err: any | AxiosError) {
+              if (axios.isAxiosError(err)) {
+                if (err.response?.status === 401) {
+                  const operationType: OperationType = GetOperationFromType(transactionResponse.data.type);
+                  message = `Wrong PIN number. The ${operationType} operation with value ${transactionResponse.data.amount} was rejected`;
+                  HooksService.sendAgentMerchantNotification(message, getAccountNameData.otp);
+                  this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+                }
+              }
+              catchError(err);
+            }
+          }
+          
           break;
         case SMSOperations.Payment:
           if(smsSplitted.length > 3){
