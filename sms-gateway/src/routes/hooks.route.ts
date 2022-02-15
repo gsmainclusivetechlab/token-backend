@@ -28,7 +28,7 @@ class HooksRoute {
    *          example: {
    *            From: "+447360264774",
    *            To: "+447897022482",
-   *            Body: "GET_TOKEN"
+   *            Body: "GET TOKEN"
    *           }
    *          
    *     responses:

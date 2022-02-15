@@ -36,7 +36,7 @@ class HooksRoute {
    *          example: 
    *            {
    *              phoneNumber: "+233207212676",
-   *              text: "CASH_IN 200",
+   *              text: "CASH IN 200",
    *              system: "mock"
    *            }
    * 
