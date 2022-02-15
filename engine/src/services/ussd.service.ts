@@ -30,41 +30,14 @@ class USSDService {
 
       switch (ussdSplitted[0]) {
         case USSDOperations.GetToken:
-          tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
-
-          if (tokenApiResponse.data && tokenApiResponse.data.token) {
-            message = 'Your token is ' + tokenApiResponse.data.token;
-            SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-          }
+          OperationsService.getToken(phoneNumber, system, getAccountNameData);
           break;
         case USSDOperations.DeleteToken:
-          try {
-            if (!getAccountNameData.active) {
-              message = `You need to request a new token to make that operation`;
-              SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-              throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token to delete him');
-            }
-
-            tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
-
-            if (tokenApiResponse.data) {
-              message = 'Your token was deleted';
-              SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-            }
-          } catch (err: any | AxiosError) {
-            if (axios.isAxiosError(err)) {
-              if (err.response?.status === 404) {
-                message = `You need to have an associated token to delete`;
-                SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-              }
-            }
-            catchError(err);
-          }
-
+          OperationsService.deleteToken(phoneNumber, system, getAccountNameData);
           break;
         case USSDOperations.CashIn:
           if (!ussdSplitted[1]) {
-            message = `To make a CASH-IN, send the follow message 'CASH_IN <space> {AMOUNT}'`;
+            message = `To make a CASH-IN, send the follow message 'CASH IN <space> {AMOUNT}'`;
             SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
@@ -99,7 +72,7 @@ class USSDService {
           break;
         case USSDOperations.CashOut:
           if (!ussdSplitted[1]) {
-            message = `To make a CASH-OUT, send the follow message 'CASH_OUT <space> {AMOUNT}'`;
+            message = `To make a CASH-OUT, send the follow message 'CASH OUT <space> {AMOUNT}'`;
             SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }

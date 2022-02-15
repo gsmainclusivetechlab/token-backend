@@ -1,11 +1,12 @@
 import axios, { AxiosError } from 'axios';
-import { Operation, Action } from '../interfaces/operation';
+import { Operation, Action, SystemType } from '../interfaces/operation';
 import { UserFacingError } from '../classes/errors';
 import { GetTypeFromOperation } from '../lib/operations';
 import { AccountsService } from './accounts.service';
 import { SMSService } from './sms.service';
 import { HooksService } from './hooks.service';
 import { catchError } from '../utils/catch-error';
+import { AccountNameReturn } from '../interfaces/mmo';
 
 class OperationsService {
   async manageOperation(action: Action, operation: Operation) {
@@ -23,7 +24,7 @@ class OperationsService {
 
       if (action === 'accept') {
         const headers = {
-          'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`
+          'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`,
         };
         const body = {
           amount: operation.amount,
@@ -43,7 +44,7 @@ class OperationsService {
           system: operation.system,
           merchantCode: operation.merchantCode,
           identifierType: operation.identifierType,
-          otp: operation.customerInfo.otp
+          otp: operation.customerInfo.otp,
         };
 
         await axios.post(`${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(operation.type)}`, body, { headers });
@@ -55,13 +56,13 @@ class OperationsService {
       } else {
         var message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was rejected`;
 
-        switch(operation.type){
+        switch (operation.type) {
           case 'cash-in':
           case 'cash-out':
-            message += " by the Agent";
+            message += ' by the Agent';
             break;
-          case 'merchant-payment': 
-            message += " by the Merchant";
+          case 'merchant-payment':
+            message += ' by the Merchant';
             break;
           default:
             break;
@@ -97,7 +98,7 @@ class OperationsService {
     if (!operation.identifier) {
       throw new UserFacingError('INVALID_REQUEST - Missing customer identifier');
     }
-    
+
     if (!operation.amount) {
       throw new UserFacingError('INVALID_REQUEST - Missing property amount');
     }
@@ -114,6 +115,41 @@ class OperationsService {
       if (operation.merchantCode.trim() === '') {
         throw new UserFacingError("INVALID_REQUEST - Property merchantCode can't be empty");
       }
+    }
+  }
+
+  async getToken(phoneNumber: string, system: SystemType, getAccountNameData: AccountNameReturn) {
+    const tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
+
+    if (tokenApiResponse.data && tokenApiResponse.data.token) {
+      const message = 'Your token is ' + tokenApiResponse.data.token;
+      SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+    }
+  }
+
+  async deleteToken(phoneNumber: string, system: SystemType, getAccountNameData: AccountNameReturn) {
+    try {
+      var message: string = '';
+      if (!getAccountNameData.active) {
+        message = `You need to request a new token to make that operation`;
+        SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+        throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token to delete him');
+      }
+
+      const tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
+
+      if (tokenApiResponse.data) {
+        message = 'Your token was deleted';
+        SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+      }
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 404) {
+          message = `You need to have an associated token to delete`;
+          SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+        }
+      }
+      catchError(err);
     }
   }
 }
