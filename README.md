@@ -21,11 +21,9 @@ docker-compose up -d
 docker-compose down --rmi all -v
 ```
 
-:::info .env File
+# .env File
 
 If you want to use Live mode with Twilio, you will need to fill the properties on the .env file (TWILIO_SID, TWILIO_TOKEN and TWILIO_MESSAGE_SID) with your Twilio credentials and config the receive webhook (A MESSAGE COMES IN option on Messaging section) for the path '{url}:4100/hooks/twilio'
-
-:::
 
 # token-frontend - how to run dev environment
 
