@@ -1,8 +1,8 @@
 export enum SMSOperations {
-  GetToken = "GET_TOKEN",
-  DeleteToken = "DELETE_TOKEN",
-  CashIn = "CASH_IN",
-  CashOut = "CASH_OUT",
+  GetToken = "GET TOKEN",
+  DeleteToken = "DELETE TOKEN",
+  CashIn = "CASH IN",
+  CashOut = "CASH OUT",
   Pin = "PIN",
   Payment = "PAYMENT"
 }

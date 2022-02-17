@@ -1,9 +1,9 @@
-import { Request, Router } from "express";
-import Server from "../classes/server";
-import { RouteHandler, Post, Get } from "../decorators/router-handler";
-import { AccountsService } from "../services/accounts.service";
+import { Request, Router } from 'express';
+import Server from '../classes/server';
+import { RouteHandler, Post, Get } from '../decorators/router-handler';
+import { AccountsService } from '../services/accounts.service';
 
-@RouteHandler("/accounts")
+@RouteHandler('/accounts')
 class AccountsRoute {
   // Services Injection
   public router: Router;
@@ -48,7 +48,7 @@ class AccountsRoute {
    *                    phoneNumber:
    *                      type: string
    *                      example: "+441632960067"
-   * 
+   *
    *        '409':
    *           description: This mobile phone is already registered to another user.
    *           content:
@@ -61,7 +61,7 @@ class AccountsRoute {
    *                     example: "This mobile phone is already registered to another user."
    *
    */
-  @Post("/")
+  @Post('/')
   public createAccount(request: Request<{}, {}, { nickName: string; phoneNumber: string }, {}>) {
     return AccountsService.createAccount(request);
   }
@@ -124,7 +124,7 @@ class AccountsRoute {
    *                      indicative: "+351",
    *                      otp: 1801
    *                  }
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -134,9 +134,9 @@ class AccountsRoute {
    *                  properties:
    *                    message:
    *                      type: string
-   * 
+   *
    *        '404':
-   *           description: Doesn't exist any user with this otp.
+   *           description: A customer with this OTP does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -144,7 +144,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist a merchant available with this code"
+   *                    example: "A customer with this OTP does not exist."
    */
   @Get('/:otp/valid')
   public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {

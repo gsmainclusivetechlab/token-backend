@@ -6,6 +6,7 @@ import Server from './classes/server';
 import HooksRoute from './routes/hooks.route';
 import OperationsRoute from './routes/operations.route';
 import AccountsRoute from './routes/accounts.route';
+import TransactionsRoute from './routes/transactions.route';
 
 switch (process.env.NODE_ENV) {
   case 'development':
@@ -26,6 +27,7 @@ const livenessProbeRoute = new LivenessProbeRoute(app);
 const hooksRoute = new HooksRoute(app);
 const operationsRoute = new OperationsRoute(app);
 const accountsRoute = new AccountsRoute(app);
+const transactionsRoute = new TransactionsRoute(app);
 
 const index = new IndexRoute(app.getRoutes());
 app.addRoute('/', index.router);

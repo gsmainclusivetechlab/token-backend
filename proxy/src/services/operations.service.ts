@@ -20,6 +20,10 @@ class OperationsService {
     this.validateCreateOperationBody(elem);
     const otp = request.headers['sessionid'] as string;
 
+    if (elem.identifier.startsWith('#')) {
+      throw new UserFacingError(`The Customer Token or Phone can't start with #`);
+    }
+
     const [accountInfoError, accountInfoData] = await SafeAwait(axios.get(`${process.env.ENGINE_API_URL}/accounts/${elem.identifier}`));
     if (accountInfoError) {
       catchError(accountInfoError);
@@ -27,7 +31,7 @@ class OperationsService {
 
     elem.identifierType = elem.identifier === accountInfoData.data.phoneNumber ? 'phoneNumber' : 'token';
     if (elem.identifierType === 'token' && !accountInfoData.data.active) {
-      throw new NotFoundError(`Doesn't exist any user with this phone number or token.`);
+      throw new NotFoundError(`A customer with this mobile number or token does not exist.`);
     }
 
     if (parseInt(otp) !== accountInfoData.data.otp) {
@@ -38,9 +42,12 @@ class OperationsService {
       const [merchantInfoError, merchantInfoData] = await SafeAwait(
         axios.get(`${process.env.ENGINE_API_URL}/accounts/merchant/${elem.merchantCode}`)
       );
+      elem.createdBy = "merchant";
       if (merchantInfoError) {
         catchError(merchantInfoError);
       }
+    } else {
+      elem.createdBy = "agent";
     }
 
     elem.customerInfo = { ...accountInfoData.data };
@@ -188,6 +195,10 @@ class OperationsService {
       if (elem.merchantCode.trim() === '') {
         throw new UserFacingError("INVALID_REQUEST - Property merchantCode can't be empty");
       }
+    }
+
+    if (!(elem.createdUsing === 'SMS' || elem.createdUsing === 'USSD')) {
+      throw new UserFacingError('INVALID_REQUEST - Invalid created using value');
     }
   }
 

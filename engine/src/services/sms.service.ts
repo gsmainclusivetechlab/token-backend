@@ -1,13 +1,15 @@
 import axios, { AxiosError } from 'axios';
 import { UserFacingError } from '../classes/errors';
 import { SMSOperations } from '../enum/sms-operations.enum';
-import { IdentifierType, Operation, SystemType } from '../interfaces/operation';
+import { IdentifierType, Operation, OperationType, SystemType } from '../interfaces/operation';
 import { OperationsService } from './operations.service';
 import { AccountsService } from './accounts.service';
 import { HooksService } from './hooks.service';
 import { catchError } from '../utils/catch-error';
 import { SMSWebhookBody } from '../interfaces/hook';
 import { AccountNameReturn } from '../interfaces/mmo';
+import { GetOperationFromType } from '../lib/operations';
+import { TransactionsService } from './transactions.service';
 
 class SMSService {
   async processSMSMessage(obj: SMSWebhookBody) {
@@ -21,7 +23,7 @@ class SMSService {
 
       var smsSplitted: string[] = text.split(' ');
       if (smsSplitted.length === 0) {
-        message = `Please send a valid operation`;
+        message = `Thank you for using the Tokenisation Solution from Inclusive Tech Lab. Please, send a valid operation code/message.`;
         this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
         throw new UserFacingError('OPERATION_ERROR - Missing operation');
       }
@@ -30,48 +32,59 @@ class SMSService {
       var identifier = null;
       var identifierType: IdentifierType | undefined = undefined;
 
-      switch (smsSplitted[0]) {
-        case SMSOperations.GetToken:
-          tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
+      let operation = smsSplitted[0];
+      operation = operation.toUpperCase();
 
-          if (tokenApiResponse.data && tokenApiResponse.data.token) {
-            message = 'Your token is ' + tokenApiResponse.data.token;
-            this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+      if (!(operation === SMSOperations.Payment || operation === SMSOperations.Pin)) {
+        if (smsSplitted[1]) {
+          operation += ' ' + smsSplitted[1];
+          operation = operation.toUpperCase();
+        }
+      }
+      
+      //
+      const getTransactionResponse = await TransactionsService.getTransaction(phoneNumber, 'pending', String(getAccountNameData.otp));
+      var pendingTransaction = getTransactionResponse.transaction;
+
+      switch (operation) {
+        case SMSOperations.GetToken:
+          if (pendingTransaction) {
+            await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
           }
+
+          if (smsSplitted.length > 2) {
+            this.invalidOperation(phoneNumber, system, getAccountNameData);
+          }
+
+          OperationsService.getToken(phoneNumber, system, getAccountNameData);
           break;
         case SMSOperations.DeleteToken:
-          try {
-            if (!getAccountNameData.active) {
-              message = `You need to request a new token to make that operation`;
-              this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-              throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token to delete him');
-            }
-
-            tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
-
-            if (tokenApiResponse.data) {
-              message = 'Your token was deleted';
-              this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-            }
-          } catch (err: any | AxiosError) {
-            if (axios.isAxiosError(err)) {
-              if (err.response?.status === 404) {
-                message = `You need to have an associated token to delete`;
-                this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-              }
-            }
-            catchError(err);
+          if (pendingTransaction) {
+            await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
           }
 
+          if (smsSplitted.length > 2) {
+            this.invalidOperation(phoneNumber, system, getAccountNameData);
+          }
+
+          OperationsService.deleteToken(phoneNumber, system, getAccountNameData);
           break;
         case SMSOperations.CashIn:
-          if (!smsSplitted[1]) {
-            message = `To make a CASH-IN, send the follow message 'CASH_IN <space> {AMOUNT}'`;
+          if (pendingTransaction) {
+            await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
+          }
+
+          if (smsSplitted.length > 3) {
+            this.invalidOperation(phoneNumber, system, getAccountNameData);
+          }
+
+          if (!smsSplitted[2]) {
+            message = `To make a cash-in, send the following message 'CASH IN <space> {AMOUNT}'`;
             this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
 
-          this.validateAmount(smsSplitted[1], phoneNumber, system, getAccountNameData.otp);
+          this.validateAmount(smsSplitted[2], phoneNumber, system, getAccountNameData.otp);
 
           if (getAccountNameData.active) {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
@@ -84,29 +97,36 @@ class SMSService {
 
           const operationCashInObj: Operation = {
             type: 'cash-in',
-            amount: Number(smsSplitted[1]),
+            amount: Number(smsSplitted[2]),
             system,
             identifier,
             identifierType,
             customerInfo: getAccountNameData,
+            createdBy: 'customer',
+            createdUsing: 'SMS',
           };
 
-          axios.post(
-            `${process.env.PROXY_API_URL}/operations/register`,
-            {
-              ...operationCashInObj,
-            },
-            { headers: { sessionId: String(getAccountNameData.otp) } }
-          );
+          await OperationsService.sendOperationToMMO(phoneNumber, operationCashInObj);
+          message = `To proceed with the cash-in operation, send the following message 'PIN 1234'`;
+          this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+
           break;
         case SMSOperations.CashOut:
-          if (!smsSplitted[1]) {
-            message = `To make a CASH-OUT, send the follow message 'CASH_OUT <space> {AMOUNT}'`;
+          if (pendingTransaction) {
+            await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
+          }
+
+          if (smsSplitted.length > 3) {
+            this.invalidOperation(phoneNumber, system, getAccountNameData);
+          }
+
+          if (!smsSplitted[2]) {
+            message = `To make a cash-out, send the following message 'CASH OUT <space> {AMOUNT}'`;
             this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
 
-          this.validateAmount(smsSplitted[1], phoneNumber, system, getAccountNameData.otp);
+          this.validateAmount(smsSplitted[2], phoneNumber, system, getAccountNameData.otp);
 
           if (getAccountNameData.active) {
             tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
@@ -119,57 +139,98 @@ class SMSService {
 
           const operationCashOutObj: Operation = {
             type: 'cash-out',
-            amount: Number(smsSplitted[1]),
+            amount: Number(smsSplitted[2]),
             system,
             identifier,
             identifierType,
             customerInfo: getAccountNameData,
+            createdBy: 'customer',
+            createdUsing: 'SMS',
           };
 
-          axios.post(
-            `${process.env.PROXY_API_URL}/operations/register`,
-            {
-              ...operationCashOutObj,
-            },
-            { headers: { sessionId: String(getAccountNameData.otp) } }
-          );
+          await OperationsService.sendOperationToMMO(phoneNumber, operationCashOutObj);
+          message = `To proceed with the cash-out operation, send the following message 'PIN 1234'`;
+          this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
           break;
         case SMSOperations.Pin:
+          if (pendingTransaction && pendingTransaction.createdUsing != 'SMS') {
+            await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
+            pendingTransaction = null;
+          }
+
+          if (smsSplitted.length > 2) {
+            if (pendingTransaction) {
+              await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
+            }
+
+            this.invalidOperation(phoneNumber, system, getAccountNameData);
+          }
+
           if (!smsSplitted[1]) {
-            message = `To send the pin, send the follow message 'PIN <space> {VALUE}'`;
+            if (pendingTransaction) {
+              await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
+            }
+
+            message = `To send the pin, send the following message 'PIN <space> {VALUE}'`;
             this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             throw new UserFacingError('OPERATION_ERROR - Missing pin value');
           }
 
-          try {
-            await axios.post(
-              `${process.env.MMO_API_URL}/accounts/authorize`,
-              {
-                pin: smsSplitted[1],
-                phoneNumber,
-              },
-              { headers: { sessionId: String(getAccountNameData.otp) } }
-            );
-          } catch (err: any | AxiosError) {
-            if (axios.isAxiosError(err)) {
-              if (err.response?.status === 401) {
-                message = `Operation Rejected - Wrong Pin`;
-                HooksService.sendAgentMerchantNotification(message, getAccountNameData.otp);
-                this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+          if (pendingTransaction) {
+            try {
+              await axios.post(
+                `${process.env.MMO_API_URL}/accounts/authorize`,
+                {
+                  pin: smsSplitted[1],
+                  phoneNumber,
+                },
+                { headers: { sessionId: String(getAccountNameData.otp) } }
+              );
+            } catch (err: any | AxiosError) {
+              if (axios.isAxiosError(err)) {
+                if (err.response?.status === 401) {
+                  const operationType: OperationType = GetOperationFromType(pendingTransaction.type);
+                  
+                  var identifier = null;
+                  if(pendingTransaction.identifierType === 'token'){
+                    tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
+                    identifier = tokenApiResponse.data.token;
+                  } else {
+                    identifier = phoneNumber;
+                  }
+
+                  message = `Wrong PIN number. The ${operationType} operation with value ${pendingTransaction.amount} for the customer with the identifier ${identifier} was rejected by the Customer`;
+                  this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+                  if (pendingTransaction.createdBy !== 'customer') {
+                    HooksService.sendAgentMerchantNotification(message, getAccountNameData.otp);
+                  }
+                }
               }
+              catchError(err);
             }
-            catchError(err);
+          } else {
+            message = `You don't have any transaction awaiting for a pin`;
+            this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
           }
+
           break;
         case SMSOperations.Payment:
+          if (pendingTransaction) {
+            await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
+          }
+
+          if (smsSplitted.length > 3) {
+            this.invalidOperation(phoneNumber, system, getAccountNameData);
+          }
+
           if (!smsSplitted[1]) {
-            message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
+            message = `To make a payment, send the following message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
             this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             throw new UserFacingError('OPERATION_ERROR - Missing merchant code');
           }
 
           if (!smsSplitted[2]) {
-            message = `To make a Payment, send the follow message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
+            message = `To make a payment, send the following message 'PAYMENT <space> {MERCHANT_CODE} <space> {AMOUNT}'`;
             this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
           }
@@ -193,10 +254,12 @@ class SMSService {
             identifierType,
             merchantCode: smsSplitted[1],
             customerInfo: getAccountNameData,
+            createdBy: 'customer',
+            createdUsing: 'SMS',
           };
 
           try {
-            await OperationsService.manageOperation('accept', operationMerchantPaymentObj);
+            await OperationsService.sendOperationToMMO(phoneNumber, operationMerchantPaymentObj);
           } catch (err: any | AxiosError) {
             if (err.name === 'NotFoundError') {
               message = `Doesn't exist any merchant available with that code`;
@@ -205,11 +268,15 @@ class SMSService {
             catchError(err);
           }
 
+          message = `To proceed with the merchant-payment operation, send the following message 'PIN 1234'`;
+          this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+
           break;
         default:
-          message = `Please send a valid operation`;
-          this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-          throw new UserFacingError('OPERATION_ERROR - Invalid operation');
+          if (pendingTransaction) {
+            await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
+          }
+          this.invalidOperation(phoneNumber, system, getAccountNameData);
       }
       return { message: 'Thanks for using Engine API' };
     } catch (err: any | AxiosError) {
@@ -244,6 +311,12 @@ class SMSService {
       this.sendCustomerNotification(phoneNumber, message, system, otp);
       throw new UserFacingError(`OPERATION_ERROR - The amount can't be greater than 500`);
     }
+  }
+
+  private invalidOperation(phoneNumber: string, system: SystemType, getAccountNameData: AccountNameReturn) {
+    const message = `Thank you for using the Tokenisation Solution from Inclusive Tech Lab. Please, send a valid operation code/message.`;
+    this.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+    throw new UserFacingError('OPERATION_ERROR - Invalid operation');
   }
 }
 

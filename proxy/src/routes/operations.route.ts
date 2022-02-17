@@ -86,7 +86,7 @@ class OperationsRoute {
    *        otp:
    *          type: number
    *          description: "Customer one time password"
-   * 
+   *
    *    Operation:
    *      allOf:
    *        - $ref: "#/components/schemas/CreateOperationBody"
@@ -148,7 +148,8 @@ class OperationsRoute {
    *                identifier: "233207212676",
    *                amount: 100,
    *                type: "cash-in",
-   *                system: "mock"
+   *                system: "mock",
+   *                createdUsing: "SMS"
    *              }
    *
    *     responses:
@@ -173,11 +174,12 @@ class OperationsRoute {
    *                        active: true,
    *                        otp: 1234
    *                      },
-   *                      system: "mock"
+   *                      system: "mock",
+   *                      createdUsing: "SMS"
    *                    }
    *
    *        '404':
-   *           description: Doesn't exist any user with this phone number or merchant available with that code.
+   *           description: A customer with this mobile number or token does not exist or a Merchant with this code does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -185,7 +187,7 @@ class OperationsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
+   *                    example: "A customer with this mobile number or token does not exist."
    *
    *        '400':
    *           description: Invalid Request.
@@ -222,6 +224,9 @@ class OperationsRoute {
    *           description: "Merchant identifier code"
    *         customerInfo:
    *           $ref: "#/components/schemas/CustomerInformation"
+   *         createdUsing:
+   *           type: string
+   *           description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
    *
    */
   @Post('/')
@@ -250,7 +255,7 @@ class OperationsRoute {
    *      content:
    *        application/json:
    *          schema:
-   *            $ref: "#/components/schemas/Operation"
+   *            $ref: "#/components/schemas/CreateOperationBody"
    *          example:
    *              {
    *                 identifier: "233207212676",
@@ -264,7 +269,8 @@ class OperationsRoute {
    *                   active: true,
    *                   otp: 1234
    *                 },
-   *                 system: "mock"
+   *                 system: "mock",
+   *                 createdUsing: "SMS"
    *               }
    *     responses:
    *        '200':
@@ -327,7 +333,7 @@ class OperationsRoute {
    *                    example: "pending"
    *
    *        '404':
-   *           description: Doesn't exist any user with this phone number or merchant available with that code.
+   *           description: A customer with this mobile number or token does not exist or a Merchant with this code does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -335,7 +341,7 @@ class OperationsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
+   *                    example: "A customer with this mobile number or token does not exist."
    *
    *        '400':
    *           description: Invalid Request.

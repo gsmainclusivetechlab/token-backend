@@ -61,7 +61,7 @@ class AccountsService {
 
     const findAccount = await QueriesService.findAccountByOTP(otp);
     if (!findAccount) {
-      throw new NotFoundError(`Doesn't exist any user with this phone number.`);
+      throw new NotFoundError(`A customer with this sessionId does not exist.`);
     }
 
     await QueriesService.deleteUserAccountByOTP(otp);
@@ -82,7 +82,7 @@ class AccountsService {
 
     const account = await QueriesService.findAccountByPhoneNumberOrToken(identifier);
     if (!account) {
-      throw new NotFoundError("Doesn't exist any user with this phone number or token.");
+      throw new NotFoundError("A customer with this mobile number or token does not exist.");
     }
 
     return account;
@@ -103,7 +103,7 @@ class AccountsService {
 
     const account = await QueriesService.findAccountByOTP(parsedOtp);
     if (!account) {
-      throw new NotFoundError("Doesn't exist any user with this otp.");
+      throw new NotFoundError("A customer with this OTP does not exist.");
     }
 
     return account;
@@ -112,7 +112,7 @@ class AccountsService {
   async getMerchant(code: string): Promise<any> {
     const merchant = this.findMerchantByCode(code);
     if (!merchant) {
-      throw new NotFoundError("Doesn't exist a merchant available with this code");
+      throw new NotFoundError("A Merchant with this code does not exist.");
     }
 
     return merchant;

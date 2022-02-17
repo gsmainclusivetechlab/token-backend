@@ -26,6 +26,12 @@ menu.state('invalidOption', {
   },
 });
 
+menu.state('invalidValue', {
+  run: () => {
+    menu.end('Invalid Value');
+  },
+});
+
 menu.state('getToken', {
   run: async () => {
     await ussdGatewayRequest();
@@ -46,10 +52,21 @@ menu.state('cashIn', {
     // using regex to match user input to next state
     '*\\d+': 'cashIn.amount',
   },
-  defaultNext: 'invalidOption',
+  defaultNext: 'invalidValue',
 });
 
 menu.state('cashIn.amount', {
+  run: () => {
+    menu.con('Enter PIN:');
+  },
+  next: {
+    // using regex to match user input to next state
+    '*\\d+': 'cashIn.amount.pin',
+  },
+  defaultNext: 'invalidValue',
+});
+
+menu.state('cashIn.amount.pin', {
   run: async () => {
     await ussdGatewayRequest();
   },
@@ -63,10 +80,21 @@ menu.state('cashOut', {
     // using regex to match user input to next state
     '*\\d+': 'cashOut.amount',
   },
-  defaultNext: 'invalidOption',
+  defaultNext: 'invalidValue',
 });
 
 menu.state('cashOut.amount', {
+  run: () => {
+    menu.con('Enter PIN:');
+  },
+  next: {
+    // using regex to match user input to next state
+    '*\\d+': 'cashOut.amount.pin',
+  },
+  defaultNext: 'invalidValue',
+});
+
+menu.state('cashOut.amount.pin', {
   run: async () => {
     await ussdGatewayRequest();
   },
@@ -80,7 +108,7 @@ menu.state('payment', {
     // using regex to match user input to next state
     '*\\d+': 'payment.merchantCode',
   },
-  defaultNext: 'invalidOption',
+  defaultNext: 'invalidValue',
 });
 
 menu.state('payment.merchantCode', {
@@ -91,10 +119,21 @@ menu.state('payment.merchantCode', {
     // using regex to match user input to next state
     '*\\d+': 'payment.merchantCode.amount',
   },
-  defaultNext: 'invalidOption',
+  defaultNext: 'invalidValue',
 });
 
 menu.state('payment.merchantCode.amount', {
+  run: () => {
+    menu.con('Enter PIN:');
+  },
+  next: {
+    // using regex to match user input to next state
+    '*\\d+': 'payment.merchantCode.amount.pin',
+  },
+  defaultNext: 'invalidValue',
+});
+
+menu.state('payment.merchantCode.amount.pin', {
   run: async () => {
     await ussdGatewayRequest();
   },

@@ -1,10 +1,10 @@
-import { Request, Router } from "express";
-import { HooksService } from "../services/hooks.service";
-import Server from "../classes/server";
-import { RouteHandler, Post, Put } from "../decorators/router-handler";
-import { MMOWebhookBody, SMSWebhookBody, USSDWebhookBody } from "../interfaces/hook";
+import { Request, Router } from 'express';
+import { HooksService } from '../services/hooks.service';
+import Server from '../classes/server';
+import { RouteHandler, Post, Put } from '../decorators/router-handler';
+import { MMOWebhookBody, SMSWebhookBody, USSDWebhookBody } from '../interfaces/hook';
 
-@RouteHandler("/hooks")
+@RouteHandler('/hooks')
 class HooksRoute {
   // Services Injection
   public router: Router;
@@ -33,13 +33,13 @@ class HooksRoute {
    *        application/json:
    *          schema:
    *            $ref: "#/components/schemas/SMSWebhookBody"
-   *          example: 
+   *          example:
    *            {
    *              phoneNumber: "+233207212676",
-   *              text: "CASH_IN 200",
+   *              text: "CASH IN 200",
    *              system: "mock"
    *            }
-   * 
+   *
    *     responses:
    *        '200':
    *           description: OK
@@ -51,7 +51,7 @@ class HooksRoute {
    *                  message:
    *                    type: string
    *                    example: "Thanks for using Engine API"
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -61,7 +61,7 @@ class HooksRoute {
    *                  properties:
    *                    message:
    *                      type: string
-   * 
+   *
    *        '404':
    *           description: Doesn't exist any user with this phone number or merchant available with that code.
    *           content:
@@ -72,7 +72,7 @@ class HooksRoute {
    *                  error:
    *                    type: string
    *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *
    * components:
    *  schemas:
    *    SMSWebhookBody:
@@ -88,7 +88,7 @@ class HooksRoute {
    *          type: string
    *          description: System used.
    */
-  @Post("/sms-gateway")
+  @Post('/sms-gateway')
   public smsGatewayWebhooks(request: Request<{}, {}, SMSWebhookBody, {}>) {
     return HooksService.processSMSGateway(request);
   }
@@ -115,13 +115,13 @@ class HooksRoute {
    *        application/json:
    *          schema:
    *            $ref: "#/components/schemas/USSDWebhookBody"
-   *          example: 
+   *          example:
    *            {
    *              phoneNumber: "+233207212676",
    *              text: "1",
    *              system: "mock"
    *            }
-   * 
+   *
    *     responses:
    *        '200':
    *           description: OK
@@ -133,7 +133,7 @@ class HooksRoute {
    *                  message:
    *                    type: string
    *                    example: "Thanks for using Engine API"
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -143,7 +143,7 @@ class HooksRoute {
    *                  properties:
    *                    message:
    *                      type: string
-   * 
+   *
    *        '404':
    *           description: Doesn't exist any user with this phone number or merchant available with that code.
    *           content:
@@ -154,7 +154,7 @@ class HooksRoute {
    *                  error:
    *                    type: string
    *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *
    * components:
    *  schemas:
    *    USSDWebhookBody:
@@ -170,7 +170,7 @@ class HooksRoute {
    *          type: string
    *          description: System used.
    */
-  @Post("/ussd-gateway")
+  @Post('/ussd-gateway')
   public ussdGatewayWebhooks(request: Request<{}, {}, USSDWebhookBody, {}>) {
     return HooksService.processUSSDGateway(request);
   }
@@ -190,16 +190,19 @@ class HooksRoute {
    *        application/json:
    *          schema:
    *            $ref: "#/components/schemas/MMOWebhookBody"
-   *          example: 
+   *          example:
    *            {
    *              type: "cash-in",
    *              system: "mock",
    *              phoneNumber: "+233207212676",
    *              amount: 100,
    *              identifierType: "phoneNumber",
-   *              otp: 1234
+   *              otp: 1234,
+   *              merchantCode: 4321,
+   *              createdBy: "agent",
+   *              createdUsing: "SMS"
    *            }
-   * 
+   *
    *     responses:
    *        '200':
    *           description: OK
@@ -211,7 +214,7 @@ class HooksRoute {
    *                  message:
    *                    type: string
    *                    example: "Thanks for using Engine API"
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -221,7 +224,7 @@ class HooksRoute {
    *                  properties:
    *                    message:
    *                      type: string
-   * 
+   *
    * components:
    *  schemas:
    *    MMOWebhookBody:
@@ -245,8 +248,17 @@ class HooksRoute {
    *        otp:
    *          type: number
    *          description: "Customer one time password"
+   *        createdBy:
+   *          type: string
+   *          description: "Who create the operation. Value can be 'customer', 'agent' or 'merchant'"
+   *        createdUsing:
+   *          type: string
+   *          description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
+   *        merchantCode:
+   *          type: string
+   *          description: "Merchant Code"
    */
-  @Put("/mmo")
+  @Put('/mmo')
   public mmoWebhooks(request: Request<{}, {}, MMOWebhookBody, {}>) {
     return HooksService.processMMO(request.body);
   }

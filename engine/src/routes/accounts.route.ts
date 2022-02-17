@@ -48,7 +48,7 @@ class AccountsRoute {
    *                    phoneNumber:
    *                      type: string
    *                      example: "+441632960067"
-   * 
+   *
    *        '409':
    *           description: This mobile phone is already registered to another user.
    *           content:
@@ -73,7 +73,7 @@ class AccountsRoute {
    *   delete:
    *     tags:
    *      - "Accounts"
-   *     summary: Delete customer account 
+   *     summary: Delete customer account
    *     description: Makes a request to the MMO API to delete the customer account
    *     parameters:
    *       - in: header
@@ -94,9 +94,9 @@ class AccountsRoute {
    *                  message:
    *                    type: string
    *                    example: "User deleted"
-   * 
+   *
    *        '404':
-   *           description: Doesn't exist any user with this phone number.
+   *           description: A customer with this sessionId does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -104,8 +104,8 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *                    example: "A customer with this sessionId does not exist."
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -152,9 +152,9 @@ class AccountsRoute {
    *                      active: true,
    *                      otp: 1234
    *                  }
-   * 
+   *
    *        '404':
-   *           description: Doesn't exist any user with this phone number.
+   *           description: A customer with this mobile number or token does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -162,8 +162,8 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist any user with this phone number."
-   * 
+   *                    example: "A customer with this mobile number or token does not exist."
+   *
    * components:
    *  schemas:
    *    CustomerInformation:
@@ -227,9 +227,9 @@ class AccountsRoute {
    *                     type: boolean
    *                     description: "Flag that indicate if the merchant is available or not"
    *                     example: true
-   * 
+   *
    *        '404':
-   *           description: Doesn't exist a merchant available with this code
+   *           description: A Merchant with this code does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -237,7 +237,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist a merchant available with this code"
+   *                    example: "A Merchant with this code does not exist."
    */
   @Get('/merchant/:code')
   public getMerchant(request: Request<{ code: string }, {}, {}, {}>) {
@@ -302,7 +302,7 @@ class AccountsRoute {
    *                      indicative: "+351",
    *                      otp: 1801
    *                  }
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -312,9 +312,9 @@ class AccountsRoute {
    *                  properties:
    *                    message:
    *                      type: string
-   * 
+   *
    *        '404':
-   *           description: Doesn't exist any user with this otp.
+   *           description: A customer with this OTP does not exist.
    *           content:
    *            application/json:
    *              schema:
@@ -322,7 +322,7 @@ class AccountsRoute {
    *                properties:
    *                  error:
    *                    type: string
-   *                    example: "Doesn't exist a merchant available with this code"
+   *                    example: "A customer with this OTP does not exist."
    */
   @Get('/:otp/valid')
   public verifyOTP(request: Request<{ otp: string }, {}, {}, {}>) {
