@@ -2,7 +2,7 @@ import { Request, Router } from 'express';
 import { UserFacingError } from '../classes/errors';
 
 import Server from '../classes/server';
-import { RouteHandler, Post, Get } from '../decorators/router-handler';
+import { RouteHandler, Post, Get, Delete } from '../decorators/router-handler';
 import {
   TransactionsBody,
   TransactionStatus,
@@ -52,7 +52,9 @@ class TransactionsRoute {
    *                currency: "RWF",
    *                system: "mock",
    *                identifierType: "phoneNumber",
-   *                otp: 1234
+   *                otp: 1234,
+   *                createdBy: "agent",
+   *                createdUsing: "SMS"
    *              }
    * 
    *     responses:
@@ -138,6 +140,12 @@ class TransactionsRoute {
    *        otp:
    *          type: number
    *          description: "Customer one time password"
+   *         createdBy:
+   *           type: string
+   *           description: "Who create the operation. Value can be 'customer', 'agent' or 'merchant'"
+   *         createdUsing:
+   *           type: string
+   *           description: "Which mode used to create the operation. Value can be 'SMS' or 'USSD'"
   */
   @Post('/type/:type')
   public startTransaction(
@@ -206,6 +214,8 @@ class TransactionsRoute {
    *                      amount: 123,
    *                      identifierType: "phoneNumber",
    *                      otp: 2005
+   *                      createdBy: "agent",
+   *                      createdUsing: "SMS"
    *                  }
    *
    *        '404':
@@ -254,10 +264,60 @@ class TransactionsRoute {
    *        otp:
    *          type: number
    *          description: "Customer one time password"
+   *        createdBy:
+   *          type: string
+   *          description: "Who create the operation. Value can be 'customer', 'agent' or 'merchant'"
+   *        createdUsing:
+   *          type: string
+   *          description: "Which mode used to create the operation. Value can be 'SMS' or 'USSD'"
    */
   @Get('/:phoneNumber/:status')
   public getTransaction(request: Request<{ phoneNumber: string, status: TransactionStatus }, {}, {}, {}>){
     return MmoService.getTransaction(request);
+  }
+
+  /**
+   * @openapi
+   * /transactions/{id}:
+   *   delete:
+   *     tags:
+   *      - "Operations"
+   *     summary: Remove transaction
+   *     description: Remove the specific transaction from memory
+   *     parameters:
+   *      - in: path
+   *        name: id
+   *        required: true
+   *        description: Transaction id.
+   *        schema:
+   *          type: string
+   *          example: "408a6a77-2dc4-463e-8cca-02055c83a293"
+   *     responses:
+   *      '200':
+   *        description: OK
+   *        content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               message:
+   *                 type: string
+   *                 example: "The transaction with id 408a6a77-2dc4-463e-8cca-02055c83a293 was deleted"
+   *
+   *      '404':
+   *        description: Notification not found
+   *        content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               message:
+   *                 type: string
+   *                 example: "The transaction with id 408a6a77-2dc4-463e-8cca-02055c83a293 doesn't exist."
+   */
+  @Delete('/:id')
+  public deleteTransactionById(request: Request<{ id: string }, {}, {}, {}>){
+    return MmoService.deleteTransactionById(request);
   }
 }
 
