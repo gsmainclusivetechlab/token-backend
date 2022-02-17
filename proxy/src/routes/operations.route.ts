@@ -86,7 +86,7 @@ class OperationsRoute {
    *        otp:
    *          type: number
    *          description: "Customer one time password"
-   * 
+   *
    *    Operation:
    *      allOf:
    *        - $ref: "#/components/schemas/CreateOperationBody"

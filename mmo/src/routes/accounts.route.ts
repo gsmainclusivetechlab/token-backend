@@ -405,7 +405,7 @@ class AccountsRoute {
    *                      indicative: "+351",
    *                      otp: 1801
    *                  }
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -415,7 +415,7 @@ class AccountsRoute {
    *                  properties:
    *                    message:
    *                      type: string
-   * 
+   *
    *        '404':
    *           description: A customer with this OTP does not exist.
    *           content:

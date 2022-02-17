@@ -5,7 +5,6 @@ import { TransactionStatus } from '../interfaces/mmo';
 import { TransactionsService } from '../services/transactions.service';
 import { headersValidation } from '../utils/request-validation';
 
-
 @RouteHandler('/transactions')
 class TransactionsRoute {
   public router: Router;
@@ -59,7 +58,7 @@ class TransactionsRoute {
    *                      status: "pending",
    *                      amount: 123,
    *                      identifierType: "phoneNumber",
-   *                      otp: 2005
+   *                      otp: 2005,
    *                      createdBy: "agent",
    *                      createdUsing: "SMS",
    *                      merchant: {
@@ -120,7 +119,7 @@ class TransactionsRoute {
    *        createdUsing:
    *          type: string
    *          description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
-   * 
+   *
    *    Merchant:
    *      type: object
    *      properties:
@@ -135,7 +134,7 @@ class TransactionsRoute {
    *          description: "Flag that indicate if the merchant is available or not"
    */
   @Get('/:phoneNumber/:status')
-  public getTransaction(request: Request<{ phoneNumber: string, status: TransactionStatus }, {}, {}, {}>){
+  public getTransaction(request: Request<{ phoneNumber: string; status: TransactionStatus }, {}, {}, {}>) {
     const { phoneNumber, status } = request.params;
     headersValidation(request.headers);
     const otp = request.headers['sessionid'] as string;
@@ -190,7 +189,7 @@ class TransactionsRoute {
    *                 example: "The transaction with id 408a6a77-2dc4-463e-8cca-02055c83a293 doesn't exist."
    */
   @Delete('/:phoneNumber/pending')
-  public getAndDeletePendingTransaction(request: Request<{ phoneNumber: string }, {}, {}, {}>){
+  public getAndDeletePendingTransaction(request: Request<{ phoneNumber: string }, {}, {}, {}>) {
     return TransactionsService.getAndDeletePendingTransaction(request);
   }
 }

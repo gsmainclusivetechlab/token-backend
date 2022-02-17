@@ -18,7 +18,7 @@ class OperationsRoute {
    *     tags:
    *        - "Operations"
    *     summary: Manage operations
-   *     description: Makes a request to the MMO API to process the action selected in the operation. 
+   *     description: Makes a request to the MMO API to process the action selected in the operation.
    *                  If the action is "accept", the operation will be saved in memory
    *     parameters:
    *       - in: path
@@ -34,7 +34,7 @@ class OperationsRoute {
    *        application/json:
    *          schema:
    *            $ref: "#/components/schemas/Operation"
-   *          example: 
+   *          example:
    *            {
    *              type: "cash-in",
    *              system: "mock",
@@ -43,7 +43,7 @@ class OperationsRoute {
    *              createdBy: "customer",
    *              createdUsing: "SMS"
    *            }
-   * 
+   *
    *     responses:
    *        '200':
    *           description: OK
@@ -55,7 +55,7 @@ class OperationsRoute {
    *                  status:
    *                    type: string
    *                    example: "Pending"
-   * 
+   *
    *        '400':
    *           description: Invalid Request.
    *           content:
@@ -65,7 +65,7 @@ class OperationsRoute {
    *                  properties:
    *                    message:
    *                      type: string
-   * 
+   *
    *        '404':
    *           description: A customer with this mobile number or token does not exist or a Merchant with this code does not exist.
    *           content:
@@ -76,7 +76,7 @@ class OperationsRoute {
    *                  error:
    *                    type: string
    *                    example: "A customer with this mobile number or token does not exist."
-   * 
+   *
    * components:
    *  schemas:
    *     Operation:
