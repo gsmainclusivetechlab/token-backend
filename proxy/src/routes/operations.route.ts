@@ -226,7 +226,7 @@ class OperationsRoute {
    *           $ref: "#/components/schemas/CustomerInformation"
    *         createdUsing:
    *           type: string
-   *           description: "Which mode used to create the operation. Value can be 'SMS' or 'USSD'"
+   *           description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
    *
    */
   @Post('/')

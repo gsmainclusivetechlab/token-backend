@@ -197,7 +197,10 @@ class HooksRoute {
    *              phoneNumber: "+233207212676",
    *              amount: 100,
    *              identifierType: "phoneNumber",
-   *              otp: 1234
+   *              otp: 1234,
+   *              merchantCode: 4321
+   *              createdBy: "agent",
+   *              createdUsing: "SMS"
    *            }
    * 
    *     responses:
@@ -245,6 +248,15 @@ class HooksRoute {
    *        otp:
    *          type: number
    *          description: "Customer one time password"
+   *        createdBy:
+   *          type: string
+   *          description: "Who create the operation. Value can be 'customer', 'agent' or 'merchant'"
+   *        createdUsing:
+   *          type: string
+   *          description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
+   *        merchantCode:
+   *          type: string
+   *          description: "Merchant Code"
    */
   @Put("/mmo")
   public mmoWebhooks(request: Request<{}, {}, MMOWebhookBody, {}>) {

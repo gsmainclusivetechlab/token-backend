@@ -7,6 +7,7 @@ import { SMSService } from './sms.service';
 import { HooksService } from './hooks.service';
 import { catchError } from '../utils/catch-error';
 import { AccountNameReturn } from '../interfaces/mmo';
+import { TransactionsService } from './transactions.service';
 
 class OperationsService {
   async manageOperation(action: Action, operation: Operation) {
@@ -23,37 +24,38 @@ class OperationsService {
       let phoneNumber = getAccountNameData.phoneNumber;
 
       if (action === 'accept') {
-        const headers = {
-          'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`,
-        };
-        const body = {
-          amount: operation.amount,
-          debitParty: [
-            {
-              key: 'msisdn', // accountid
-              value: phoneNumber, // 2999
-            },
-          ],
-          creditParty: [
-            {
-              key: 'msisdn', // accountid
-              value: phoneNumber, // 2999
-            },
-          ],
-          currency: 'RWF', // RWF
-          system: operation.system,
-          merchantCode: operation.merchantCode,
-          identifierType: operation.identifierType,
-          otp: operation.customerInfo.otp,
-        };
+        if (operation.createdBy === 'customer') {
+          const message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was successful`;
+          HooksService.sendAgentMerchantNotification(message, getAccountNameData.otp);
+          SMSService.sendCustomerNotification(phoneNumber, message, operation.system, getAccountNameData.otp);
+          return { status: 'accepted' };
+        } else {
+          const getTransactionResponse = await TransactionsService.getTransaction(phoneNumber, 'pending', String(getAccountNameData.otp));
+          if (getTransactionResponse.transaction) {
+            throw new UserFacingError('There is a pending transaction for this customer');
+          }
 
-        await axios.post(`${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(operation.type)}`, body, { headers });
+          await this.sendOperationToMMO(phoneNumber, operation);
+          var messageAskingForPin = `To proceed with the ${operation.type} operation, send the following message `;
 
-        const message = `Please, to continue the operation send the following message 'PIN <space> {VALUE}'`;
-        SMSService.sendCustomerNotification(phoneNumber, message, operation.system, operation.customerInfo.otp);
+          if (operation.createdUsing === 'SMS') {
+            messageAskingForPin += `PIN 1234`;
+          } else {
+            messageAskingForPin += `*165#*6*1234`;
+          }
 
-        return { status: 'pending' };
+          SMSService.sendCustomerNotification(phoneNumber, messageAskingForPin, operation.system, operation.customerInfo.otp);
+
+          return { status: 'pending' };
+        }
       } else {
+        if (operation.createdBy !== 'customer') {
+          const getTransactionResponse = await TransactionsService.getTransaction(phoneNumber, 'pending', String(getAccountNameData.otp));
+          if (getTransactionResponse.transaction) {
+            throw new UserFacingError('There is a pending transaction for this customer');
+          }
+        }
+
         var message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was rejected`;
 
         switch (operation.type) {
@@ -69,13 +71,79 @@ class OperationsService {
         }
 
         HooksService.sendAgentMerchantNotification(message, operation.customerInfo.otp);
-        SMSService.sendCustomerNotification(phoneNumber, message, operation.system, operation.customerInfo.otp);
-
-        return { status: 'reject' };
+        if (operation.createdBy === 'customer') {
+          SMSService.sendCustomerNotification(phoneNumber, message, operation.system, operation.customerInfo.otp);
+        }
+        return { status: 'rejected' };
       }
     } catch (err: any | AxiosError) {
       catchError(err);
     }
+  }
+
+  async getToken(phoneNumber: string, system: SystemType, getAccountNameData: AccountNameReturn) {
+    const tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
+
+    if (tokenApiResponse.data && tokenApiResponse.data.token) {
+      const message = 'Your token is ' + tokenApiResponse.data.token;
+      SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+    }
+  }
+
+  async deleteToken(phoneNumber: string, system: SystemType, getAccountNameData: AccountNameReturn) {
+    try {
+      var message: string = '';
+      if (!getAccountNameData.active) {
+        message = `You need to request a new token to make that operation`;
+        SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+        throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token to delete him');
+      }
+
+      const tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
+
+      if (tokenApiResponse.data) {
+        message = 'Your token was deleted';
+        SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+      }
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 404) {
+          message = `You need to have an associated token to delete`;
+          SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+        }
+      }
+      catchError(err);
+    }
+  }
+
+  async sendOperationToMMO(phoneNumber: string, operation: Operation) {
+    const headers = {
+      'X-Callback-URL': `${process.env.ENGINE_API_URL}/hooks/mmo`,
+    };
+    const body = {
+      amount: operation.amount,
+      debitParty: [
+        {
+          key: 'msisdn', // accountid
+          value: phoneNumber, // 2999
+        },
+      ],
+      creditParty: [
+        {
+          key: 'msisdn', // accountid
+          value: phoneNumber, // 2999
+        },
+      ],
+      currency: 'RWF', // RWF
+      system: operation.system,
+      merchantCode: operation.merchantCode,
+      identifierType: operation.identifierType,
+      otp: operation.customerInfo.otp,
+      createdBy: operation.createdBy,
+      createdUsing: operation.createdUsing,
+    };
+
+    await axios.post(`${process.env.MMO_API_URL}/transactions/type/${GetTypeFromOperation(operation.type)}`, body, { headers });
   }
 
   private validateBody(action: Action, operation: Operation) {
@@ -116,40 +184,13 @@ class OperationsService {
         throw new UserFacingError("INVALID_REQUEST - Property merchantCode can't be empty");
       }
     }
-  }
 
-  async getToken(phoneNumber: string, system: SystemType, getAccountNameData: AccountNameReturn) {
-    const tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/renew/${phoneNumber}`);
-
-    if (tokenApiResponse.data && tokenApiResponse.data.token) {
-      const message = 'Your token is ' + tokenApiResponse.data.token;
-      SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+    if (!(operation.createdBy === 'customer' || operation.createdBy === 'agent' || operation.createdBy === 'merchant')) {
+      throw new UserFacingError('INVALID_REQUEST - Invalid created by value');
     }
-  }
 
-  async deleteToken(phoneNumber: string, system: SystemType, getAccountNameData: AccountNameReturn) {
-    try {
-      var message: string = '';
-      if (!getAccountNameData.active) {
-        message = `You need to request a new token to make that operation`;
-        SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-        throw new UserFacingError('OPERATION_ERROR - The user needs to have an active token to delete him');
-      }
-
-      const tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/invalidate/${phoneNumber}`);
-
-      if (tokenApiResponse.data) {
-        message = 'Your token was deleted';
-        SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-      }
-    } catch (err: any | AxiosError) {
-      if (axios.isAxiosError(err)) {
-        if (err.response?.status === 404) {
-          message = `You need to have an associated token to delete`;
-          SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
-        }
-      }
-      catchError(err);
+    if (!(operation.createdUsing === 'SMS' || operation.createdUsing === 'USSD')) {
+      throw new UserFacingError('INVALID_REQUEST - Invalid created using value');
     }
   }
 }

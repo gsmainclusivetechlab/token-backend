@@ -32,3 +32,5 @@ export interface TransactionsHeaders {
   'X-Account-Holding-Institution-Identifier-Type'?: string;
   'X-Account-Holding-Institution-Identifier'?: string;
 }
+
+export type TransactionStatus = 'pending' | 'accepted';

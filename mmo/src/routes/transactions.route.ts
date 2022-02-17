@@ -145,7 +145,7 @@ class TransactionsRoute {
    *           description: "Who create the operation. Value can be 'customer', 'agent' or 'merchant'"
    *         createdUsing:
    *           type: string
-   *           description: "Which mode used to create the operation. Value can be 'SMS' or 'USSD'"
+   *           description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
   */
   @Post('/type/:type')
   public startTransaction(
@@ -215,7 +215,12 @@ class TransactionsRoute {
    *                      identifierType: "phoneNumber",
    *                      otp: 2005
    *                      createdBy: "agent",
-   *                      createdUsing: "SMS"
+   *                      createdUsing: "SMS",
+   *                      merchant: {
+   *                        code: "4321",
+   *                        name: "XPTO Lda",
+   *                        available: true
+   *                      }
    *                  }
    *
    *        '404':
@@ -256,8 +261,7 @@ class TransactionsRoute {
    *          type: number
    *          description: "Value associated with the operation"
    *        merchant:
-   *          type: string
-   *          description: "Merchant code"
+   *          $ref: "#/components/schemas/Merchant"
    *        identifierType:
    *          type: string
    *          description: "Identify what is the customer identifier. Value can be 'token' or 'phoneNumber'"
@@ -269,7 +273,7 @@ class TransactionsRoute {
    *          description: "Who create the operation. Value can be 'customer', 'agent' or 'merchant'"
    *        createdUsing:
    *          type: string
-   *          description: "Which mode used to create the operation. Value can be 'SMS' or 'USSD'"
+   *          description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
    */
   @Get('/:phoneNumber/:status')
   public getTransaction(request: Request<{ phoneNumber: string, status: TransactionStatus }, {}, {}, {}>){

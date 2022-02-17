@@ -1,4 +1,4 @@
-import { IdentifierType, MmoOperation, SystemType } from './operation';
+import { CreatedByOptions, CreatedUsingOptions, IdentifierType, MmoOperation, SystemType } from './operation';
 
 export interface SMSWebhookBody {
   phoneNumber: string;
@@ -19,4 +19,7 @@ export interface MMOWebhookBody {
   amount: number;
   identifierType: IdentifierType;
   otp: number;
+  createdBy: CreatedByOptions;
+  createdUsing: CreatedUsingOptions;
+  merchantCode: string;
 }

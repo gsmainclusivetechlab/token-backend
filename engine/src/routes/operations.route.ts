@@ -39,7 +39,9 @@ class OperationsRoute {
    *              type: "cash-in",
    *              system: "mock",
    *              identifier: "+233207212676",
-   *              amount: 100
+   *              amount: 100,
+   *              createdBy: "customer",
+   *              createdUsing: "SMS"
    *            }
    * 
    *     responses:
@@ -100,6 +102,12 @@ class OperationsRoute {
    *           description: "Merchant identifier code"
    *         customerInfo:
    *           $ref: "#/components/schemas/CustomerInformation"
+   *         createdBy:
+   *           type: string
+   *           description: "Who create the operation. Value can be 'customer', 'agent' or 'merchant'"
+   *         createdUsing:
+   *           type: string
+   *           description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
    */
   @Post('/:action')
   public manageOperation(request: Request<{ action: Action }, {}, Operation, {}>) {
