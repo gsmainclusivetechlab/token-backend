@@ -1,13 +1,16 @@
-import { AccountNameReturn } from "./mmo";
+import { AccountNameReturn } from './mmo';
 
-export type OperationType = "cash-in" | "cash-out" | "merchant-payment";
+export type OperationType = 'cash-in' | 'cash-out' | 'merchant-payment';
 
-export type Action = "accept" | "reject";
+export type Action = 'accept' | 'reject';
 
-export type System = "mock" | "live";
+export type System = 'mock' | 'live';
 
-export type IndentifierType = "phoneNumber" | "token";
+export type IndentifierType = 'phoneNumber' | 'token';
 
+export type CreatedByOptions = 'customer' | 'agent' | 'merchant';
+
+export type CreatedUsingOptions = 'SMS' | 'USSD';
 
 export interface CreateOperationBody {
   identifier: string;
@@ -17,13 +20,15 @@ export interface CreateOperationBody {
   customerInfo: AccountNameReturn;
   system: string;
   merchantCode: string;
+  createdBy: CreatedByOptions;
+  createdUsing: CreatedUsingOptions;
 }
 
-export interface CreateOperation extends CreateOperationBody{
+export interface CreateOperation extends CreateOperationBody {
   id: string;
 }
 
-export interface OperationNotification  {
+export interface OperationNotification {
   id: string;
   message: string;
   otp: number;

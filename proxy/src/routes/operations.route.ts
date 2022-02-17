@@ -148,7 +148,8 @@ class OperationsRoute {
    *                identifier: "233207212676",
    *                amount: 100,
    *                type: "cash-in",
-   *                system: "mock"
+   *                system: "mock",
+   *                createdUsing: "SMS"
    *              }
    *
    *     responses:
@@ -173,7 +174,8 @@ class OperationsRoute {
    *                        active: true,
    *                        otp: 1234
    *                      },
-   *                      system: "mock"
+   *                      system: "mock",
+   *                      createdUsing: "SMS"
    *                    }
    *
    *        '404':
@@ -222,6 +224,9 @@ class OperationsRoute {
    *           description: "Merchant identifier code"
    *         customerInfo:
    *           $ref: "#/components/schemas/CustomerInformation"
+   *         createdUsing:
+   *           type: string
+   *           description: "Which mode used to create the operation. Value can be 'SMS' or 'USSD'"
    *
    */
   @Post('/')
@@ -250,7 +255,7 @@ class OperationsRoute {
    *      content:
    *        application/json:
    *          schema:
-   *            $ref: "#/components/schemas/Operation"
+   *            $ref: "#/components/schemas/CreateOperationBody"
    *          example:
    *              {
    *                 identifier: "233207212676",
@@ -264,7 +269,8 @@ class OperationsRoute {
    *                   active: true,
    *                   otp: 1234
    *                 },
-   *                 system: "mock"
+   *                 system: "mock",
+   *                 createdUsing: "SMS"
    *               }
    *     responses:
    *        '200':

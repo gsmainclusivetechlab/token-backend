@@ -42,9 +42,12 @@ class OperationsService {
       const [merchantInfoError, merchantInfoData] = await SafeAwait(
         axios.get(`${process.env.ENGINE_API_URL}/accounts/merchant/${elem.merchantCode}`)
       );
+      elem.createdBy = "merchant";
       if (merchantInfoError) {
         catchError(merchantInfoError);
       }
+    } else {
+      elem.createdBy = "agent";
     }
 
     elem.customerInfo = { ...accountInfoData.data };
@@ -192,6 +195,10 @@ class OperationsService {
       if (elem.merchantCode.trim() === '') {
         throw new UserFacingError("INVALID_REQUEST - Property merchantCode can't be empty");
       }
+    }
+
+    if (!(elem.createdUsing === 'SMS' || elem.createdUsing === 'USSD')) {
+      throw new UserFacingError('INVALID_REQUEST - Invalid created using value');
     }
   }
 
