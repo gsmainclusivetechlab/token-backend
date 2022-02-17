@@ -2,12 +2,8 @@ import { Request, Router } from 'express';
 import { UserFacingError } from '../classes/errors';
 
 import Server from '../classes/server';
-import { RouteHandler, Post, Get } from '../decorators/router-handler';
-import {
-  TransactionsBody,
-  TransactionStatus,
-  TransactionType,
-} from '../interfaces/transaction';
+import { RouteHandler, Post, Get, Delete } from '../decorators/router-handler';
+import { TransactionsBody, TransactionStatus, TransactionType } from '../interfaces/transaction';
 import { MmoService } from '../services/mmo.service';
 
 @RouteHandler('/transactions')
@@ -44,7 +40,7 @@ class TransactionsRoute {
    *          application/json:
    *            schema:
    *              $ref: "#/components/schemas/TransactionsBody"
-   *            example: 
+   *            example:
    *              {
    *                amount: 100,
    *                debitParty: [{key: "msisdn", value: "+233207212676"}],
@@ -52,9 +48,11 @@ class TransactionsRoute {
    *                currency: "RWF",
    *                system: "mock",
    *                identifierType: "phoneNumber",
-   *                otp: 1234
+   *                otp: 1234,
+   *                createdBy: "agent",
+   *                createdUsing: "SMS"
    *              }
-   * 
+   *
    *     responses:
    *       200:
    *         description: Created
@@ -83,7 +81,7 @@ class TransactionsRoute {
    *                   type: number
    *                   description: Transactions poll limit
    *                   example: 100
-   * 
+   *
    *       '400':
    *          description: Invalid Request.
    *          content:
@@ -93,8 +91,8 @@ class TransactionsRoute {
    *                 properties:
    *                   message:
    *                     type: string
-   * 
-   * 
+   *
+   *
    * components:
    *  schemas:
    *    TransactionsBody:
@@ -110,9 +108,9 @@ class TransactionsRoute {
    *            type: object
    *            properties:
    *              key:
-   *                type: string  
+   *                type: string
    *              value:
-   *                type: string  
+   *                type: string
    *        creditParty:
    *          type: array
    *          description: "Account"
@@ -120,9 +118,9 @@ class TransactionsRoute {
    *            type: object
    *            properties:
    *              key:
-   *                type: string  
+   *                type: string
    *              value:
-   *                type: string  
+   *                type: string
    *        currency:
    *          type: string
    *          description: "Currency of the operation"
@@ -138,24 +136,20 @@ class TransactionsRoute {
    *        otp:
    *          type: number
    *          description: "Customer one time password"
-  */
+   *        createdBy:
+   *          type: string
+   *          description: "Who create the operation. Value can be 'customer', 'agent' or 'merchant'"
+   *        createdUsing:
+   *          type: string
+   *          description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
+   */
   @Post('/type/:type')
-  public startTransaction(
-    request: Request<
-      { type: TransactionType },
-      {},
-      TransactionsBody
-    >
-  ) {
-    const callbackUrl = request.headers['x-callback-url'] as string
-    if(!callbackUrl) {
-      throw new UserFacingError('callbackUrl is mandatory')
+  public startTransaction(request: Request<{ type: TransactionType }, {}, TransactionsBody>) {
+    const callbackUrl = request.headers['x-callback-url'] as string;
+    if (!callbackUrl) {
+      throw new UserFacingError('callbackUrl is mandatory');
     }
-    return MmoService.startTransaction(
-      request.params.type,
-      callbackUrl,
-      request.body
-    );
+    return MmoService.startTransaction(request.params.type, callbackUrl, request.body);
   }
 
   /**
@@ -205,7 +199,14 @@ class TransactionsRoute {
    *                      status: "pending",
    *                      amount: 123,
    *                      identifierType: "phoneNumber",
-   *                      otp: 2005
+   *                      otp: 2005,
+   *                      createdBy: "agent",
+   *                      createdUsing: "SMS",
+   *                      merchant: {
+   *                        code: "4321",
+   *                        name: "XPTO Lda",
+   *                        available: true
+   *                      }
    *                  }
    *
    *        '404':
@@ -246,18 +247,67 @@ class TransactionsRoute {
    *          type: number
    *          description: "Value associated with the operation"
    *        merchant:
-   *          type: string
-   *          description: "Merchant code"
+   *          $ref: "#/components/schemas/Merchant"
    *        identifierType:
    *          type: string
    *          description: "Identify what is the customer identifier. Value can be 'token' or 'phoneNumber'"
    *        otp:
    *          type: number
    *          description: "Customer one time password"
+   *        createdBy:
+   *          type: string
+   *          description: "Who create the operation. Value can be 'customer', 'agent' or 'merchant'"
+   *        createdUsing:
+   *          type: string
+   *          description: "Which mode was used to create the operation. Value can be 'SMS' or 'USSD'"
    */
   @Get('/:phoneNumber/:status')
-  public getTransaction(request: Request<{ phoneNumber: string, status: TransactionStatus }, {}, {}, {}>){
+  public getTransaction(request: Request<{ phoneNumber: string; status: TransactionStatus }, {}, {}, {}>) {
     return MmoService.getTransaction(request);
+  }
+
+  /**
+   * @openapi
+   * /transactions/{id}:
+   *   delete:
+   *     tags:
+   *      - "Operations"
+   *     summary: Remove transaction
+   *     description: Remove the specific transaction from memory
+   *     parameters:
+   *      - in: path
+   *        name: id
+   *        required: true
+   *        description: Transaction id.
+   *        schema:
+   *          type: string
+   *          example: "408a6a77-2dc4-463e-8cca-02055c83a293"
+   *     responses:
+   *      '200':
+   *        description: OK
+   *        content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               message:
+   *                 type: string
+   *                 example: "The transaction with id 408a6a77-2dc4-463e-8cca-02055c83a293 was deleted"
+   *
+   *      '404':
+   *        description: Notification not found
+   *        content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               message:
+   *                 type: string
+   *                 example: "The transaction with id 408a6a77-2dc4-463e-8cca-02055c83a293 doesn't exist."
+   */
+  @Delete('/:id')
+  public deleteTransactionById(request: Request<{ id: string }, {}, {}, {}>) {
+    return MmoService.deleteTransactionById(request);
   }
 }
 

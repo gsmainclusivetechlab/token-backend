@@ -9,7 +9,7 @@ export type TransactionType =
   | 'reversal'
   | 'withdrawal';
 
-export type TransactionStatus = 'pending' | 'accepted'
+export type TransactionStatus = 'pending' | 'accepted';
 export interface TransactionsHeaders {
   transactionType: TransactionType;
   'X-Callback-URL': string;
@@ -41,9 +41,11 @@ export interface TransactionsBody {
   ];
   currency: string; // RWF
   system: 'mock' | 'live'; //mock or live
-  merchantCode: string,
+  merchantCode: string;
   identifierType: IdentifierType;
   otp: number;
+  createdBy: CreatedByOptions;
+  createdUsing: CreatedUsingOptions;
 }
 
 export interface TransactionsRes {
@@ -60,11 +62,13 @@ export interface Transaction {
   type: TransactionType;
   callbackUrl: string;
   status: TransactionStatus;
-  system: 'mock' | 'live',
+  system: 'mock' | 'live';
   amount: number;
   merchant?: Merchant;
   identifierType: IdentifierType;
   otp: number;
+  createdBy: CreatedByOptions;
+  createdUsing: CreatedUsingOptions;
 }
 
 export interface Merchant {
@@ -73,4 +77,8 @@ export interface Merchant {
   available: boolean;
 }
 
-export type IdentifierType = "phoneNumber" | "token";
+export type IdentifierType = 'phoneNumber' | 'token';
+
+export type CreatedByOptions = 'customer' | 'agent' | 'merchant';
+
+export type CreatedUsingOptions = 'SMS' | 'USSD';
