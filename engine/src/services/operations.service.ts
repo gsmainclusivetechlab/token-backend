@@ -22,10 +22,11 @@ class OperationsService {
       }
 
       let phoneNumber = getAccountNameData.phoneNumber;
+      var message = '';
 
       if (action === 'accept') {
         if (operation.createdBy === 'customer') {
-          const message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was successful`;
+          message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was successful`;
           HooksService.sendAgentMerchantNotification(message, getAccountNameData.otp);
           SMSService.sendCustomerNotification(phoneNumber, message, operation.system, getAccountNameData.otp);
           return { status: 'accepted' };
@@ -56,7 +57,7 @@ class OperationsService {
           }
         }
 
-        var message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was rejected`;
+        message = `The ${operation.type} operation with the value of ${operation.amount} for the customer with the identifier ${operation.identifier} was rejected`;
 
         switch (operation.type) {
           case 'cash-in':
@@ -91,8 +92,8 @@ class OperationsService {
   }
 
   async deleteToken(phoneNumber: string, system: SystemType, getAccountNameData: AccountNameReturn) {
+    var message: string = '';
     try {
-      var message: string = '';
       if (!getAccountNameData.active) {
         message = `You need to request a new token to make that operation`;
         SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
