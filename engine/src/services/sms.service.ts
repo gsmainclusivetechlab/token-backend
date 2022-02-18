@@ -191,7 +191,6 @@ class SMSService {
                 if (err.response?.status === 401) {
                   const operationType: OperationType = GetOperationFromType(pendingTransaction.type);
                   
-                  var identifier = null;
                   if(pendingTransaction.identifierType === 'token'){
                     tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
                     identifier = tokenApiResponse.data.token;
