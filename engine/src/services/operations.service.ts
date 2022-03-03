@@ -42,7 +42,7 @@ class OperationsService {
           if (operation.createdUsing === 'SMS') {
             messageAskingForPin += `PIN 1234`;
           } else {
-            messageAskingForPin += `*165#*6*1234`;
+            messageAskingForPin += `*165*6*1234#`;
           }
 
           SMSService.sendCustomerNotification(phoneNumber, messageAskingForPin, operation.system, operation.customerInfo.otp);
