@@ -55,9 +55,8 @@ class SendService {
   }
 
   private manageRequest(body: any, headers: any) {
-    const ussdIdentifier = '*165#*';
+    const ussdIdentifier = '*165*';
     const sessionId = headers['sessionid'] as string;
-
     if (body.text.startsWith(ussdIdentifier)) {
       body.text = body.text.slice(ussdIdentifier.length);
       return this.sendAxiosPost(`${process.env.ENGINE_API_URL}/hooks/ussd-gateway`, body, sessionId);

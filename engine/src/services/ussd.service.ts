@@ -21,6 +21,16 @@ class USSDService {
       const getAccountNameData = await AccountsService.getAccountInfo(phoneNumber);
       var message: string = '';
 
+      if (system == 'live') {
+        if (!text.endsWith('#')) {
+          message = `Thank you for using the Tokenisation Solution from Inclusive Tech Lab. Please, send a valid operation code/message.`;
+          SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
+          throw new UserFacingError('OPERATION_ERROR - Invalid USSD Code');
+        } else {
+          text.substring(0, text.length - 1);
+        }
+      }
+
       var ussdSplitted: string[] = text.split('*');
       if (ussdSplitted.length === 0) {
         message = `Thank you for using the Tokenisation Solution from Inclusive Tech Lab. Please, send a valid operation code/message.`;
@@ -69,7 +79,7 @@ class USSDService {
 
           if (!ussdSplitted[1]) {
             if (system === 'live') {
-              message = `To make a cash-in, send the following message '*165#*3*{AMOUNT}*{PIN}'`;
+              message = `To make a cash-in, send the following message '*165*3*{AMOUNT}*{PIN}#'`;
               SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             }
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
@@ -77,7 +87,7 @@ class USSDService {
 
           if (!ussdSplitted[2]) {
             if (system === 'live') {
-              message = `To make a cash-in, send the following message '*165#*3*{AMOUNT}*{PIN}'`;
+              message = `To make a cash-in, send the following message '*165*3*{AMOUNT}*{PIN}#'`;
               SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             }
             throw new UserFacingError('OPERATION_ERROR - Missing PIN');
@@ -102,7 +112,7 @@ class USSDService {
             identifierType,
             customerInfo: getAccountNameData,
             createdBy: 'customer',
-            createdUsing: 'USSD'
+            createdUsing: 'USSD',
           };
 
           OperationsService.sendOperationToMMO(phoneNumber, operationCashInObj);
@@ -138,7 +148,7 @@ class USSDService {
 
           if (!ussdSplitted[1]) {
             if (system === 'live') {
-              message = `To make a cash-out, send the following message '*165#*4*{AMOUNT}*{PIN}'`;
+              message = `To make a cash-out, send the following message '*165*4*{AMOUNT}*{PIN}#'`;
               SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             }
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
@@ -146,7 +156,7 @@ class USSDService {
 
           if (!ussdSplitted[2]) {
             if (system === 'live') {
-              message = `To make a cash-out, send the following message '*165#*4*{AMOUNT}*{PIN}'`;
+              message = `To make a cash-out, send the following message '*165*4*{AMOUNT}*{PIN}#'`;
               SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             }
             throw new UserFacingError('OPERATION_ERROR - Missing PIN');
@@ -171,7 +181,7 @@ class USSDService {
             identifierType,
             customerInfo: getAccountNameData,
             createdBy: 'customer',
-            createdUsing: 'USSD'
+            createdUsing: 'USSD',
           };
 
           OperationsService.sendOperationToMMO(phoneNumber, operationCashOutObj);
@@ -206,7 +216,7 @@ class USSDService {
 
           if (!ussdSplitted[1]) {
             if (system === 'live') {
-              message = `To make a payment, send the following message '*165#*5*{MERCHANT_CODE}*{AMOUNT}*{PIN}'`;
+              message = `To make a payment, send the following message '*165*5*{MERCHANT_CODE}*{AMOUNT}*{PIN}#'`;
               SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             }
             throw new UserFacingError('OPERATION_ERROR - Missing merchant code');
@@ -214,7 +224,7 @@ class USSDService {
 
           if (!ussdSplitted[2]) {
             if (system === 'live') {
-              message = `To make a payment, send the following message '*165#*5*{MERCHANT_CODE}*{AMOUNT}*{PIN}'`;
+              message = `To make a payment, send the following message '*165*5*{MERCHANT_CODE}*{AMOUNT}*{PIN}#'`;
               SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             }
             throw new UserFacingError('OPERATION_ERROR - Missing amount value');
@@ -222,7 +232,7 @@ class USSDService {
 
           if (!ussdSplitted[3]) {
             if (system === 'live') {
-              message = `To make a payment, send the following message '*165#*5*{MERCHANT_CODE}*{AMOUNT}*{PIN}'`;
+              message = `To make a payment, send the following message '*165*5*{MERCHANT_CODE}*{AMOUNT}*{PIN}#'`;
               SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             }
             throw new UserFacingError('OPERATION_ERROR - Missing pin value');
@@ -248,7 +258,7 @@ class USSDService {
             merchantCode: ussdSplitted[1],
             customerInfo: getAccountNameData,
             createdBy: 'customer',
-            createdUsing: 'USSD'
+            createdUsing: 'USSD',
           };
 
           try {
@@ -300,7 +310,7 @@ class USSDService {
               await TransactionsService.deletePendingTransaction(pendingTransaction, getAccountNameData.otp);
             }
 
-            message = `To send the pin, send the following message '*165#*6*1234'`;
+            message = `To send the pin, send the following message '*165*6*1234#'`;
             SMSService.sendCustomerNotification(phoneNumber, message, system, getAccountNameData.otp);
             throw new UserFacingError('OPERATION_ERROR - Missing pin value');
           }
@@ -319,8 +329,8 @@ class USSDService {
               if (axios.isAxiosError(err)) {
                 if (err.response?.status === 401) {
                   const operationType: OperationType = GetOperationFromType(pendingTransaction.type);
-                  
-                  if(pendingTransaction.identifierType === 'token'){
+
+                  if (pendingTransaction.identifierType === 'token') {
                     tokenApiResponse = await axios.get(`${process.env.TOKEN_API_URL}/tokens/${phoneNumber}`);
                     identifier = tokenApiResponse.data.token;
                   } else {

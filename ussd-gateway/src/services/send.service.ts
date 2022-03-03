@@ -31,13 +31,13 @@ class SendService {
       case '*#0#': {
         return 'ACK';
       }
-      case '*165#*6*1234': {
+      case '*165*6*1234#': {
         try {
           headersValidation(headers);
 
           var object = {
             phoneNumber: body.phoneNumber,
-            text: args.serviceCode.replace('*165#*', ''),
+            text: '6*1234',
             system: body.system,
           };
 
@@ -67,7 +67,7 @@ class SendService {
     const pendingTransaction = getTransactionResponse.data.transaction;
 
     if (pendingTransaction) {
-      if (serviceCode !== '*165#*6*1234' || (serviceCode === '*165#*6*1234' && pendingTransaction.createdUsing === 'SMS')) {
+      if (serviceCode !== '*165*6*1234#' || (serviceCode === '*165*6*1234#' && pendingTransaction.createdUsing === 'SMS')) {
         await axios.delete(`${process.env.ENGINE_API_URL}/transactions/${phoneNumber}/pending`, {
           headers: { sessionId },
         });
