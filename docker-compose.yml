@@ -21,7 +21,7 @@
 
     nodesmsgateway:
       container_name: nodesmsgateway
-      image: gsmainclusivetechlab/token:sms-gateway-v1.6.0
+      image: gsmainclusivetechlab/token:sms-gateway-v1.6.1
 
       ports:
         - "4100:4100"
@@ -44,7 +44,7 @@
 
     nodeussdgateway:
       container_name: nodeussdgateway
-      image: gsmainclusivetechlab/token:ussd-gateway-v1.6.0
+      image: gsmainclusivetechlab/token:ussd-gateway-v1.6.1
 
       ports:
         - "4200:4200"
@@ -104,7 +104,7 @@
 
     engineservice:
       container_name: nodeengineservice
-      image: gsmainclusivetechlab/token:engine-v1.6.0
+      image: gsmainclusivetechlab/token:engine-v1.6.1
 
       ports:
         - "4400:4400"
@@ -149,7 +149,7 @@
 
     client:
        container_name: client
-       image: gsmainclusivetechlab/token:client-v1.5.0
+       image: gsmainclusivetechlab/token:client-v1.5.1
        ports:
          - "8080:80"
        networks:
