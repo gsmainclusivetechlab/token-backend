@@ -1,4 +1,4 @@
-name: Publish sms gateway
+name: SMS gateway
 env:
   CI: true
   BASE_TAG: gsmainclusivetechlab/token:sms-gateway-v

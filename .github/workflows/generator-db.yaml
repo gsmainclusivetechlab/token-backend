@@ -1,4 +1,4 @@
-name: Publish token database
+name: Token database
 env:
   CI: true
   BASE_TAG: gsmainclusivetechlab/token:generator-db-v

@@ -1,11 +1,11 @@
-name: Publish ussd gateway
+name: USSD gateway
 env:
   CI: true
   BASE_TAG: gsmainclusivetechlab/token:ussd-gateway-v
 on: [push]
 jobs:
   release:
-    name: Setup
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"
