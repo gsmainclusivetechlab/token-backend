@@ -1,11 +1,11 @@
-name: Mmo
+name: MMO
 env:
   CI: true
   BASE_TAG: gsmainclusivetechlab/token:mmo-v
 on: [push]
 jobs:
   release:
-    name: Build Mmo
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"

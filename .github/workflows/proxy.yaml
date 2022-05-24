@@ -1,11 +1,11 @@
-name: Publish proxy
+name: Proxy
 env:
   CI: true
   BASE_TAG: gsmainclusivetechlab/token:proxy-v
 on: [push]
 jobs:
   release:
-    name: Setup
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"

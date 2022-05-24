@@ -1,11 +1,11 @@
-name: Publish sms gateway
+name: SMS gateway
 env:
   CI: true
   BASE_TAG: gsmainclusivetechlab/token:sms-gateway-v
 on: [push]
 jobs:
   release:
-    name: Setup
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"

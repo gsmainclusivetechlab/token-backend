@@ -1,11 +1,11 @@
-name: Publish token database
+name: Token database
 env:
   CI: true
   BASE_TAG: gsmainclusivetechlab/token:generator-db-v
 on: [push]
 jobs:
   release:
-    name: Setup
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"
