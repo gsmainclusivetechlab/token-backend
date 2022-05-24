@@ -1,43 +1,40 @@
-# token-backend - how to run dev environment
+# Token Backend
 
-IF HOW WANT TO SEE THE DEMO VERSION, PLEASE CHANGE TO RELEASE BRANCH
+This is the backend code of the Token Project, developed in NodeJS.
 
 
-First, build the containers
+## Build
 
+### building docker images
 ```
 docker-compose build
 ```
 
-Then, run the containers
-
+### running the backend
 ```
 docker-compose up -d
 ```
 
-To teardown everything, run the next command
-
+### removing everything
+This will stop the backend and remove all the docker images
 ```
 docker-compose down --rmi all -v
 ```
 
-# .env File
+### .env file
 
-If you want to use Live mode with Twilio, you will need to fill the properties on the .env file (TWILIO_SID, TWILIO_TOKEN and TWILIO_MESSAGE_SID) with your Twilio credentials and config the receive webhook (A MESSAGE COMES IN option on Messaging section) for the path '{url}:4100/hooks/twilio'
+If you want to use the Live mode with Twilio, you will have to fill the variables `TWILIO_SID`, `TWILIO_TOKEN` and `TWILIO_MESSAGE_SID` in the `.env` file with the values of your credentials on your Twilio account.
+You also have to configure the `receive webhook` with the path `{url}:4100/hooks/twilio` in your Twilio account, under the `Messaging` section within the option `A MESSAGE COMES IN`. 
 
-# token-frontend - how to run dev environment
+## Documentation - OpenAPI
 
-In this case, the developer need to access the token-frontend repository (https://github.com/gsmainclusivetechlab/token-frontend) and go to main branch to clone the repository, then follow the next steps presents on README.md
-
-# Documentation - OpenAPI
-
-You can see the documentation of each api in the following urls after starting the code locally
+You can see the documentation of each API accessing the following URLs after starting the code locally:
 
 ```
-localhost:4000/docs - Proxy
-localhost:4100/docs - SMS Gateway
-localhost:4200/docs - USSD Gateway
-localhost:4300/docs - MMO
-localhost:4400/docs - Engine
-localhost:3700/docs - Token Solution
+http://localhost:4000/docs - Proxy
+http://localhost:4100/docs - SMS Gateway
+http://localhost:4200/docs - USSD Gateway
+http://localhost:4300/docs - MMO
+http://localhost:4400/docs - Engine
+http://localhost:3700/docs - Token Solution
 ```
