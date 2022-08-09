@@ -1,0 +1,31 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/engine/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/mmo/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/proxy/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/sms-gateway/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/ussd-gateway/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/token/"
+    schedule:
+      interval: "daily"
