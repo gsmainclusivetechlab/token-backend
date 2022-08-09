@@ -35,7 +35,7 @@
     "body-parser": "^1.19.1",
     "jest": "^27.4.5",
     "nodemon": "^2.0.15",
-    "openapi-types": "^10.0.0",
+    "openapi-types": "^12.0.0",
     "supertest": "^6.1.6",
     "swagger-ui-express": "^4.3.0",
     "ts-jest": "^27.1.2",
