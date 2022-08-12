@@ -2,6 +2,10 @@
 
 This is the backend code of the Token Project, developed in NodeJS.
 
+Requirements:
+
+  - Docker Compose Version: +1.29
+  - Docker Version: +17.06
 
 ## Build
 
